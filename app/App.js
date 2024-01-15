@@ -18,7 +18,7 @@ function CustomHeaderTitle({ title, imagePath }) {
         source={imagePath}
         style={{ width: 75, height: 75, marginRight: 8 }} // Increased size
       />
-      <Text style={{ fontWeight: "bold", fontSize: 30 }}>{title}</Text>{" "}
+      <Text style={{ fontWeight: "bold", fontSize: 30 }}>{title}</Text>
     </View>
   );
 }
