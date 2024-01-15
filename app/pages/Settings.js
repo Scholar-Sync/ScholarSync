@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Switch, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
 const SettingsScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   return (
+    <ScrollView contentContainerStyle={styles.container}>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Settings</Text>
@@ -56,6 +57,7 @@ const SettingsScreen = () => {
           <Text style={styles.footerText}>Logging out will bring you back to the Login page</Text>
           </View>
           </View>
+          </ScrollView>
           );
           };
           
