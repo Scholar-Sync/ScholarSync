@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon component
 
 // Sample data for the list of bookmarks
