@@ -11,7 +11,6 @@
   "dependencies": {
     "@expo/spawn-async": "^1.7.2",
     "@expo/webpack-config": "^19.0.0",
-<<<<<<< HEAD
     "@react-native-firebase/app": "^18.8.0",
     "@react-native-firebase/auth": "^18.8.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
@@ -19,20 +18,11 @@
     "@react-navigation/stack": "^6.3.20",
     "@types/react": "~18.2.14",
     "d3-shape": "^3.2.0",
-=======
-    "@react-native-async-storage/async-storage": "^1.21.0",
-    "@react-navigation/bottom-tabs": "^6.5.11",
-    "@react-navigation/native": "^6.1.9",
-    "@react-navigation/stack": "^6.3.20",
-    "@shopify/react-native-skia": "^0.1.237",
->>>>>>> a0353ce6ea1ca15e8c9d0b5fb303e4cbcc4bbf27
     "expo": "~49.0.15",
     "expo-status-bar": "~1.6.0",
-    "firebase": "^10.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.72.6",
-    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-pager-view": "6.2.0",
     "react-native-particles": "^0.0.8",
@@ -44,15 +34,10 @@
     "react-native-svg": "^14.1.0",
     "react-native-swiper": "^1.6.0",
     "react-native-tab-view": "^3.5.2",
-<<<<<<< HEAD
     "react-native-vector-icons": "^10.0.3",
     "react-native-web": "~0.19.6",
     "rn-wave-bottom-bar": "^2.2.36",
     "typescript": "^5.1.3"
-=======
-    "react-native-web": "~0.19.6",
-    "react-tsparticles": "^2.12.2"
->>>>>>> a0353ce6ea1ca15e8c9d0b5fb303e4cbcc4bbf27
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

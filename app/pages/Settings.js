@@ -12,10 +12,8 @@ import {
  KeyboardAvoidingView,
  Platform
 } from "react-native";
-import {logout } from "../utils/auth";
 
 
-<<<<<<< HEAD
 const SettingsScreen = () => {
  const [isDarkMode, setIsDarkMode] = useState(false);
  const [bugReportText, setBugReportText] = useState('');
@@ -126,67 +124,9 @@ const SettingsScreen = () => {
      </TouchableOpacity>
    </ImageBackground>
  );
-=======
-  return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
-        </View>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Change Username: EthanScholar1</Text>
-        </View>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Gmail: ************</Text>
-        </View>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Password: ********</Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={styles.verifyText}>VERIFY EMAIL?</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.switchContainer}>
-          <Text style={styles.settingText}>Dark Mode/Light Mode</Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch}
-            value={isEnabled}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.settingText}>Report Bug:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Type here..."
-            // Implement functionality as needed
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.settingText}>Report Problem:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Type here..."
-            // Implement functionality as needed
-          />
-        </View>
-        <TouchableOpacity style={styles.logoutButton} onPress={() => {}}>
-          <Text style={styles.logoutText} onPress={() => logout()}>Logout</Text>
-        </TouchableOpacity>
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Logging out will bring you back to the Login page
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
-  );
->>>>>>> a0353ce6ea1ca15e8c9d0b5fb303e4cbcc4bbf27
 };
 
 
-<<<<<<< HEAD
 const styles = StyleSheet.create({
  backgroundImage: {
    flex: 1, // This ensures that the background image will cover the entire screen
@@ -355,46 +295,3 @@ export default SettingsScreen;
 
 
 
-=======
-  verifyText: {
-    color: "blue",
-    textDecorationLine: "underline",
-  },
-  inputContainer: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginTop: 8,
-    borderRadius: 5,
-    padding: 10,
-  },
-  logoutButton: {
-    alignItems: "center",
-    padding: 20,
-
-  },
-  logoutText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "red",
-
-  },
-  footer: {
-    alignItems: "center",
-    padding: 20,
-    margin: 10,
-  },
-  footerText: {
-    fontSize: 16,
-    color: "gray",
-    margin: 'center'
-  },
-});
-
-export default SettingsScreen;
->>>>>>> a0353ce6ea1ca15e8c9d0b5fb303e4cbcc4bbf27
