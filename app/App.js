@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Text, Image, StyleSheet } from "react-native";
@@ -23,11 +23,6 @@ import ProfileIcon from "./assets/profileicon.png";
 
 import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
-
-
-
-
-
 
 const Tab = createBottomTabNavigator();
 
@@ -55,7 +50,7 @@ export default function App() {
   const [userLoggedIn, setUserLoggedIn] = useState(null);
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {
-   console.log("user", user?.uid);
+    console.log("user", user?.uid);
     setUserLoggedIn(user);
     if (initializing) {
       setInitializing(false);
@@ -85,41 +80,42 @@ export default function App() {
             switch (route.name) {
               case "Home":
                 iconName = HomeIcon;
-                iconSize = { width: 25, height: 25 }; // Custom size for Home icon
+                iconSize = { width: 20, height: 20 }; // Custom size for Home icon
                 break;
               case "Bookmarks":
                 iconName = BookmarksIcon;
-                iconSize = { width: 17, height: 25 }; // Custom size for Bookmarks icon
+                iconSize = { width: 14, height: 22 }; // Custom size for Bookmarks icon
                 break;
               case "Showcase":
                 iconName = ShowcaseIcon;
-                iconSize = { width: 30, height: 30 };
+                iconSize = { width: 22, height: 22 };
                 break;
               case "Settings":
                 iconName = SettingsIcon;
-                iconSize = { width: 25, height: 25 };
+                iconSize = { width: 20, height: 20 };
                 break;
               case "Profile":
                 iconName = ProfileIcon;
-                iconSize = { width: 27, height: 25 }; // Custom size for Profile icon
+                iconSize = { width: 22, height: 20 }; // Custom size for Profile icon
                 break;
             }
             // Return the icon with the specified size
-            return <Image source={iconName} resizeMode="contain" style={iconSize} />;
+            return (
+              <Image source={iconName} resizeMode="contain" style={iconSize} />
+            );
           },
           tabBarActiveTintColor: "tomato",
           tabBarInactiveTintColor: "black",
           tabBarStyle: {
             height: 65, // Increased height
-            backgroundColor: "#F7B500",
+            backgroundColor: "white",
             borderTopStartRadius: 20,
             borderTopEndRadius: 20,
-
           },
           tabBarLabelStyle: {
             fontSize: 12, // Adjust label font size as needed
             marginBottom: 0,
-            fontWidth: "bold"
+            fontWidth: "bold",
           },
           tabBarIconStyle: {
             flexGrow: 1,
@@ -127,109 +123,109 @@ export default function App() {
           },
         })}
       >
-        {
-          userLoggedIn ? (
-            <>
-              <Tab.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Home"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
-              <Tab.Screen
-                name="Bookmarks"
-                component={BookmarksScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Bookmarks"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
-              <Tab.Screen
-                name="Showcase"
-                component={ShowcaseScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Showcase"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
-              <Tab.Screen
-                name="Settings"
-                component={SettingsScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Settings"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
-              <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Profile"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
-            </>
-          ) :
-            <>
-              <Tab.Screen
-                name="Welcomer"
-                component={WelcomeScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Welcome"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-              <Tab.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Login"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-              <Tab.Screen
-                name="Register"
-                component={RegisterScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Register"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-            </>
-
-        }
-
+        {userLoggedIn ? (
+          <>
+            <Tab.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Home"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Bookmarks"
+              component={BookmarksScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Bookmarks"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Showcase"
+              component={ShowcaseScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Showcase"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Settings"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Profile"
+              component={ProfileScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Profile"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Tab.Screen
+              name="Welcomer"
+              component={WelcomeScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Welcome"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Login"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{
+                headerTitle: () => (
+                  <CustomHeaderTitle
+                    title="Register"
+                    imagePath={require("./assets/scholar.png")}
+                  />
+                ),
+              }}
+            />
+          </>
+        )}
       </Tab.Navigator>
     </NavigationContainer>
   );
