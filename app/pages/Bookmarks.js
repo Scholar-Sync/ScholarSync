@@ -1,64 +1,70 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon component
+import React, { useState } from 'react';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import RossMike from './RossMike'; // Import RossMike component
 
-// Sample data for the list of bookmarks
-const bookmarksData = [
-  { id: '1', name: 'Ross Mike', grade: '9th grade', school: 'Antilles High School' },
-  { id: '2', name: 'Dana Rosanski', grade: '9th grade', school: 'Washington High School' },
-  // Add other bookmarks here
-  { id: '3', name: 'Elena Lasella', grade: '12th grade', school: 'Harvard Westlake High School' },
-  { id: '4', name: 'Garret Smith', grade: '11th grade', school: 'Kingston High School' },
-  { id: '5', name: 'Luke Oakwood', grade: '9th grade', school: 'American International School' },
-];
+const BookmarksPage = () => {
+  const [currentScreen, setCurrentScreen] = useState('bookmarks');
 
-const BookmarksScreen = () => {
-  // Render
+  const handlePress = () => {
+    // This will change the state to 'rossMike' which will render the RossMike component
+    setCurrentScreen('rossMike');
+  };
 
+  if (currentScreen === 'rossMike') {
+    return <RossMike />; // Render RossMike component when currentScreen is 'rossMike'
+  }
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.itemContainer}>
-      <Icon name="bookmark" size={24} color="#FFD700" style={styles.bookmarkIcon} />
-      <View style={styles.textContainer}></View>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.details}>{item.grade}</Text>
-      <Text style={styles.details}>{item.school}</Text>
-    </TouchableOpacity>
-  );
-
+  // Otherwise, render the Bookmarks page
   return (
     <View style={styles.container}>
-      <FlatList
-        data={bookmarksData}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        // If you have a header or a footer, make sure they are not pushing the list off the screen
-        // ListHeaderComponent={<YourHeaderComponent />}
-        // ListFooterComponent={<YourFooterComponent />}
+      <Image
+        source={require('../assets/Bookmarks.png')}
+        style={styles.bookmarksImage}
       />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handlePress}
+        activeOpacity={0.7}
+      >
+        <Image
+          source={require('../assets/orangebookmark.png')}
+          style={styles.buttonImage}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // This ensures that the container takes up all available space
-    backgroundColor: '#fff', // Replace with the actual background color of the app
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#FFF', // Set your desired background color
   },
-  itemContainer: {
-    flexDirection: 'row', // Align icon and text horizontally
-    alignItems: 'center', // Center items vertically in the container
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  bookmarksImage: {
+    width: '100%', // Set the width as per your requirement
+    height: 50, // Set the height as per your requirement
+    resizeMode: 'contain',
   },
-  bookmarkIcon: {
-    marginRight: 10, // Add some spacing between the icon and the text
+  button: {
+    marginTop: 20, // Adjust the margin as per your layout
+    width: '90%', // Set the width as per your requirement
+    height: 100, // Set the height as per your requirement
+    backgroundColor: '#FFF', // Set your desired button color
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10, // Adjust border radius to match your design
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset for iOS
+    shadowOpacity: 0.2, // Shadow opacity for iOS
+    shadowRadius: 2, // Shadow spread radius for iOS
+    elevation: 5, // Elevation for Android
   },
-  textContainer: {
-    flex: 1, // Take up remaining space
+  buttonImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
-  // Other styles...
 });
-  
-  export default BookmarksScreen;
+
+export default BookmarksPage;
