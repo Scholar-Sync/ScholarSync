@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Text, Image, StyleSheet } from "react-native";
@@ -9,25 +9,12 @@ import ShowcaseScreen from "./pages/Showcase";
 import BookmarksScreen from "./pages/Bookmarks";
 import ProfileScreen from "./pages/Profile";
 
-// Auth pages
-import WelcomeScreen from "./pages/Welcome";
-import LoginScreen from "./pages/Login";
-import RegisterScreen from "./pages/Register";
-
 // Import icons
 import HomeIcon from "./assets/homeicon.png";
 import BookmarksIcon from "./assets/bookmarkicon.png";
 import ShowcaseIcon from "./assets/showcaseicon.png";
 import SettingsIcon from "./assets/settingsicon.png";
 import ProfileIcon from "./assets/profileicon.png";
-
-import { onAuthStateChanged } from "firebase/auth";
-import { app, auth } from "./firebase/config";
-
-
-
-
-
 
 const Tab = createBottomTabNavigator();
 
@@ -51,29 +38,6 @@ function CustomHeaderTitle({ title, imagePath }) {
 }
 
 export default function App() {
-  const [initializing, setInitializing] = useState(true);
-  const [userLoggedIn, setUserLoggedIn] = useState(null);
-  // Handle user state changes
-  const onAuthStateChangedHandler = (user) => {
-   console.log("user", user?.uid);
-    setUserLoggedIn(user);
-    if (initializing) {
-      setInitializing(false);
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
-    return unsubscribe;
-  }, []);
-
-  if (initializing) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -127,109 +91,67 @@ export default function App() {
           },
         })}
       >
-        {
-          userLoggedIn ? (
-            <>
-              <Tab.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Home"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
+       
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            headerTitle: () => (
+              <CustomHeaderTitle
+                title="Home"
+                imagePath={require("./assets/scholar.png")}
               />
-              <Tab.Screen
-                name="Bookmarks"
-                component={BookmarksScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Bookmarks"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Bookmarks"
+          component={BookmarksScreen}
+          options={{
+            headerTitle: () => (
+              <CustomHeaderTitle
+                title="Bookmarks"
+                imagePath={require("./assets/scholar.png")}
               />
-              <Tab.Screen
-                name="Showcase"
-                component={ShowcaseScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Showcase"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Showcase"
+          component={ShowcaseScreen}
+          options={{
+            headerTitle: () => (
+              <CustomHeaderTitle
+                title="Showcase"
+                imagePath={require("./assets/scholar.png")}
               />
-              <Tab.Screen
-                name="Settings"
-                component={SettingsScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Settings"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            headerTitle: () => (
+              <CustomHeaderTitle
+                title="Settings"
+                imagePath={require("./assets/scholar.png")}
               />
-              <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Profile"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            headerTitle: () => (
+              <CustomHeaderTitle
+                title="Profile"
+                imagePath={require("./assets/scholar.png")}
               />
-            </>
-          ) :
-            <>
-              <Tab.Screen
-                name="Welcomer"
-                component={WelcomeScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Welcome"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-              <Tab.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Login"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-              <Tab.Screen
-                name="Register"
-                component={RegisterScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Register"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }} />
-            </>
-
-        }
-
+            ),
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

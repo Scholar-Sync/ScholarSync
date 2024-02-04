@@ -9,14 +9,13 @@ import {
   ScrollView,
   ImageBackground,
 } from "react-native";
-import {logout } from "../utils/auth";
 
 const SettingsScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Settings</Text>
@@ -60,7 +59,7 @@ const SettingsScreen = () => {
           />
         </View>
         <TouchableOpacity style={styles.logoutButton} onPress={() => {}}>
-          <Text style={styles.logoutText} onPress={() => logout()}>Logout</Text>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
         <View style={styles.footer}>
           <Text style={styles.footerText}>
@@ -123,23 +122,19 @@ const styles = StyleSheet.create({
   logoutButton: {
     alignItems: "center",
     padding: 20,
-
   },
   logoutText: {
     fontSize: 18,
     fontWeight: "bold",
     color: "red",
-
   },
   footer: {
     alignItems: "center",
     padding: 20,
-    margin: 10,
   },
   footerText: {
     fontSize: 16,
     color: "gray",
-    margin: 'center'
   },
 });
 
