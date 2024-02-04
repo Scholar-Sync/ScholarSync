@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation }) => {
       name: "Riley Wenk",
       role: "Developer/Designer",
       image: require("../assets/PFP.png"),
-      details: "Riley Wenk, a dynamic sophomore born in Chesapeake, Virginia. Currently attending Antilles High School, Riley's fascination with software development began at a young age, shaping a path towards a future as an engineer. With a keen interest in crafting solutions, Riley envisions an app designed to empower ambitious students like themselves to soar to new heights.",
+      details: "Detail information about Riley Wenk.",
     },
     {
       name: "Ayla Mahns",
@@ -245,14 +245,16 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "contain",
     shadowColor: "#F7B500", // Same color as the border
-    shadowOpacity: 0.3, // Adjust as needed
+    shadowOpacity: .3, // Adjust as needed
     shadowRadius: 10, // Adjust for the spread of the shadow
     shadowOffset: { width: 0, height: 4 }, // Adjust as needed
+    elevation: 6, // For Android, adjust as needed
     borderColor: "#F7B500",
     borderWidth: 15,
     borderTopWidth: 10,
     borderRadius: 10,
     marginBottom: -50,
+    
   },
   headingContainer: {
     borderRadius: 10,
