@@ -77,9 +77,7 @@ const BookmarksScreen = () => {
       setFilteredData(bookmarksData);
     } else {
       const filtered = bookmarksData.filter((item) =>
-        `${item.name} ${item.grade} ${item.school}`
-          .toLowerCase()
-          .includes(text.toLowerCase())
+        `${item.name} ${item.grade} ${item.school}`.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredData(filtered);
     }
