@@ -3,29 +3,75 @@ import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { StyleSheet } from 'react-native';
 import { signup } from "../utils/auth";
+import { db } from "../firebase/config";
+import { doc, setDoc, getDocs, collection } from "firebase/firestore";
+import { ImageBackground } from "react-native-web";
+
 // import ( saveUserData } from "../coongi/firebaseDatabase";
 
+const DEFAULT_USER_DATA = {
+    basic: {
+        username: "",
+        email: "",
+        description: "",
+    },
+    academics: {
+        gpa: "",
+        psat: -1,
+        sat: -1,
+        act: -1,
+        classRank: -1,
+        apCourses: [],
+        others: [],
+    },
+    extracurriculars: {
+        clubs: [],
+        sports: [],
+        volunteering: [],
+    },
+    honors: {
+        awards: [],
+        scholarships: [],
+        certifications: [],
+    }
+
+}
+
+
+
 export default function RegistrationScreen({ navigation }) {
-    const [fullName, setFullName] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [username, setUsername] = useState("");
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
 
     // Handle navigation to login screen
     const goToLoginScreen = () => {
         navigation.navigate("LoginScreen");
     };
 
-    const handleSignup = async (email, password, firstname, lastname) => {
+
+    const createNewUserInDatabase = async (uid, firstName, email) => {
+        const userDBRef = collection(db, "users");
+        var newUser = DEFAULT_USER_DATA;
+        newUser.basic.firstName = firstName;
+        newUser.basic.email = email;
+        newUser.basic.username = username;
+        await setDoc(doc(userDBRef, uid), newUser);
+    }
+
+
+    const handleSignup = async (password, firstName, email) => {
         try {
             const user = await signup(email, password);
             if (user) {
-                // const id = user.uid;
-                // await saveUserData(id, firstname, lastname);
+                const id = user.uid;
+                await createNewUserInDatabase(id, firstName, email);
                 goToLoginScreen();
             }
         } catch (error) {
-            console.log(error, email, password, firstname, lastname)
+            console.log("Error signing up: ", error.code, error.message)
             if (error.code = a = "auth/email-already-in-use") {
                 alert("Email already in use. Please choose a different email.");
             } else if (error.code === "auth/weak-password") {
@@ -41,16 +87,30 @@ export default function RegistrationScreen({ navigation }) {
                 style={{ flex: 1, width: "100%" }}
                 keyboardShouldPersistTaps="always"
             >
+                <ImageBackground
+            source={require("../assets/background.png")}
+            style={styles.background}
+          >
                 <Image
                     style={styles.logo}
                     source={require("../assets/pfp.jpg")} />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Full Name"
+                    placeholder="First Name"
                     placeholderTextColor="#aaaaaa"
-                    onChangeText={(text) => setFullName(text)}
-                    value={fullName}
+                    onChangeText={(text) => setFirstName(text)}
+                    value={firstName}
+                    underlineColorAndroid="transparent"
+                    autoCapitalize="none"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholderTextColor="#aaaaaa"
+
+                    placeholder="Username"
+                    onChangeText={(text) => setUsername(text)}
+                    value={username}
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
                 />
@@ -73,19 +133,10 @@ export default function RegistrationScreen({ navigation }) {
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#aaaaaa"
-                    secureTextEntry
-                    placeholder="Confirm Password"
-                    onChangeText={(text) => setConfirmPassword(text)}
-                    value={confirmPassword}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
+
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => handleSignup(email, password, fullName, confirmPassword)}
+                    onPress={() => handleSignup(password, firstName, email)}
                 >
                     <Text style={styles.buttonTitle}>Create account</Text>
                 </TouchableOpacity>
@@ -97,6 +148,7 @@ export default function RegistrationScreen({ navigation }) {
                         </Text>
                     </Text>
                 </View>
+            </ImageBackground>
             </KeyboardAwareScrollView>
         </View>
     );
@@ -121,24 +173,29 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 48,
-        borderRadius: 5,
-        overflow: 'hidden',
-        backgroundColor: 'white',
-        marginTop: 10,
-        marginBottom: 10,
-        marginLeft: 30,
-        marginRight: 30,
-        paddingLeft: 16
+    borderRadius: 5,
+    overflow: "hidden",
+    backgroundColor: "white",
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 30,
+    marginRight: 30,
+    paddingLeft: 16,
     },
     button: {
-        backgroundColor: '#fa5943',
-        marginLeft: 30,
-        marginRight: 30,
-        marginTop: 20,
-        height: 48,
-        borderRadius: 5,
-        alignItems: "center",
-        justifyContent: 'center'
+        backgroundColor: "#F7B500",
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    marginVertical: 20,
+    shadowColor: "#F7B500",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    marginRight: 75,
+    marginLeft: 75,
     },
     buttonTitle: {
         color: 'white',

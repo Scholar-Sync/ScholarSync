@@ -13,6 +13,7 @@ import {
  Platform
 } from "react-native";
 
+import {logout} from "../utils/auth";
 
 const SettingsScreen = () => {
  const [isDarkMode, setIsDarkMode] = useState(false);
@@ -27,6 +28,7 @@ const SettingsScreen = () => {
  const handleLogout = () => {
    // Implement your logout functionality here
    console.log("User logged out");
+   logout();
  };
 
 
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
  },
  usernameText: {
    fontSize: 16, // Adjust size as necessary
-   fontFamily: 'Lexend', // Make sure 'Lexend-Regular' is correctly linked in your project
+  //  fontFamily: 'Lexend', // Make sure 'Lexend-Regular' is correctly linked in your project
  },
  lockIcon: {
    width: 35, // Adjust the size to fit your layout
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
    height: 40, // Adjust height as needed
    paddingHorizontal: 10, // Padding for the text inside the text input
    marginTop: 10, // Space above the text input
-   fontFamily: 'Lexend', // Ensure this font is linked in your project if you're using it
+  //  fontFamily: 'Lexend', // Ensure this font is linked in your project if you're using it
  },
  reportText: {
    fontSize: 16,

@@ -16,7 +16,7 @@ import RegisterScreen from "./pages/Register";
 
 // Import icons
 import HomeIcon from "./assets/homeicon.png";
-import BookmarksIcon from "./assets/bookmarkicon.png";
+import BookmarksIcon from "./assets/Bookmarks.png";
 import ShowcaseIcon from "./assets/showcaseicon.png";
 import SettingsIcon from "./assets/settingsicon.png";
 import ProfileIcon from "./assets/profileicon.png";
@@ -47,11 +47,11 @@ function CustomHeaderTitle({ title, imagePath }) {
 
 export default function App() {
   const [initializing, setInitializing] = useState(true);
-  const [userLoggedIn, setUserLoggedIn] = useState(null);
+  const [userMetadata, setUserMetadata] = useState(null);
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {
     console.log("user", user?.uid);
-    setUserLoggedIn(user);
+    setUserMetadata(user);
     if (initializing) {
       setInitializing(false);
     }
@@ -115,7 +115,6 @@ export default function App() {
           tabBarLabelStyle: {
             fontSize: 12, // Adjust label font size as needed
             marginBottom: 0,
-            fontWidth: "bold",
           },
           tabBarIconStyle: {
             flexGrow: 1,
@@ -123,7 +122,7 @@ export default function App() {
           },
         })}
       >
-        {userLoggedIn ? (
+        {userMetadata ? (
           <>
             <Tab.Screen
               name="Home"
@@ -143,6 +142,7 @@ export default function App() {
               options={{
                 headerTitle: () => (
                   <CustomHeaderTitle
+
                     title="Bookmarks"
                     imagePath={require("./assets/scholar.png")}
                   />
@@ -175,7 +175,7 @@ export default function App() {
             />
             <Tab.Screen
               name="Profile"
-              component={ProfileScreen}
+              children={() => <ProfileScreen userMetadata = {userMetadata}/>}
               options={{
                 headerTitle: () => (
                   <CustomHeaderTitle

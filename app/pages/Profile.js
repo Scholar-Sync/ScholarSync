@@ -15,21 +15,34 @@ import {
   ImageBackground,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { doc, setDoc, getDoc, collection } from "firebase/firestore";
+import { db } from "../firebase/config";
 
-const EditableText = ({ label, initialText, multiline = true }) => {
+const EditableText = ({ label, initialText, category, updateUserData, multiline = true }) => {
+  if (!initialText) {
+    return <Text >loading</Text>
+  }
   const [text, setText] = useState(initialText.toString()); // Convert initialText to string
-  // ... rest of your EditableText component
   const [isEditable, setIsEditable] = useState(false);
   const inputRef = useRef(null);
 
-  const handleEditPress = () => {
-    setIsEditable(true);
-    inputRef.current && inputRef.current.focus();
-  };
+  
 
   const handleBlur = () => {
     setIsEditable(false);
   };
+
+
+  const handleEdit = () => {
+    if (isEditable) {
+      // update the database with the new value
+      updateUserData(label, category, text);
+    }
+
+    setIsEditable(!isEditable);
+    inputRef.current && inputRef.current.focus();
+  };
+  
 
   return (
     <View style={styles.inputContainer}>
@@ -44,37 +57,84 @@ const EditableText = ({ label, initialText, multiline = true }) => {
         textAlignVertical={multiline ? "top" : "center"}
         onBlur={handleBlur}
       />
-      {!isEditable && (
-        <TouchableOpacity style={styles.editButton} onPress={handleEditPress}>
-          <Text style={styles.editButtonText}>Edit</Text>
+     
+        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <Text style={styles.editButtonText} onPress={() => handleEdit()}>{isEditable ?  "Save": "Edit"} </Text>
         </TouchableOpacity>
-      )}
+ 
     </View>
   );
 };
 
-const Route = ({ data }) => {
+const Route = ({ data, category, updateUserData }) => {
   return (
     <ScrollView
       style={{ flex: 1 }} // Ensure ScrollView takes the full height
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.scrollViewContent}
     >
-      {data.map((item, index) => (
+      {Object.keys(data).map((key, index) => (
         <EditableText
           key={index}
-          label={item.label}
-          initialText={item.value}
-          multiline={item.multiline}
+          label={key}
+          category={category}
+          initialText={data[key]}
+          updateUserData={updateUserData}
+          multiline={false}
         />
       ))}
     </ScrollView>
   );
 };
-export default function TabViewExample() {
+export default function ProfileScreen({ userMetadata }) {
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [showTabs, setShowTabs] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  // Get data from the database as soon as the profile page is loaded.
+  React.useEffect(() => {
+    console.log("jjjjj1");
+    if (!userMetadata) {
+      console.log("jjjjj");
+      return;
+    }
+    console.log(userMetadata)
+    const uid = userMetadata?.uid
+    const docRef = doc(db, "users", uid);
+    getDoc(docRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        console.log("------Document data:", docSnap.data());
+        setUserData(docSnap.data());
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+        return {};
+      }
+
+    }
+    ).catch((error) => {
+      console.log("Error getting document:", error);
+    }
+    )
+  }, [userMetadata]);
+
+
+  // This gets the user id, field and value to update the database with the data saved in the "value" variable.
+  const updateUserData = async (field, category, value) => {
+    if (!userMetadata) {
+      return;
+    }
+    const uid = userMetadata?.uid;
+    const userDBRef = collection(db, "users");
+    var newUserData = userData;
+    newUserData[category][field.toLowerCase()] = value;
+    try {
+      await setDoc(doc(userDBRef, uid), newUserData);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
 
   const [routes] = useState([
     { key: "first", title: "Academics" },
@@ -87,43 +147,11 @@ export default function TabViewExample() {
     "Some details about you..."
   );
 
-  const essentialsData = [
-    { label: "Username", value: "your_username" },
-    { label: "Email", value: "your_email@example.com" },
-  ];
-
-  const academicsData = [
-    { label: "GPA:", value: "4.0" },
-    { label: "PSAT/SAT/ACT:", value: "PSAT: 1250\nSAT: 1490\nACT: 33" },
-    { label: "CLASS RANK:", value: "12/496" },
-    {
-      label: "AP COURSES/SCORES:",
-      value:
-        "AP Human Geography: 3\nAP World History: 2\nAP Calculus: 5\nAP Biology: 4\nAP Computer Science: 5\nAP Macro Economics: 5\nAP Seminar: 3\nAP US History: 4",
-      multiline: true,
-    },
-    {
-      label: "OTHERS:",
-      value: "Algorithms\nData Structures\nMachine Learning",
-    },
-  ];
-
-  const extracurricularsData = [
-    { label: "Clubs:", value: "Coding Club, Chess Club" },
-    { label: "Sports:", value: "Basketball, Swimming" },
-    { label: "Volunteering:", value: "Local Library, Animal Shelter" },
-  ];
-
-  const honorsData = [
-    { label: "Awards:", value: "Dean's List, Coding Competition Winner" },
-    { label: "Scholarships:", value: "Tech Future Scholarship" },
-    { label: "Certifications:", value: "AWS Certified Solutions Architect" },
-  ];
 
   const renderScene = SceneMap({
-    first: () => <Route data={academicsData} />,
-    second: () => <Route data={extracurricularsData} />,
-    third: () => <Route data={honorsData} />,
+    first: () => <Route data={userData?.academics} category={"academics"} updateUserData={updateUserData}/>,
+    second: () => <Route data={userData?.extracurriculars}  category={"extracurriculars"} updateUserData={updateUserData} />,
+    third: () => <Route data={userData?.honors} category={"honors"}  updateUserData={updateUserData}/>,
   });
 
   const DetailToggleButton = ({ onPress }) => (
@@ -149,23 +177,30 @@ export default function TabViewExample() {
             />
             <TextInput
               style={styles.profileName}
-              value={profileName}
+              value={userData?.basics?.firstName}
               onChangeText={setProfileName}
-              placeholder="Your Name"
+              placeholder={userData?.basic?.firstName}
               placeholderTextColor="#666"
             />
             <TextInput
+              style={styles.profileName}
+              value={userData?.basics?.email}
+              onChangeText={setProfileName}
+              placeholder={userData?.basic?.email}
+              placeholderTextColor="#666"
+            />
+            {/* <TextInput
               style={styles.profileDetails}
-              value={profileDetails}
+              value={userData?.description}
               onChangeText={setProfileDetails}
               placeholder="Some details about you..."
               placeholderTextColor="#666"
               multiline
-            />
-            <View style={styles.profileTextContainer}>
+            /> */}
+            {/* <View style={styles.profileTextContainer}>
               <TextInput
                 style={styles.profileTextInput}
-                value={profileName}
+                value={userData?.firstName}
                 onChangeText={setProfileName}
                 editable={true}
               />
@@ -176,21 +211,26 @@ export default function TabViewExample() {
                 editable={true}
                 multiline
               />
-            </View>
+            </View> */}
           </View>
 
-          {essentialsData.map((item, index) => (
             <EditableText
-              key={index}
-              label={item.label}
-              initialText={item.value}
+              label={"username"}
+              initialText={userData?.basic?.username}
+              updateUserData={updateUserData}
               multiline={false}
             />
-          ))}
+            <EditableText
+              label={"email"}
+              initialText={userData?.basic?.email}
+              updateUserData={updateUserData}
+              multiline={false}
+            />
+
           <DetailToggleButton onPress={() => setShowTabs(!showTabs)} />
 
           {/* Tabs Section */}
-          {showTabs && (
+          {showTabs && userData &&(
             <TabView
               navigationState={{ index, routes }}
               renderScene={renderScene}

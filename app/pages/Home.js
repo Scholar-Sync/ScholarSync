@@ -12,7 +12,11 @@ import {
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import Swiper from "react-native-swiper";
+import { doc, setDoc, getDocs, collection } from "firebase/firestore";
+import { db } from "../firebase/config";
+
 const HomeScreen = ({ navigation }) => {
+
   const [teamMembers] = useState([
     {
       name: "Roi Mahns",
@@ -41,6 +45,7 @@ const HomeScreen = ({ navigation }) => {
   const toggleMemberInfo = (memberIndex) => {
     setExpandedMember(expandedMember === memberIndex ? null : memberIndex);
   };
+ 
   return (
     <ImageBackground
       source={require("../assets/background.png")}
@@ -52,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
           showsButtons={false}
           loop
           autoplay
-          marginBottom = "10"
+          marginBottom="10"
           buttonColor="grey" // Color for the buttons
           dotColor="grey" // Color for the dots
           activeDotColor="black" // Color for the active dot
@@ -124,7 +129,7 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
         <View style={styles.section}>
-          <Text style={styles.subheading}>About Us</Text>
+          <Text style={styles.subheading} onPress={() => test()}>About Us</Text>
           {teamMembers.map((member, index) => (
             <View key={index}>
               <TouchableOpacity
@@ -159,7 +164,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
           )}
         </TouchableOpacity>
-        
+
         <View style={styles.divider} />
 
         {/* Testimonials Section */}
@@ -213,7 +218,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
           )}
         </TouchableOpacity>
-        
+
         <View style={styles.divider1} />
 
       </ScrollView>
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 10,
     borderRadius: 10,
     marginBottom: -50,
-    
+
   },
   headingContainer: {
     borderRadius: 10,
@@ -318,7 +323,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dropdownContent: {
-    
+
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",
@@ -421,7 +426,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginBottom: 100, // Spacing above and below the line
   },
- 
+
 });
 
 export default HomeScreen;
