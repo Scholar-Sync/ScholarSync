@@ -51,14 +51,14 @@ export default function LoginScreen({ navigation }) {
     }
   };
   return (
-    <View style={styles.container}>
-      <KeyboardAwareScrollView
-        style={{ flex: 1, width: "100%" }}
-        keyboardShouldPersistTaps="always"
-      >
-        <ImageBackground
-          source={require("../assets/background.png")}
-          style={styles.background}
+    <ImageBackground
+      source={require("../assets/background.png")}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        <KeyboardAwareScrollView
+          style={{ flex: 1, width: "100%" }}
+          keyboardShouldPersistTaps="always"
         >
           <Image
             style={styles.logo}
@@ -91,33 +91,35 @@ export default function LoginScreen({ navigation }) {
           </TouchableOpacity>
           <View style={styles.footerView}>
             <Text style={styles.footerText}>
-              Don't have an account?{" "}
-              <Text onPress={onFooterLinkPress} style={styles.footerLink}>
-                Sign up
+              {" "}
+              <Text
+                onPress={() => navigation.navigate("Welcome")}
+                style={styles.footerLink}
+              >
+                Go Back
               </Text>
             </Text>
           </View>
-        </ImageBackground>
-      </KeyboardAwareScrollView>
-    </View>
+        </KeyboardAwareScrollView>
+      </View>
+    </ImageBackground>
   );
 }
 
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: '100%', // Ensure container fills the width
-        height: '100%', // Ensure container fills the height
-    },
-    background: {
-        flex: 1,
-        width: '100%', // Ensure background image fills the width
-        height: '100%', // Ensure background image fills the height
-        resizeMode: 'cover', // This will cover the entire screen area
-    },
-  
+  container: {
+    flex: 1,
+    width: "100%", // Ensure container fills the width
+    height: "100%", // Ensure container fills the height
+  },
+  background: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   title: {},
   logo: {
     flex: 1,
@@ -125,8 +127,7 @@ const styles = StyleSheet.create({
     width: 200,
     alignSelf: "center",
   },
-  
-  
+
   input: {
     height: 48,
     borderRadius: 5,
@@ -161,7 +162,6 @@ const styles = StyleSheet.create({
   footerView: {
     flex: 1,
     alignItems: "center",
-    marginTop: 20,
   },
   footerText: {
     fontSize: 16,

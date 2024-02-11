@@ -16,7 +16,7 @@ import RegisterScreen from "./pages/Register";
 
 // Import icons
 import HomeIcon from "./assets/homeicon.png";
-import BookmarksIcon from "./assets/Bookmarks.png";
+import BookmarksIcon from "./assets/bookmarkicon.png";
 import ShowcaseIcon from "./assets/showcaseicon.png";
 import SettingsIcon from "./assets/settingsicon.png";
 import ProfileIcon from "./assets/profileicon.png";
@@ -108,7 +108,7 @@ export default function App() {
           tabBarInactiveTintColor: "black",
           tabBarStyle: {
             height: 65, // Increased height
-            backgroundColor: "white",
+            backgroundColor: "#F7B50",
             borderTopStartRadius: 20,
             borderTopEndRadius: 20,
           },
@@ -142,7 +142,6 @@ export default function App() {
               options={{
                 headerTitle: () => (
                   <CustomHeaderTitle
-
                     title="Bookmarks"
                     imagePath={require("./assets/scholar.png")}
                   />
@@ -175,7 +174,7 @@ export default function App() {
             />
             <Tab.Screen
               name="Profile"
-              children={() => <ProfileScreen userMetadata = {userMetadata}/>}
+              children={() => <ProfileScreen userMetadata={userMetadata} />}
               options={{
                 headerTitle: () => (
                   <CustomHeaderTitle
@@ -189,7 +188,7 @@ export default function App() {
         ) : (
           <>
             <Tab.Screen
-              name="Welcomer"
+              name="Welcome"
               component={WelcomeScreen}
               options={{
                 headerTitle: () => (

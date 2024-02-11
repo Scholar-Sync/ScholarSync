@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
 // Sample data for the list of bookmarks
+
 const bookmarksData = [
   {
     id: "1",
@@ -46,6 +47,7 @@ const bookmarksData = [
 const BookmarksScreen = () => {
   const [query, setQuery] = useState("");
   const [filteredData, setFilteredData] = useState(bookmarksData);
+  const navigation = useNavigation();
 
   const handleSearch = (text) => {
     setQuery(text);
@@ -61,8 +63,15 @@ const BookmarksScreen = () => {
     }
   };
 
+  const navigateToBookmarkDetail = (bookmark) => {
+    navigation.navigate("BookmarkDetail", { bookmark });
+  };
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.itemContainer}>
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => navigateToBookmarkDetail(item)}
+    >
       <Icon name="school" size={30} color="#F7B500" style={styles.icon} />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.name}</Text>
@@ -83,8 +92,6 @@ const BookmarksScreen = () => {
         value={query}
         onChangeText={handleSearch}
       />
-      <View style={styles.divider} />
-
       <FlatList
         data={filteredData}
         renderItem={renderItem}
@@ -137,15 +144,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     marginTop: 20,
-  },
-  divider: {
-    height: 5, // or 2 for a thicker line
-    width: "89%",
-    marginLeft: 20,
-    marginBottom: 20,
-    marginRight: 20,
-    backgroundColor: "#FFD700", // You can choose any color
-    marginVertical: 5, // Spacing above and below the line
   },
   // Add additional styles if needed
 });
