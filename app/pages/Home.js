@@ -253,7 +253,6 @@ const styles = StyleSheet.create({
     shadowOpacity: .3, // Adjust as needed
     shadowRadius: 10, // Adjust for the spread of the shadow
     shadowOffset: { width: 0, height: 4 }, // Adjust as needed
-    elevation: 6, // For Android, adjust as needed
     borderColor: "#F7B500",
     borderWidth: 15,
     borderTopWidth: 10,

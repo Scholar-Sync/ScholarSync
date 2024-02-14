@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  ImageBackground
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -84,7 +85,12 @@ const BookmarksScreen = () => {
   );
 
   return (
+    
     <View style={styles.container}>
+      <ImageBackground
+      source={require("../assets/background.png")}
+      style={styles.background}
+    >
       {/* Search bar at the top */}
       <TextInput
         placeholder="Search/Filter"
@@ -92,13 +98,17 @@ const BookmarksScreen = () => {
         value={query}
         onChangeText={handleSearch}
       />
+            <View style={styles.divider} />
+
       <FlatList
         data={filteredData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         extraData={filteredData}
       />
+      </ImageBackground>
     </View>
+    
   );
 };
 
@@ -106,6 +116,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+    
   },
   itemContainer: {
     flexDirection: "row",
@@ -117,6 +128,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     borderRadius: 10,
     marginHorizontal: 20,
+    
   },
   icon: {
     marginRight: 15,
@@ -145,7 +157,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 20,
   },
-  // Add additional styles if needed
+  divider: {
+    height: 5, // or 2 for a thicker line
+    width: '89%',
+    marginLeft: 20, 
+    marginBottom: 20,
+    marginRight: 20,
+    backgroundColor: '#FFD700', // You can choose any color
+    marginVertical: 5, // Spacing above and below the line
+  },
+  // ... other styles you might need ...
+  
 });
 
 export default BookmarksScreen;

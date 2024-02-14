@@ -44,13 +44,15 @@ const styles = StyleSheet.create({
     resizeMode: 'cover', // or 'stretch'
   },
   searchBar: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 10,
+    margin: 10,
     padding: 10,
-    margin: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    fontSize: 16,
+    marginBottom: 20,
+    marginTop: 20,
   },
   scrollView: {
     flex: 1,
@@ -60,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 70, // Adjusted from 70 to 20 for a more typical padding
-    marginBottom: 20,
+    marginBottom: 5,
     // Shadow styles
     shadowColor: '#000',
     shadowOffset: {
