@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
  View,
  Text,
@@ -10,16 +10,34 @@ import {
  TouchableOpacity,
  Keyboard,
  KeyboardAvoidingView,
- Platform
+ Platform,
+ Animated,
+ ScrollView
 } from "react-native";
-
+import { useFocusEffect } from "@react-navigation/native";
 import {logout} from "../utils/auth";
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; // Import MaterialIcons
+
 
 const SettingsScreen = () => {
  const [isDarkMode, setIsDarkMode] = useState(false);
  const [bugReportText, setBugReportText] = useState('');
  const [problemReportText, setProblemReportText] = useState('');
+ const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
 
+ useFocusEffect(
+  useCallback(() => {
+    // Reset the animation state to 0
+    fadeAnim.setValue(0);
+
+    // Start the fade-in animation
+    Animated.timing(fadeAnim, {
+      toValue: 1, // Fade to full opacity
+      duration: 600, // Duration of the animation
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+  }, [fadeAnim]) // Add fadeAnim to the dependency array
+);
 
  const toggleSwitch = () => setIsDarkMode(previousState => !previousState);
 
@@ -39,54 +57,22 @@ const SettingsScreen = () => {
 
 
  return (
-   <ImageBackground
-     source={require("../assets/background.png")}
-     style={styles.backgroundImage}
-     resizeMode="cover"
-   >
-     <TouchableOpacity activeOpacity={1} onPress={dismissKeyboard} style={styles.container}>
-       <KeyboardAvoidingView
-         behavior={Platform.OS === "ios" ? "padding" : "height"}
-         style={{ flex: 1 }}
-       >
+  <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+    <ImageBackground
+      source={require("../assets/background.png")}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+    >
+      {/* Wrap the TouchableOpacity with ScrollView */}
+      <ScrollView>
+        <TouchableOpacity activeOpacity={1} onPress={dismissKeyboard} style={styles.container}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
          <View style={styles.card}>
-         {/* Profile section */}
-         <View style={styles.profileSection}>
-           <Image
-             source={require("../assets/profile_image.png")}
-             style={styles.profileImage}
-           />
-           <Text style={styles.usernameText}>Change Username: EthanScholar1</Text>
-         </View>
-         {/* Email section */}
-         <View style={styles.emailSection}>
-           <Image
-             source={require("../assets/letter.png")}
-             style={styles.emailIcon}
-           />
-           <Text style={styles.usernameText}>Email: ***************</Text>
-         </View>
-         {/* Password section */}
-         <View style={styles.passwordSection}>
-           <Image
-             source={require("../assets/lock.png")}
-             style={styles.lockIcon}
-           />
-           <Text style={styles.usernameText}>Password: ********</Text>
-         </View>
-         {/* Verify Email Link */}
-         <Text style={styles.verifyEmailText}>VERIFY EMAIL?</Text>
-         {/* Dark Mode / Light Mode section */}
-         <View style={styles.darkModeSection}>
-           <Text style={styles.darkModeText}>Dark Mode / Light Mode</Text>
-           <Switch
-             trackColor={{ false: "#767577", true: "#81b0ff" }}
-             thumbColor={isDarkMode ? "#f5dd4b" : "#f4f3f4"}
-             ios_backgroundColor="#3e3e3e"
-             onValueChange={toggleSwitch}
-             value={isDarkMode}
-           />
-         </View>
+         
+           
          {/* Report Bug section */}
          <Text style={styles.reportBugText}>Report Bug:</Text>
          <TextInput
@@ -107,14 +93,11 @@ const SettingsScreen = () => {
          />
            {/* Logout Section */}
            <View style={styles.logoutSection}>
-             <Image
-               source={require("../assets/door.png")} // Make sure you have the door.png in your assets directory
-               style={styles.doorIcon}
-             />
-             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-               <Text style={styles.logoutButtonText}>Logout</Text>
-             </TouchableOpacity>
-           </View>
+           <MaterialIcons name="exit-to-app" size={24} color="#000" style={styles.iconStyle} />
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
              {/* Logout Info Text */}
              <Text style={styles.logoutInfoText}>
              Logging out will bring you back to the Login page.
@@ -124,7 +107,9 @@ const SettingsScreen = () => {
          </View>
        </KeyboardAvoidingView>
      </TouchableOpacity>
+     </ScrollView>
    </ImageBackground>
+   </Animated.View>
  );
 };
 
@@ -149,8 +134,10 @@ const styles = StyleSheet.create({
    margin: 20,
    padding: 20,
    width: 340, // Specify the width of the card
-   height: 530, // Specify the height of the card, adjust as needed
-   marginTop: 12,
+   height: 340, // Specify the height of the card, adjust as needed
+   marginTop: 20,
+   
+
  },
  profileSection: {
    flexDirection: 'row',
@@ -255,26 +242,31 @@ const styles = StyleSheet.create({
    alignItems: 'center',
    justifyContent: 'center',
    marginTop: 20,
+   marginRight: 160,
  },
- doorIcon: {
-   width: 24,
-   height: 24,
-   marginRight: 12,
-   marginLeft: -180,
- },
+ iconStyle: {
+  // You can apply any style here
+  marginRight: 10,
+  marginLeft: -20,
+  color: 'tomato', // Set the color of the icon
+  // Add more styling as needed:
+  // padding, margin, backgroundColor, etc.
+},
  logoutButton: {
    // Apply styles for the button
    paddingVertical: 10,
    paddingHorizontal: 20,
-   backgroundColor: '#FFF',
+   backgroundColor: 'tomato',
    borderRadius: 20,
    shadowOffset: { width: 0, height: 1 },
    shadowOpacity: 0.2,
    shadowRadius: 2,
    elevation: 2,
+   
  },
  logoutButtonText: {
    fontWeight: 'bold',
+   color: 'white'
  },
  logoutInfoText: {
    marginTop: 10,

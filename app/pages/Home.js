@@ -1,6 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
-import {
+import { useState, useRef, useCallback } from "react";import {
   Button,
   View,
   Text,
@@ -9,7 +8,9 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
+  Animated
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import Swiper from "react-native-swiper";
 import { doc, setDoc, getDocs, collection } from "firebase/firestore";
@@ -45,12 +46,28 @@ const HomeScreen = ({ navigation }) => {
   const toggleMemberInfo = (memberIndex) => {
     setExpandedMember(expandedMember === memberIndex ? null : memberIndex);
   };
- 
-  return (
-    <ImageBackground
-      source={require("../assets/background.png")}
-      style={styles.backgroundImage}
-    >
+
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+  
+  useFocusEffect(
+    useCallback(() => {
+      // Reset the animation state to 0
+      fadeAnim.setValue(0);
+  
+      // Start the fade-in animation
+      Animated.timing(fadeAnim, {
+        toValue: 1, // Fade to full opacity
+        duration: 600, // Duration of the animation
+        useNativeDriver: true, // Use native driver for better performance
+      }).start();
+    }, [fadeAnim]) // Add fadeAnim to the dependency array
+  );
+    return (
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <ImageBackground
+          source={require("../assets/background.png")}
+          style={styles.backgroundImage}
+        >
       <ScrollView style={styles.container}>
         <Swiper
           style={styles.wrapper}
@@ -223,6 +240,7 @@ const HomeScreen = ({ navigation }) => {
 
       </ScrollView>
     </ImageBackground>
+    </Animated.View>
   );
 };
 

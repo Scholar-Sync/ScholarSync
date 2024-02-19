@@ -23,6 +23,8 @@ import ProfileIcon from "./assets/profileicon.png";
 
 import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
+import { SafeAreaView } from "react-native-safe-area-context";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const Tab = createBottomTabNavigator();
 
@@ -70,171 +72,253 @@ export default function App() {
     );
   }
   return (
-    <NavigationContainer>
+    <SafeAreaView style={{ flex: 21, backgroundColor: "#F2C64E" }}>
+      <NavigationContainer>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-            let iconSize = { width: 30, height: 30 }; // Default size
+  screenOptions={({ route }) => ({
+    tabBarIcon: ({ focused, color, size }) => {
+      let iconName;
+      switch (route.name) {
+        case "Welcome":
+          iconName = "tab"
+          break;
+        case "Login":
+          iconName = "login"
+          break;
+        case "Register":
+          iconName = "account-box"
+          break;
+        case "Home":
+          iconName = "home";
+          break;
+        case "Bookmarks":
+          iconName = "bookmark";
+          break;
+        case "Showcase":
+          iconName = "dashboard";
+          break;
+        case "Settings":
+          iconName = "settings";
+          break;
+        case "Profile":
+          iconName = "person";
+          break;
+      }
+              const isLastIcon = route.name === "Profile"; // Assuming "Profile" is the last tab
+              return (
+                  <MaterialIcons name={iconName} size={size} color={color} />
+                  
+                 );
+            },
+        
+            tabBarLabel: ({ focused, color }) => (
+              // Adjusting here to include a custom label with a pseudo divider
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <View
+                  style={{
+                    height: "40%",
+                    width: 3,
+                    backgroundColor: color,
+                    marginRight: 2,
+                  }}
+                />
 
-            switch (route.name) {
-              case "Home":
-                iconName = HomeIcon;
-                iconSize = { width: 20, height: 20 }; // Custom size for Home icon
-                break;
-              case "Bookmarks":
-                iconName = BookmarksIcon;
-                iconSize = { width: 14, height: 22 }; // Custom size for Bookmarks icon
-                break;
-              case "Showcase":
-                iconName = ShowcaseIcon;
-                iconSize = { width: 22, height: 22 };
-                break;
-              case "Settings":
-                iconName = SettingsIcon;
-                iconSize = { width: 20, height: 20 };
-                break;
-              case "Profile":
-                iconName = ProfileIcon;
-                iconSize = { width: 22, height: 20 }; // Custom size for Profile icon
-                break;
-            }
-            // Return the icon with the specified size
-            return (
-              <Image source={iconName} resizeMode="contain" style={iconSize} />
-            );
-          },
-          tabBarActiveTintColor: "tomato",
-          tabBarInactiveTintColor: "black",
-          tabBarStyle: {
-            height: 65, // Increased height
-            backgroundColor: "#F7B50",
-            borderTopStartRadius: 20,
-            borderTopEndRadius: 20,
-          },
-          tabBarLabelStyle: {
-            fontSize: 12, // Adjust label font size as needed
-            marginBottom: 0,
-          },
-          tabBarIconStyle: {
-            flexGrow: 1,
-            justifyContent: "center",
-          },
-        })}
-      >
-        {userMetadata ? (
-          <>
-            <Tab.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Home"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Bookmarks"
-              component={BookmarksScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Bookmarks"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Showcase"
-              component={ShowcaseScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Showcase"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Settings"
-              component={SettingsScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Settings"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Profile"
-              children={() => <ProfileScreen userMetadata={userMetadata} />}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Profile"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <Tab.Screen
-              name="Welcome"
-              component={WelcomeScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Welcome"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Login"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Register"
-              component={RegisterScreen}
-              options={{
-                headerTitle: () => (
-                  <CustomHeaderTitle
-                    title="Register"
-                    imagePath={require("./assets/scholar.png")}
-                  />
-                ),
-              }}
-            />
-          </>
-        )}
-      </Tab.Navigator>
-    </NavigationContainer>
+                <Text style={{ color, fontSize: 12 }}>{route.name}</Text>
+                {/* Adding a pseudo divider as a View element */}
+                <View
+                  style={{
+                    height: "40%",
+                    width: 3,
+                    backgroundColor: color,
+                    marginLeft: 2,
+                  }}
+                />
+              </View>
+            ),
+            tabBarLabel: ({ focused, color }) => (
+              <Text style={{ color, fontSize: 12, textAlign: 'center' }}>
+                {route.name}
+              </Text>
+            ),            tabBarActiveTintColor: "tomato",
+            tabBarInactiveTintColor: "black",
+            tabBarStyle: {
+              height: 65,
+              backgroundColor: "#FFEAA9",
+              borderTopStartRadius: 0,
+              borderTopEndRadius: 0,
+              // Shadow properties for iOS
+              shadowColor: "#FFEAA9",
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0,
+              shadowRadius: 10,
+              // Elevation for Android
+              elevation: 8, // Adjust the elevation value as needed
+              paddingBottom: 5, // Added padding at the bottom for extra space
+            },
+            tabBarIconStyle: {
+              marginTop: 15, // Reduced marginTop to move icons up
+            },
+            tabBarLabelStyle: {
+              fontSize: 12,
+              marginBottom: 10,
+              fontWeight: "900", // Make the label text thicker
+            },
+            headerStyle: {
+              backgroundColor: "#FFEAA9",
+              borderBottomStartRadius: 0,
+              borderBottomEndRadius: 0,
+              // Shadow properties for iOS
+              shadowColor: "#FFEAA9",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0,
+              shadowRadius: 10,
+              // Elevation for Android
+              elevation: 8, // Adjust the elevation value as needed
+            },
+            headerTintColor: "#fff",
+            headerTitleStyle: {
+              fontWeight: "bold",
+              color: "white",
+            },
+          })}
+        >
+          {userMetadata ? (
+            <>
+              <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Home    "
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Bookmarks"
+                children={() => <BookmarksScreen userMetadata={userMetadata} />}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Bookmarks"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Showcase"
+                children={() => <ShowcaseScreen userMetadata={userMetadata} />}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Showcase"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Settings"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Profile"
+                children={() => <ProfileScreen userMetadata={userMetadata} />}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Profile     "
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <Tab.Screen
+                name="Welcome"
+                component={WelcomeScreen}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Welcome"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Login     "
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
+                name="Register"
+                component={RegisterScreen}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Register"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+            </>
+          )}
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  divider1: {
+    height: 1, // or 2 for a thicker line
+    width: "70%",
+    backgroundColor: "black", // You can choose any color
+    marginBottom: -70,
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%', // Ensure it fills the tab bar height
+    paddingHorizontal: 10, // Optional: depending on your design
+  },
+  verticalDivider: {
+    borderRightWidth: 1,
+    borderColor: 'gray', // Choose a color that matches your design
+    
+  },
   backgroundImage: {
     flex: 1,
     resizeMode: "cover", // or 'stretch'
-    backgroundColor: "F7B500",
+    backgroundColor: "#F7B500",
   },
   icon: {
     width: 20,
@@ -242,3 +326,4 @@ const styles = StyleSheet.create({
   },
   // ... other styles you might need
 });
+

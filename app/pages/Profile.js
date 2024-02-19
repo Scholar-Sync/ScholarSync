@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Button,
   View,
@@ -13,20 +13,25 @@ import {
   Platform,
   KeyboardAvoidingView,
   ImageBackground,
+  Animated
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 
-const EditableText = ({ label, initialText, category, updateUserData, multiline = true }) => {
+const EditableText = ({ label, initialText, category, updateUserData, multiline = true, small = false }) => {
   if (!initialText) {
-    return <Text >loading</Text>
+    return
+    (<View style={{ alignItems: "center", padding: 20 }}>
+      <Text >loading</Text>
+    </View>);
   }
   const [text, setText] = useState(initialText.toString()); // Convert initialText to string
   const [isEditable, setIsEditable] = useState(false);
   const inputRef = useRef(null);
 
-  
+
 
   const handleBlur = () => {
     setIsEditable(false);
@@ -44,6 +49,26 @@ const EditableText = ({ label, initialText, category, updateUserData, multiline 
   };
   
 
+  if (small) {
+    return (
+      <View style={styles.inputContainerSmall}>
+        <Text style={styles.labelSmall}>{label}</Text>
+        <TextInput
+          ref={inputRef}
+          style={[styles.inputSmall, multiline && styles.multilineInput]}
+          value={text}
+          onChangeText={setText}
+          multiline={multiline}
+          editable={isEditable}
+          textAlignVertical={multiline ? "top" : "center"}
+          onBlur={handleBlur}
+        />
+
+        <Text style={styles.editButtonTextSmall} onPress={() => handleEdit()}>{isEditable ? "Save" : "Edit"} </Text>
+
+      </View>
+    );
+  }
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -57,11 +82,11 @@ const EditableText = ({ label, initialText, category, updateUserData, multiline 
         textAlignVertical={multiline ? "top" : "center"}
         onBlur={handleBlur}
       />
-     
-        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-          <Text style={styles.editButtonText} onPress={() => handleEdit()}>{isEditable ?  "Save": "Edit"} </Text>
-        </TouchableOpacity>
- 
+
+      <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+        <Text style={styles.editButtonText} onPress={() => handleEdit()}>{isEditable ? "Save" : "Edit"} </Text>
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -91,16 +116,30 @@ export default function ProfileScreen({ userMetadata }) {
   const [index, setIndex] = useState(0);
   const [showTabs, setShowTabs] = useState(false);
   const [userData, setUserData] = useState(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reset the animation state to 0
+      fadeAnim.setValue(0);
+
+      // Start the fade-in animation
+      Animated.timing(fadeAnim, {
+        toValue: 1, // Fade to full opacity
+        duration: 600, // Duration of the animation
+        useNativeDriver: true, // Use native driver for better performance
+      }).start();
+    }, [fadeAnim]) // Add fadeAnim to the dependency array
+  );
 
   // Get data from the database as soon as the profile page is loaded.
   React.useEffect(() => {
-    console.log("jjjjj1");
     if (!userMetadata) {
-      console.log("jjjjj");
       return;
     }
     console.log(userMetadata)
     const uid = userMetadata?.uid
+    console.log(uid, "uid")
     const docRef = doc(db, "users", uid);
     getDoc(docRef).then((docSnap) => {
       if (docSnap.exists()) {
@@ -149,9 +188,9 @@ export default function ProfileScreen({ userMetadata }) {
 
 
   const renderScene = SceneMap({
-    first: () => <Route data={userData?.academics} category={"academics"} updateUserData={updateUserData}/>,
-    second: () => <Route data={userData?.extracurriculars}  category={"extracurriculars"} updateUserData={updateUserData} />,
-    third: () => <Route data={userData?.honors} category={"honors"}  updateUserData={updateUserData}/>,
+    first: () => <Route data={userData?.academics} category={"academics"} updateUserData={updateUserData} />,
+    second: () => <Route data={userData?.extracurriculars} category={"extracurriculars"} updateUserData={updateUserData} />,
+    third: () => <Route data={userData?.honors} category={"honors"} updateUserData={updateUserData} />,
   });
 
   const DetailToggleButton = ({ onPress }) => (
@@ -160,6 +199,7 @@ export default function ProfileScreen({ userMetadata }) {
     </TouchableOpacity>
   );
   return (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
     <ImageBackground
       source={require("../assets/background.png")} // Replace with your image path
       style={styles.backgroundImage}
@@ -174,8 +214,42 @@ export default function ProfileScreen({ userMetadata }) {
             <Image
               source={require("../assets/pfp.jpg")}
               style={styles.profileImage}
-            />
-            <TextInput
+            /></View>
+            <View style={{ backgroundColor: "rgba(255,255,255,0.9)", margin: 15, borderRadius:10, padding: 10 }}>
+          <EditableText
+            label={"Username"}
+            category="Basics"
+            initialText={userData?.basic?.username}
+            updateUserData={updateUserData}
+            multiline={false}
+            small={true}
+          />
+          <EditableText
+            label={"Email"}
+            initialText={userData?.basic?.email}
+            updateUserData={updateUserData}
+            multiline={false}
+            small={true}
+          />
+          <EditableText
+            label={"School"}
+            category="basics"
+            initialText={userData?.basic?.school}
+            updateUserData={updateUserData}
+            multiline={false}
+            small={true}
+          />
+          <EditableText
+            label={"Grade"}
+            category="basics"
+            initialText={userData?.basic?.grade}
+            updateUserData={updateUserData}
+            multiline={false}
+            small={true}
+          />
+</View>
+
+          {/* <TextInput
               style={styles.profileName}
               value={userData?.basics?.firstName}
               onChangeText={setProfileName}
@@ -183,13 +257,27 @@ export default function ProfileScreen({ userMetadata }) {
               placeholderTextColor="#666"
             />
             <TextInput
-              style={styles.profileName}
+              style={styles.label}
+              value={userData?.basics?.school}
+              onChangeText={setProfileName}
+              placeholder={userData?.basic?.school}
+              placeholderTextColor="#666"
+            />
+            <TextInput
+              style={styles.label}
+              value={userData?.basics?.grade}
+              onChangeText={setProfileName}
+              placeholder={userData?.basic?.grade}
+              placeholderTextColor="#666"
+            />
+            <TextInput
+              style={styles.label}
               value={userData?.basics?.email}
               onChangeText={setProfileName}
               placeholder={userData?.basic?.email}
               placeholderTextColor="#666"
-            />
-            {/* <TextInput
+            /> */}
+          {/* <TextInput
               style={styles.profileDetails}
               value={userData?.description}
               onChangeText={setProfileDetails}
@@ -197,7 +285,7 @@ export default function ProfileScreen({ userMetadata }) {
               placeholderTextColor="#666"
               multiline
             /> */}
-            {/* <View style={styles.profileTextContainer}>
+          {/* <View style={styles.profileTextContainer}>
               <TextInput
                 style={styles.profileTextInput}
                 value={userData?.firstName}
@@ -212,25 +300,13 @@ export default function ProfileScreen({ userMetadata }) {
                 multiline
               />
             </View> */}
-          </View>
 
-            <EditableText
-              label={"username"}
-              initialText={userData?.basic?.username}
-              updateUserData={updateUserData}
-              multiline={false}
-            />
-            <EditableText
-              label={"email"}
-              initialText={userData?.basic?.email}
-              updateUserData={updateUserData}
-              multiline={false}
-            />
+
 
           <DetailToggleButton onPress={() => setShowTabs(!showTabs)} />
 
           {/* Tabs Section */}
-          {showTabs && userData &&(
+          {showTabs && userData && (
             <TabView
               navigationState={{ index, routes }}
               renderScene={renderScene}
@@ -251,15 +327,11 @@ export default function ProfileScreen({ userMetadata }) {
         </ScrollView>
       </KeyboardAvoidingView>
     </ImageBackground>
+    </Animated.View>
   );
 }
 const styles = StyleSheet.create({
-  inputContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: "gray",
-    marginBottom: 10,
-  },
+
   label: {
     fontWeight: "bold",
     fontSize: 16,
@@ -294,6 +366,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "gray",
     marginBottom: 10,
+    marginHorizontal: 15, // Add horizontal margin to the input container
+  },
+  inputContainerSmall: {
+    padding: 3,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderColor: "#aaa",
     marginHorizontal: 15, // Add horizontal margin to the input container
   },
   tabView: {
@@ -460,6 +539,14 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
   },
+   // Text labels for inputs
+   labelSmall: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#333",
+    marginBottom: 2,
+  },
+
 
   // Style for text inputs
   input: {
@@ -469,6 +556,15 @@ const styles = StyleSheet.create({
     borderRadius: 5, // Rounded corners
     backgroundColor: "white", // White background for the input
     marginBottom: 10, // Add space between inputs
+  },
+   // Style for text inputs
+   inputSmall: {
+    fontSize: 16,
+    color: "#555",
+    padding: 3,
+    borderRadius: 5, // Rounded corners
+    backgroundColor: "white", // White background for the input
+    marginBottom: 1, // Add space between inputs
   },
 
   // Style for multiline inputs to differentiate them
@@ -513,6 +609,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "500",
     fontSize: 16,
+  },
+
+  // Text style for the 'Edit' button to make it readable
+  editButtonTextSmall: {
+    color: "#aaa",
+    fontWeight: "500",
+    marginLeft: 5,
+    fontSize: 12,
   },
 
   // Styles for the profile image and text to make them standout
