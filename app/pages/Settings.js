@@ -17,14 +17,47 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import {logout} from "../utils/auth";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; // Import MaterialIcons
-
-
+import emailjs from '@emailjs/browser';
 const SettingsScreen = () => {
  const [isDarkMode, setIsDarkMode] = useState(false);
  const [bugReportText, setBugReportText] = useState('');
+ const [status, setStatus] = useState('');
+
  const [problemReportText, setProblemReportText] = useState('');
  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
 
+
+ const sendEmail = () => {
+
+  let templateParams = {
+    to_name: "scholarsyncrra@gmail.com",
+    to_email: "scholarsyncrra@gmail.com",
+    from_name: 'scholar sync app',
+    message: bugReportText,
+  };
+
+  emailjs.send("service_r9nrk6w", "template_alzjmlj", templateParams, "2OfAIsT81cPeFczkl").then(
+    (response) => {
+      setStatus("Report Sent Successfully");
+      console.log('SUCCESS!', response.status, response.text);
+      setBugReportText(''); // Clear the text field
+
+      setTimeout(() => {
+        setStatus('');
+      }, 3000);
+    
+    },
+ (error) => {
+      setStatus('Failed to send the report. Please try again.');
+      console.log('FAILED...', error);
+      
+
+      setTimeout(() => {
+        setStatus('');
+      }, 3000);
+    }
+  );
+ }
  useFocusEffect(
   useCallback(() => {
     // Reset the animation state to 0
@@ -82,8 +115,13 @@ const SettingsScreen = () => {
            placeholder="Type here..."
            placeholderTextColor="#C7C7CD"
          />   
+ <TouchableOpacity style={styles.reportButton} onPress={sendEmail}>
+        <Text style={styles.logoutButtonText}>Send Report</Text>
+      </TouchableOpacity>
+      <Text style={styles.reportInfoText}>{status !== ''? status : ""}</Text>
+
 {/* Report Problem section */}
-<Text style={styles.reportText}>Report Problem:</Text>
+{/* <Text style={styles.reportText}>Report Problem:</Text>
          <TextInput
            style={styles.input}
            onChangeText={setProblemReportText}
@@ -91,7 +129,7 @@ const SettingsScreen = () => {
            placeholder="Type here..."
            placeholderTextColor="#C7C7CD"
          />
-           {/* Logout Section */}
+           Logout Section */}
            <View style={styles.logoutSection}>
            <MaterialIcons name="exit-to-app" size={24} color="#000" style={styles.iconStyle} />
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -264,6 +302,19 @@ const styles = StyleSheet.create({
    elevation: 2,
    
  },
+ reportButton: {
+  // Apply styles for the button
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  backgroundColor: 'tomato',
+  borderRadius: 20,
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+  elevation: 2,
+  marginTop: 10,
+  
+},
  logoutButtonText: {
    fontWeight: 'bold',
    color: 'white'
@@ -277,7 +328,16 @@ const styles = StyleSheet.create({
    alignSelf: 'center',
    // Any other styling I need for this text
  },
-
+ reportInfoText: {
+  marginTop: 10,
+  fontSize: 14,
+  color: '#6e6e6e',
+  flexWrap: 'wrap',
+  width: '80%',
+  alignSelf: 'center',
+  textAlign: 'center',
+  // Any other styling I need for this text
+},
 
 
 

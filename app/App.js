@@ -25,7 +25,32 @@ import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+if (typeof localStorage === 'undefined') {
+  global.localStorage = {
+    storage: {},
+    setItem: function (key, value) {
+      this.storage[key] = value;
+    },
+    getItem: function (key) {
+      return this.storage[key] || null;
+    },
+    removeItem: function (key) {
+      delete this.storage[key];
+    },
+    clear: function () {
+      this.storage = {};
+    }
+  };
+}
+if (typeof global.location === 'undefined') {
+  global.location = {
+    href: '',
+    // Add other properties and methods as needed
+  };
+}
 
+
+// POLYFILLS TODO delete
 const Tab = createBottomTabNavigator();
 
 function CustomHeaderTitle({ title, imagePath }) {
@@ -326,4 +351,3 @@ const styles = StyleSheet.create({
   },
   // ... other styles you might need
 });
-

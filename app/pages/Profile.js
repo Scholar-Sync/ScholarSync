@@ -13,30 +13,43 @@ import {
   Platform,
   KeyboardAvoidingView,
   ImageBackground,
-  Animated
+  Animated,
+  Linking,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-const EditableText = ({ label, initialText, category, updateUserData, multiline = true, small = false }) => {
+const EditableText = ({
+  label,
+  initialText,
+  category,
+  updateUserData,
+  multiline = true,
+  small = false,
+}) => {
   if (!initialText) {
-    return
-    (<View style={{ alignItems: "center", padding: 20 }}>
-      <Text >loading</Text>
-    </View>);
+    return;
+    <View style={{ alignItems: "center", padding: 20 }}>
+      <Text>loading</Text>
+    </View>;
   }
+  const icons = {
+    Username: "account-circle",
+    Email: "email",
+    School: "school",
+    Grade: "grade", // Example, adjust as needed
+  };
+
   const [text, setText] = useState(initialText.toString()); // Convert initialText to string
   const [isEditable, setIsEditable] = useState(false);
   const inputRef = useRef(null);
 
-
-
   const handleBlur = () => {
     setIsEditable(false);
   };
-
 
   const handleEdit = () => {
     if (isEditable) {
@@ -47,12 +60,21 @@ const EditableText = ({ label, initialText, category, updateUserData, multiline 
     setIsEditable(!isEditable);
     inputRef.current && inputRef.current.focus();
   };
-  
 
   if (small) {
     return (
-      <View style={styles.inputContainerSmall}>
-        <Text style={styles.labelSmall}>{label}</Text>
+      <View style={small ? styles.inputContainerSmall : styles.inputContainer}>
+        <View style={styles.labelContainer}>
+          {icons[label] && (
+            <Icon
+              name={icons[label]}
+              size={20}
+              color="#666"
+              style={styles.iconStyle}
+            />
+          )}
+          <Text style={small ? styles.labelSmall : styles.label}>{label}</Text>
+        </View>
         <TextInput
           ref={inputRef}
           style={[styles.inputSmall, multiline && styles.multilineInput]}
@@ -63,9 +85,11 @@ const EditableText = ({ label, initialText, category, updateUserData, multiline 
           textAlignVertical={multiline ? "top" : "center"}
           onBlur={handleBlur}
         />
-
-        <Text style={styles.editButtonTextSmall} onPress={() => handleEdit()}>{isEditable ? "Save" : "Edit"} </Text>
-
+        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <Text style={styles.editButtonTextSmall} onPress={() => handleEdit()}>
+            {isEditable ? "Save" : "Edit"}{" "}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -84,9 +108,10 @@ const EditableText = ({ label, initialText, category, updateUserData, multiline 
       />
 
       <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-        <Text style={styles.editButtonText} onPress={() => handleEdit()}>{isEditable ? "Save" : "Edit"} </Text>
+        <Text style={styles.editButtonText} onPress={() => handleEdit()}>
+          {isEditable ? "Save" : "Edit"}{" "}
+        </Text>
       </TouchableOpacity>
-
     </View>
   );
 };
@@ -98,16 +123,18 @@ const Route = ({ data, category, updateUserData }) => {
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.scrollViewContent}
     >
-      {Object.keys(data).map((key, index) => (
-        <EditableText
-          key={index}
-          label={key}
-          category={category}
-          initialText={data[key]}
-          updateUserData={updateUserData}
-          multiline={false}
-        />
-      ))}
+      {Object.keys(data)
+        .sort()
+        .map((key, index) => (
+          <EditableText
+            key={index}
+            label={key}
+            category={category}
+            initialText={data[key]}
+            updateUserData={updateUserData}
+            multiline={true}
+          />
+        ))}
     </ScrollView>
   );
 };
@@ -137,27 +164,25 @@ export default function ProfileScreen({ userMetadata }) {
     if (!userMetadata) {
       return;
     }
-    console.log(userMetadata)
-    const uid = userMetadata?.uid
-    console.log(uid, "uid")
+    console.log(userMetadata);
+    const uid = userMetadata?.uid;
+    console.log(uid, "uid");
     const docRef = doc(db, "users", uid);
-    getDoc(docRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        console.log("------Document data:", docSnap.data());
-        setUserData(docSnap.data());
-      } else {
-        // docSnap.data() will be undefined in this case
-        console.log("No such document!");
-        return {};
-      }
-
-    }
-    ).catch((error) => {
-      console.log("Error getting document:", error);
-    }
-    )
+    getDoc(docRef)
+      .then((docSnap) => {
+        if (docSnap.exists()) {
+          console.log("------Document data:", docSnap.data());
+          setUserData(docSnap.data());
+        } else {
+          // docSnap.data() will be undefined in this case
+          console.log("No such document!");
+          return {};
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
   }, [userMetadata]);
-
 
   // This gets the user id, field and value to update the database with the data saved in the "value" variable.
   const updateUserData = async (field, category, value) => {
@@ -167,7 +192,7 @@ export default function ProfileScreen({ userMetadata }) {
     const uid = userMetadata?.uid;
     const userDBRef = collection(db, "users");
     var newUserData = userData;
-    newUserData[category][field.toLowerCase()] = value;
+    newUserData[category][field] = value;
     try {
       await setDoc(doc(userDBRef, uid), newUserData);
     } catch (error) {
@@ -186,11 +211,28 @@ export default function ProfileScreen({ userMetadata }) {
     "Some details about you..."
   );
 
-
   const renderScene = SceneMap({
-    first: () => <Route data={userData?.academics} category={"academics"} updateUserData={updateUserData} />,
-    second: () => <Route data={userData?.extracurriculars} category={"extracurriculars"} updateUserData={updateUserData} />,
-    third: () => <Route data={userData?.honors} category={"honors"} updateUserData={updateUserData} />,
+    first: () => (
+      <Route
+        data={userData?.academics}
+        category={"academics"}
+        updateUserData={updateUserData}
+      />
+    ),
+    second: () => (
+      <Route
+        data={userData?.extracurriculars}
+        category={"extracurriculars"}
+        updateUserData={updateUserData}
+      />
+    ),
+    third: () => (
+      <Route
+        data={userData?.honors}
+        category={"honors"}
+        updateUserData={updateUserData}
+      />
+    ),
   });
 
   const DetailToggleButton = ({ onPress }) => (
@@ -198,144 +240,184 @@ export default function ProfileScreen({ userMetadata }) {
       <Text style={styles.detailButtonText}>Edit Other Details</Text>
     </TouchableOpacity>
   );
+  const shareLinkContent = {
+    contentType: "link",
+    contentUrl: "https://www.example.com",
+  };
+
+  const shareToSocial = (socialType) => {
+    if (socialType == "reddit") {
+      const payload =
+        "Check out my stats on ScholarSync! " +
+        "\nSchool: " +
+        userData["basic"]["school"] +
+        "\nSchool: " +
+        userData["basic"]["grade"] +
+        "\nSAT: " +
+        userData["academics"]["sat"] +
+        "\nACT: " +
+        userData["academics"]["act"];
+      const url =
+        "https://www.reddit.com/submit?title=My ScholarSync Profile&url" +
+        payload;
+      Linking.openURL(url)
+        .then((data) => {
+          alert("Reddit Opened");
+        })
+        .catch(() => {});
+    } else if (socialType == "twitter") {
+      let twitterParameters = [];
+      const payload =
+        "Check out my stats on ScholarSync! " +
+        "\nSchool: " +
+        userData["basic"]["school"] +
+        "\nSchool: " +
+        userData["basic"]["grade"] +
+        "\nSAT: " +
+        userData["academics"]["sat"] +
+        "\nACT: " +
+        userData["academics"]["act"];
+      twitterParameters.push("text=" + encodeURI(payload));
+
+      const url =
+        "https://twitter.com/intent/tweet?" + twitterParameters.join("&");
+      Linking.openURL(url)
+        .then((data) => {
+          alert("Twitter Opened");
+        })
+        .catch(() => {});
+    }
+  };
+
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-    <ImageBackground
-      source={require("../assets/background.png")} // Replace with your image path
-      style={styles.backgroundImage}
-      resizeMode="cover" // or 'stretch' or 'contain' depending on how you want it to be displayed
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : null}
+      <ImageBackground
+        source={require("../assets/background.png")} // Replace with your image path
+        style={styles.backgroundImage}
+        resizeMode="cover" // or 'stretch' or 'contain' depending on how you want it to be displayed
       >
-        <ScrollView style={{ flex: 1 }}>
-          <View style={{ alignItems: "center", padding: 20 }}>
-            <Image
-              source={require("../assets/pfp.jpg")}
-              style={styles.profileImage}
-            /></View>
-            <View style={{ backgroundColor: "rgba(255,255,255,0.9)", margin: 15, borderRadius:10, padding: 10 }}>
-          <EditableText
-            label={"Username"}
-            category="Basics"
-            initialText={userData?.basic?.username}
-            updateUserData={updateUserData}
-            multiline={false}
-            small={true}
-          />
-          <EditableText
-            label={"Email"}
-            initialText={userData?.basic?.email}
-            updateUserData={updateUserData}
-            multiline={false}
-            small={true}
-          />
-          <EditableText
-            label={"School"}
-            category="basics"
-            initialText={userData?.basic?.school}
-            updateUserData={updateUserData}
-            multiline={false}
-            small={true}
-          />
-          <EditableText
-            label={"Grade"}
-            category="basics"
-            initialText={userData?.basic?.grade}
-            updateUserData={updateUserData}
-            multiline={false}
-            small={true}
-          />
-</View>
-
-          {/* <TextInput
-              style={styles.profileName}
-              value={userData?.basics?.firstName}
-              onChangeText={setProfileName}
-              placeholder={userData?.basic?.firstName}
-              placeholderTextColor="#666"
-            />
-            <TextInput
-              style={styles.label}
-              value={userData?.basics?.school}
-              onChangeText={setProfileName}
-              placeholder={userData?.basic?.school}
-              placeholderTextColor="#666"
-            />
-            <TextInput
-              style={styles.label}
-              value={userData?.basics?.grade}
-              onChangeText={setProfileName}
-              placeholder={userData?.basic?.grade}
-              placeholderTextColor="#666"
-            />
-            <TextInput
-              style={styles.label}
-              value={userData?.basics?.email}
-              onChangeText={setProfileName}
-              placeholder={userData?.basic?.email}
-              placeholderTextColor="#666"
-            /> */}
-          {/* <TextInput
-              style={styles.profileDetails}
-              value={userData?.description}
-              onChangeText={setProfileDetails}
-              placeholder="Some details about you..."
-              placeholderTextColor="#666"
-              multiline
-            /> */}
-          {/* <View style={styles.profileTextContainer}>
-              <TextInput
-                style={styles.profileTextInput}
-                value={userData?.firstName}
-                onChangeText={setProfileName}
-                editable={true}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : null}
+        >
+          <ScrollView style={{ flex: 1 }}>
+            <View style={{ alignItems: "center", padding: 20 }}>
+              <Image
+                source={require("../assets/pfp1.png")}
+                style={styles.profileImage}
               />
-              <TextInput
-                style={[styles.profileTextInput, styles.profileDetailsInput]}
-                value={profileDetails}
-                onChangeText={setProfileDetails}
-                editable={true}
-                multiline
+                <Text style={styles.profileLabel}>Your Profile</Text> 
+
+            </View>
+            
+            <View
+              style={{
+                backgroundColor: "rgba(255,255,255,0.9)",
+                margin: 15,
+                borderRadius: 10,
+                padding: 10,
+              }}
+            >
+              <EditableText
+                label={"Username"}
+                category="Basics"
+                initialText={userData?.basic?.username}
+                updateUserData={updateUserData}
+                multiline={false}
+                small={true}
               />
-            </View> */}
+              <EditableText
+                label={"Email"}
+                initialText={userData?.basic?.email}
+                updateUserData={updateUserData}
+                multiline={false}
+                small={true}
+              />
+              <EditableText
+                label={"School"}
+                category="basics"
+                initialText={userData?.basic?.school}
+                updateUserData={updateUserData}
+                multiline={false}
+                small={true}
+              />
+              <EditableText
+                label={"Grade"}
+                category="basics"
+                initialText={userData?.basic?.grade}
+                updateUserData={updateUserData}
+                multiline={false}
+                small={true}
+              />
 
-
-
-          <DetailToggleButton onPress={() => setShowTabs(!showTabs)} />
-
-          {/* Tabs Section */}
-          {showTabs && userData && (
-            <TabView
-              navigationState={{ index, routes }}
-              renderScene={renderScene}
-              onIndexChange={setIndex}
-              initialLayout={{ width: layout.width }}
-              style={{ height: layout.height / 2 }} // Adjust the height as needed
-              renderTabBar={(props) => (
-                <TabBar
-                  {...props}
-                  indicatorStyle={styles.indicator}
-                  style={styles.tabBar}
-                  labelStyle={styles.labelStyle}
-                  contentContainerStyle={styles.tabBarContentContainer}
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.socialButton}
+                onPress={() => shareToSocial("twitter")}
+              >
+                <Image
+                  source={require("../assets/twitterlogo.png")} // The path to your twitter icon
+                  style={styles.buttonIcon}
                 />
-              )}
-            />
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </ImageBackground>
+                <Text style={styles.buttonTextStyle}>Share to Twitter</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.socialButton2}
+                onPress={() => shareToSocial("reddit")}
+              >
+                <Image
+                  source={require("../assets/redditlogo.png")} // The path to your reddit icon
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.buttonTextStyle}>Share to Reddit</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Tabs Section */}
+            {userData && (
+              <TabView
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                style={{ height: layout.height / 2 }} // Adjust the height as needed
+                renderTabBar={(props) => (
+                  <TabBar
+                    {...props}
+                    indicatorStyle={styles.indicator}
+                    style={styles.tabBar}
+                    labelStyle={styles.labelStyle}
+                    contentContainerStyle={styles.tabBarContentContainer}
+                  />
+                )}
+              />
+            )}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </Animated.View>
   );
 }
 const styles = StyleSheet.create({
-
   label: {
     fontWeight: "bold",
     fontSize: 16,
     marginBottom: 5,
+  },
+  label: {
+    fontWeight: "bold", // Make text bold
+    fontSize: 16, // Adjust size as needed
+    marginBottom: 5,
+    // any other styling you need
+  },
+  // Style for smaller label
+  labelSmall: {
+    fontWeight: "bold", // Make text bold
+    fontSize: 14, // Adjust size as needed for smaller text
+    marginBottom: 5,
+    // any other styling you need
   },
   input: {
     fontSize: 16,
@@ -345,6 +427,65 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     padding: 5,
     marginHorizontal: 30,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+    marginLeft: -5
+  },
+  iconStyle: {
+    marginRight: 5, // Add spacing between icon and label text
+    // Any other icon styling
+    height: 20,
+    width: 20,
+    color: "#CFD0D3",
+    marginTop: -3
+  },
+  socialButton: {
+    flexDirection: "row",
+    backgroundColor: "#4A90E2", // Example color for Twitter, adjust as needed
+    borderRadius: 10,
+    height: 60,
+    width: 285,
+    padding: 0,
+    marginVertical: 5, // Add vertical margin for spacing between buttons
+    marginHorizontal: 20, // Add horizontal margin for spacing from the container edges
+    alignItems: "center", // Center align the text within the button
+    opacity: 0.9, // Starting opacity to give a slight transparency effect
+    shadowColor: "#000", // Optional: shadow for depth
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2, // For Android shadow effect
+  },
+  socialButton2: {
+    flexDirection: "row",
+    backgroundColor: "#FF591C", // Example color for Twitter, adjust as needed
+    borderRadius: 10,
+    height: 60,
+    width: 285,
+    padding: 0,
+    marginVertical: 5, // Add vertical margin for spacing between buttons
+    marginHorizontal: 20, // Add horizontal margin for spacing from the container edges
+    alignItems: "center", // Center align the text within the button
+    opacity: 0.9, // Starting opacity to give a slight transparency effect
+    shadowColor: "#000", // Optional: shadow for depth
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2, // For Android shadow effect
+  },
+
+  buttonTextStyle: {
+    color: "white", // Text color that contrasts with the button background
+    fontWeight: "bold",
+    marginRight: 40,
+  },
+  buttonIcon: {
+    width: 120,
+    height: 120,
+    resizeMode: "contain",
+    marginRight: -30,
+    marginHorizontal: 15,
   },
   multilineInput: {
     height: 100,
@@ -358,7 +499,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     marginLeft: 15,
     marginRight: 15,
-    borderRadius: 15, // Set borderRadius for rounded corners
+    borderRadius: 5, // Set borderRadius for rounded corners
     overflow: "hidden", // This ensures that the children do not overlap the corners
   },
   inputContainer: {
@@ -404,6 +545,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginHorizontal: 15,
   },
+  editButtonTextSmall: {
+    textAlign: "center",
+    fontWeight: "600",
+    color: "white",
+  },
   editButton: {
     backgroundColor: "#36454F",
     padding: 10,
@@ -414,10 +560,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginTop: 10,
-
     paddingVertical: 10,
     paddingHorizontal: 15,
-    minWidth: 60,
+    minWidth: 70,
     marginRight: 0,
     marginRight: 270,
   },
@@ -432,10 +577,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
+  
   profileImage: {
-    width: 75,
-    height: 75,
+    width: 200,
+    height: 200,
     borderRadius: 50,
+    borderColor: 'black',
+    marginBottom: -50
+  },
+  profileLabel: { // Add this new style
+    marginTop: 10, // Adjust the space between the profile image and text
+    fontSize: 20, // Set the font size
+    fontWeight: 'bold', // Make the text bold
+    color: '#333', // Set the text color
+    // Add any other styling as needed
   },
   profileTextContainer: {
     marginLeft: 10,
@@ -530,133 +685,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
     marginHorizontal: 10,
-  },
-
-  // Text labels for inputs
-  label: {
-    fontWeight: "bold",
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 10,
-  },
-   // Text labels for inputs
-   labelSmall: {
-    fontWeight: "bold",
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 2,
-  },
-
-
-  // Style for text inputs
-  input: {
-    fontSize: 16,
-    color: "#555",
-    padding: 10,
-    borderRadius: 5, // Rounded corners
-    backgroundColor: "white", // White background for the input
-    marginBottom: 10, // Add space between inputs
-  },
-   // Style for text inputs
-   inputSmall: {
-    fontSize: 16,
-    color: "#555",
-    padding: 3,
-    borderRadius: 5, // Rounded corners
-    backgroundColor: "white", // White background for the input
-    marginBottom: 1, // Add space between inputs
-  },
-
-  // Style for multiline inputs to differentiate them
-  multilineInput: {
-    minHeight: 100, // Minimum height for multiline input
-    textAlignVertical: "top", // Align text at the top
-  },
-
-  // Tab bar styles for rounded corners and custom colors
-  tabBar: {
-    backgroundColor: "#F7B500",
-    borderRadius: 20,
-    overflow: "hidden", // Prevent children from overlapping
-    marginHorizontal: 20,
-    elevation: 3,
-  },
-
-  // Tab indicator styles for a subtle look
-  indicator: {
-    backgroundColor: "white",
-    height: 3, // Make the indicator thicker
-  },
-
-  // Tab label styles for a clear, bold look
-  labelStyle: {
-    fontWeight: "600",
-    color: "white",
-  },
-
-  // Style for the 'Edit' button to make it stand out
-  editButton: {
-    backgroundColor: "#36454F",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20, // Rounded corners
-    alignSelf: "flex-start", // Align to the start of the text input
-    marginTop: 10,
-  },
-
-  // Text style for the 'Edit' button to make it readable
-  editButtonText: {
-    color: "white",
-    fontWeight: "500",
-    fontSize: 16,
-  },
-
-  // Text style for the 'Edit' button to make it readable
-  editButtonTextSmall: {
-    color: "#aaa",
-    fontWeight: "500",
-    marginLeft: 5,
-    fontSize: 12,
-  },
-
-  // Styles for the profile image and text to make them standout
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 20,
-  },
-  profileName: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  profileDetails: {
-    fontSize: 18,
-    color: "#555",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-
-  // Style for the 'Edit Other Details' button to make it more tactile
-  detailButton: {
-    backgroundColor: "#F7B500",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-    marginBottom: 30, // Add space before the tabs
-  },
-  detailButtonText: {
-    fontWeight: "600",
-    fontSize: 18,
-    color: "white",
-    textAlign: "center",
   },
 });
