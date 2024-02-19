@@ -105,7 +105,38 @@ const SettingsScreen = () => {
           >
          <View style={styles.card}>
          
-           
+                   {/* Profile section */}
+        <View style={styles.profileSection}>
+          <Image
+            source={require("../assets/profile_image.png")}
+            style={styles.profileImage}
+          />
+          <Text style={styles.usernameText}>Change Username: RileyProCoder</Text>
+        </View>
+
+        {/* Email section */}
+        <View style={styles.emailSection}>
+          <Image
+            source={require("../assets/letter.png")}
+            style={styles.emailIcon}
+          />
+          <Text style={styles.usernameText}>Email: mr.webgeeek@gmail.com</Text>
+        </View>
+
+          {/* Dark Mode / Light Mode section */}
+          <View style={styles.darkModeSection}>
+          <Text style={styles.darkModeText}>Private Mode</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#AEF359" }}
+            thumbColor={isDarkMode ? "#FFFFFF" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={isDarkMode}
+          />
+        </View>
+        <View style={styles.divider1} />
+
+
          {/* Report Bug section */}
          <Text style={styles.reportBugText}>Report Bug:</Text>
          <TextInput
@@ -119,6 +150,8 @@ const SettingsScreen = () => {
         <Text style={styles.logoutButtonText}>Send Report</Text>
       </TouchableOpacity>
       <Text style={styles.reportInfoText}>{status !== ''? status : ""}</Text>
+      <View style={styles.divider} />
+
 
 {/* Report Problem section */}
 {/* <Text style={styles.reportText}>Report Problem:</Text>
@@ -135,6 +168,7 @@ const SettingsScreen = () => {
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
+       
     </View>
              {/* Logout Info Text */}
              <Text style={styles.logoutInfoText}>
@@ -143,6 +177,7 @@ const SettingsScreen = () => {
           
            {/* ... any other settings sections you may have */}
          </View>
+
        </KeyboardAvoidingView>
      </TouchableOpacity>
      </ScrollView>
@@ -161,6 +196,21 @@ const styles = StyleSheet.create({
    justifyContent: 'center', // Centers the child components vertically in the container
    alignItems: 'center', // Centers the child components horizontally in the container
  },
+ divider1: {
+  height: 1, // or 2 for a thicker line
+  width: "80%",
+  color: "transparant", // You can choose any color
+  marginTop: -20,
+  marginBottom: 0,
+  marginHorizontal: 55
+},
+ divider: {
+  height: 1, // or 2 for a thicker line
+  width: "70%",
+  color: "transparant", // You can choose any color
+  marginBottom: 50, // Spacing above and below the line
+  marginHorizontal: 55
+},
  card: {
    backgroundColor: 'white',
    borderRadius: 10,
@@ -172,7 +222,7 @@ const styles = StyleSheet.create({
    margin: 20,
    padding: 20,
    width: 340, // Specify the width of the card
-   height: 340, // Specify the height of the card, adjust as needed
+   height: 500, // Specify the height of the card, adjust as needed
    marginTop: 20,
    
 
@@ -226,7 +276,7 @@ const styles = StyleSheet.create({
    flexDirection: 'row',
    justifyContent: 'space-between',
    alignItems: 'center',
-   marginTop: 27,
+   marginTop: 10,
    paddingHorizontal: 25,
    marginLeft: -9,
  },
@@ -237,7 +287,7 @@ const styles = StyleSheet.create({
  reportBugText: {
    fontSize: 16,
    fontWeight: 'bold',
-   marginTop: 20, // Add margin as needed
+   marginTop: 40, // Add margin as needed
  },
  bugReportInput: {
    backgroundColor: 'white', // Background color for the text input
@@ -299,7 +349,7 @@ const styles = StyleSheet.create({
    shadowOffset: { width: 0, height: 1 },
    shadowOpacity: 0.2,
    shadowRadius: 2,
-   elevation: 2,
+   elevation: 10,
    
  },
  reportButton: {

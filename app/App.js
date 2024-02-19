@@ -228,12 +228,12 @@ export default function App() {
                 }}
               />
               <Tab.Screen
-                name="Bookmarks"
-                children={() => <BookmarksScreen userMetadata={userMetadata} />}
+                name="Profile"
+                children={() => <ProfileScreen userMetadata={userMetadata} />}
                 options={{
                   headerTitle: () => (
                     <CustomHeaderTitle
-                      title="Bookmarks"
+                      title="Profile     "
                       imagePath={require("./assets/scholar.png")}
                     />
                   ),
@@ -252,6 +252,18 @@ export default function App() {
                 }}
               />
               <Tab.Screen
+                name="Bookmarks"
+                children={() => <BookmarksScreen userMetadata={userMetadata} />}
+                options={{
+                  headerTitle: () => (
+                    <CustomHeaderTitle
+                      title="Bookmarks"
+                      imagePath={require("./assets/scholar.png")}
+                    />
+                  ),
+                }}
+              />
+              <Tab.Screen
                 name="Settings"
                 component={SettingsScreen}
                 options={{
@@ -263,18 +275,8 @@ export default function App() {
                   ),
                 }}
               />
-              <Tab.Screen
-                name="Profile"
-                children={() => <ProfileScreen userMetadata={userMetadata} />}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Profile     "
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
-              />
+              
+              
             </>
           ) : (
             <>

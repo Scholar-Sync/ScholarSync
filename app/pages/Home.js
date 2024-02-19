@@ -29,13 +29,13 @@ const HomeScreen = ({ navigation }) => {
       name: "Riley Wenk",
       role: "Developer/Designer",
       image: require("../assets/PFP.png"),
-      details: "Detail information about Riley Wenk.",
+      details: "Riley Wenk, born in the vibrant state of Virginia, harbors a profound love for programming and is constantly driven by the desire to explore and innovate in the field. Currently in the 10th grade, Riley is known for a meticulous and creative approach to coding, always seeking new challenges and opportunities to advance technical skills. With a keen interest in both the intricacies of software development and the potential for technology to shape the future."
     },
     {
       name: "Ayla Mahns",
-      role: "Developer",
+      role: "Designer/Software",
       image: require("../assets/PFP.png"),
-      details: "Detail information about Ayla Mahns.",
+      details: "Ayla, who graced this world with her presence 16 years ago in Alaska, is currently navigating her 11th-grade year with a clear vision for her future. With an unwavering goal to delve into the realms of computer science, Ayla aspires to be at the forefront of innovating today's technology. Her ambition is not just to study the complexities of computing but to emerge as a pioneer who shapes the future of how we interact with technology. At just 16, she embodies the spirit of a trailblazer, ready to embark on a journey that promises to redefine our digital experiences.",
     },
   ]);
   const [expandedSection, setExpandedSection] = useState(null);
