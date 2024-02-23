@@ -306,10 +306,9 @@ export default function ProfileScreen({ userMetadata }) {
                 source={require("../assets/pfp1.png")}
                 style={styles.profileImage}
               />
-                <Text style={styles.profileLabel}>Your Profile</Text> 
-
+              <Text style={styles.profileLabel}>Your Profile</Text>
             </View>
-            
+
             <View
               style={{
                 backgroundColor: "rgba(255,255,255,0.9)",
@@ -394,6 +393,7 @@ export default function ProfileScreen({ userMetadata }) {
                 )}
               />
             )}
+            <View style={styles.divider} />
           </ScrollView>
         </KeyboardAvoidingView>
       </ImageBackground>
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 5,
-    marginLeft: -5
+    marginLeft: -5,
   },
   iconStyle: {
     marginRight: 5, // Add spacing between icon and label text
@@ -440,7 +440,16 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
     color: "#CFD0D3",
-    marginTop: -3
+    marginTop: -3,
+  },
+  divider: {
+    height: 1, // or 2 for a thicker line
+    width: "80%",
+    backgroundColor: "black", // You can choose any color
+    marginLeft: 35,
+    height: 4,
+    marginBottom: 10, // Spacing above and below the line
+    marginTop: 10,
   },
   socialButton: {
     flexDirection: "row",
@@ -577,19 +586,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
-  
+
   profileImage: {
     width: 200,
     height: 200,
     borderRadius: 50,
-    borderColor: 'black',
-    marginBottom: -50
+    borderColor: "black",
+    marginBottom: -50,
   },
-  profileLabel: { // Add this new style
+  profileLabel: {
+    // Add this new style
     marginTop: 10, // Adjust the space between the profile image and text
     fontSize: 20, // Set the font size
-    fontWeight: 'bold', // Make the text bold
-    color: '#333', // Set the text color
+    fontWeight: "bold", // Make the text bold
+    color: "#333", // Set the text color
     // Add any other styling as needed
   },
   profileTextContainer: {

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
   ImageBackground,
-  Animated
+  Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -45,6 +45,7 @@ const DEFAULT_USER_DATA = {
     scholarships: [],
     certifications: [],
   },
+  bookmarks: [],
 };
 
 export default function RegistrationScreen({ navigation }) {
@@ -73,7 +74,7 @@ export default function RegistrationScreen({ navigation }) {
 
   // Handle navigation to login screen
   const goToLoginScreen = () => {
-    navigation.navigate("LoginScreen");
+    navigation.navigate("Login");
   };
 
   const createNewUserInDatabase = async (uid) => {
@@ -95,7 +96,7 @@ export default function RegistrationScreen({ navigation }) {
         // if the user is successfully signed up, add the rest of the data to firestore (database)
         const id = user.uid;
         await createNewUserInDatabase(id); // calls the function a few lines above
-        goToLoginScreen();
+        //goToLoginScreen();
       }
     } catch (error) {
       console.log("Error signing up: ", error.code, error.message);
@@ -110,99 +111,98 @@ export default function RegistrationScreen({ navigation }) {
   };
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-    <ImageBackground
-      source={require("../assets/background.png")} // Specify your background image path here
-      style={styles.background}
-    >
-      <KeyboardAwareScrollView
-        style={{ flex: 1, width: "100%" }}
-        keyboardShouldPersistTaps="always"
+      <ImageBackground
+        source={require("../assets/background.png")} // Specify your background image path here
+        style={styles.background}
       >
-        <View style={styles.container}>
-          <Image
-            style={styles.logo}
-            source={require("../assets/scholar.png")}
-          />
-          <View style={styles.divider} />
+        <KeyboardAwareScrollView
+          style={{ flex: 1, width: "100%" }}
+          keyboardShouldPersistTaps="always"
+        >
+          <View style={styles.container}>
+            <Image
+              style={styles.logo}
+              source={require("../assets/scholar.png")}
+            />
+            <View style={styles.divider} />
 
-          <TextInput
-            style={styles.input}
-            placeholder="First Name"
-            placeholderTextColor="#aaaaaa"
-            onChangeText={(text) => setFirstName(text)}
-            value={firstName}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#aaaaaa"
-            placeholder="Username"
-            onChangeText={(text) => setUsername(text)}
-            value={username}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#aaaaaa"
-            placeholder="Grade"
-            onChangeText={(text) => setGrade(text)}
-            value={grade}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#aaaaaa"
-            placeholder="School"
-            onChangeText={(text) => setSchool(text)}
-            value={school}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            placeholderTextColor="#aaaaaa"
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#aaaaaa"
-            secureTextEntry
-            placeholder="Password"
-            onChangeText={(text) => setPassword(text)}
-            value={password}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              placeholderTextColor="#aaaaaa"
+              onChangeText={(text) => setFirstName(text)}
+              value={firstName}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholderTextColor="#aaaaaa"
+              placeholder="Username"
+              onChangeText={(text) => setUsername(text)}
+              value={username}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholderTextColor="#aaaaaa"
+              placeholder="Grade"
+              onChangeText={(text) => setGrade(text)}
+              value={grade}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholderTextColor="#aaaaaa"
+              placeholder="School"
+              onChangeText={(text) => setSchool(text)}
+              value={school}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="E-mail"
+              placeholderTextColor="#aaaaaa"
+              onChangeText={(text) => setEmail(text)}
+              value={email}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholderTextColor="#aaaaaa"
+              secureTextEntry
+              placeholder="Password"
+              onChangeText={(text) => setPassword(text)}
+              value={password}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+            />
             <View style={styles.divider1} />
 
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleSignup()}
-          >
-            <Text style={styles.buttonTitle}>Create account</Text>
-          </TouchableOpacity>
-          <View style={styles.footerView}>
-            <Text style={styles.footerText}>
-              {" "}
-              <Text
-                onPress={() => navigation.navigate("Welcome")}
-                style={styles.footerLink}
-              >
-                Go Back
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleSignup()}
+            >
+              <Text style={styles.buttonTitle}>Create account</Text>
+            </TouchableOpacity>
+            <View style={styles.footerView}>
+              <Text style={styles.footerText}>
+                {" "}
+                <Text
+                  onPress={() => navigation.navigate("Welcome")}
+                  style={styles.footerLink}
+                >
+                  Go Back
+                </Text>
               </Text>
-            </Text>
+            </View>
           </View>
-        </View>
-      </KeyboardAwareScrollView>
-    </ImageBackground>
+        </KeyboardAwareScrollView>
+      </ImageBackground>
     </Animated.View>
   );
 }
@@ -220,15 +220,14 @@ const styles = StyleSheet.create({
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginTop: 10,
-    marginHorizontal: 55
+    marginHorizontal: 55,
   },
   divider: {
     height: 1, // or 2 for a thicker line
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginBottom: 10, // Spacing above and below the line
-    marginHorizontal: 55
-    
+    marginHorizontal: 55,
   },
   background: {
     width: "100%",

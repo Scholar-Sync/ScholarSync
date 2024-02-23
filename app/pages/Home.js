@@ -1,5 +1,6 @@
 import * as React from "react";
-import { useState, useRef, useCallback } from "react";import {
+import { useState, useRef, useCallback } from "react";
+import {
   Button,
   View,
   Text,
@@ -8,7 +9,7 @@ import { useState, useRef, useCallback } from "react";import {
   Image,
   TouchableOpacity,
   ImageBackground,
-  Animated
+  Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -17,25 +18,27 @@ import { doc, setDoc, getDocs, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 const HomeScreen = ({ navigation }) => {
-
   const [teamMembers] = useState([
     {
       name: "Roi Mahns",
       role: "Developer/Manager",
       image: require("../assets/PFP.png"),
-      details: "Roi Mahns, who came into this world on July 10th, 2009, in the picturesque town of Anchorage, Alaska, is deeply passionate about both computer science and soccer, aspiring to further develop these interests. Currently a 9th grader at Antillies High School, Roi is recognized for his ingenious approach to problem-solving and harbors a fervent enthusiasm for coding and technological advancements."
+      details:
+        "Roi Mahns, who came into this world on July 10th, 2009, in the picturesque town of Anchorage, Alaska, is deeply passionate about both computer science and soccer, aspiring to further develop these interests. Currently a 9th grader at Antillies High School, Roi is recognized for his ingenious approach to problem-solving and harbors a fervent enthusiasm for coding and technological advancements.",
     },
     {
       name: "Riley Wenk",
       role: "Developer/Designer",
       image: require("../assets/PFP.png"),
-      details: "Riley Wenk, born in the vibrant state of Virginia, harbors a profound love for programming and is constantly driven by the desire to explore and innovate in the field. Currently in the 10th grade, Riley is known for a meticulous and creative approach to coding, always seeking new challenges and opportunities to advance technical skills. With a keen interest in both the intricacies of software development and the potential for technology to shape the future."
+      details:
+        "Riley Wenk, born in the vibrant state of Virginia, harbors a profound love for programming and is constantly driven by the desire to explore and innovate in the field. Currently in the 10th grade, Riley is known for a meticulous and creative approach to coding, always seeking new challenges and opportunities to advance technical skills. With a keen interest in both the intricacies of software development and the potential for technology to shape the future.",
     },
     {
       name: "Ayla Mahns",
       role: "Designer/Software",
       image: require("../assets/PFP.png"),
-      details: "Ayla, who graced this world with her presence 16 years ago in Alaska, is currently navigating her 11th-grade year with a clear vision for her future. With an unwavering goal to delve into the realms of computer science, Ayla aspires to be at the forefront of innovating today's technology. Her ambition is not just to study the complexities of computing but to emerge as a pioneer who shapes the future of how we interact with technology. At just 16, she embodies the spirit of a trailblazer, ready to embark on a journey that promises to redefine our digital experiences.",
+      details:
+        "Ayla, who graced this world with her presence 16 years ago in Alaska, is currently navigating her 11th-grade year with a clear vision for her future. With an unwavering goal to delve into the realms of computer science, Ayla aspires to be at the forefront of innovating today's technology. Her ambition is not just to study the complexities of computing but to emerge as a pioneer who shapes the future of how we interact with technology. At just 16, she embodies the spirit of a trailblazer, ready to embark on a journey that promises to redefine our digital experiences.",
     },
   ]);
   const [expandedSection, setExpandedSection] = useState(null);
@@ -48,12 +51,12 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
-  
+
   useFocusEffect(
     useCallback(() => {
       // Reset the animation state to 0
       fadeAnim.setValue(0);
-  
+
       // Start the fade-in animation
       Animated.timing(fadeAnim, {
         toValue: 1, // Fade to full opacity
@@ -62,184 +65,187 @@ const HomeScreen = ({ navigation }) => {
       }).start();
     }, [fadeAnim]) // Add fadeAnim to the dependency array
   );
-    return (
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <ImageBackground
-          source={require("../assets/background.png")}
-          style={styles.backgroundImage}
-        >
-      <ScrollView style={styles.container}>
-        <Swiper
-          style={styles.wrapper}
-          showsButtons={false}
-          loop
-          autoplay
-          marginBottom="10"
-          buttonColor="grey" // Color for the buttons
-          dotColor="grey" // Color for the dots
-          activeDotColor="black" // Color for the active dot
-        >
-          <Image
-            source={require("../assets/page1.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page2.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page3.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page4.png")}
-            style={styles.slideImage}
-          />
-        </Swiper>
+  return (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+      <ImageBackground
+        source={require("../assets/background.png")}
+        style={styles.backgroundImage}
+      >
+        <ScrollView style={styles.container}>
+          <Swiper
+            style={styles.wrapper}
+            showsButtons={false}
+            loop
+            autoplay
+            marginBottom="10"
+            buttonColor="grey" // Color for the buttons
+            dotColor="grey" // Color for the dots
+            activeDotColor="black" // Color for the active dot
+          >
+            <Image
+              source={require("../assets/page1.png")}
+              style={styles.slideImage}
+            />
+            <Image
+              source={require("../assets/page2.png")}
+              style={styles.slideImage}
+            />
+            <Image
+              source={require("../assets/page3.png")}
+              style={styles.slideImage}
+            />
+            <Image
+              source={require("../assets/page4.png")}
+              style={styles.slideImage}
+            />
+          </Swiper>
 
-        <View style={styles.headingContainer}>
-          <Text style={styles.heading}>Welcome to ScholarSync!</Text>
-        </View>
-        <View dtyle={styles.textBelow}>
-          <Text style={styles.below}>
-            "Elevate your high school success on ScholarSync, the ultimate hub
-            for learning and peer connection."
-          </Text>
-        </View>
-        {/* Call to Action Button */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Profile")} // Add the navigation call here
-        >
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-        <View>
-          <Image
-          //source={require("../assets/border.jpg")} // Replace with your image path
-          //style={styles.borderImage}
-          />
-        </View>
+          <View style={styles.headingContainer}>
+            <Text style={styles.heading}>Welcome to ScholarSync!</Text>
+          </View>
+          <View dtyle={styles.textBelow}>
+            <Text style={styles.below}>
+              "Elevate your high school success on ScholarSync, the ultimate hub
+              for learning and peer connection."
+            </Text>
+          </View>
+          {/* Call to Action Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Profile")} // Add the navigation call here
+          >
+            <Text style={styles.buttonText}>Get Started</Text>
+          </TouchableOpacity>
+          <View>
+            <Image
+            //source={require("../assets/border.jpg")} // Replace with your image path
+            //style={styles.borderImage}
+            />
+          </View>
 
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.embraceText}>📚 Embrace Your Journey:</Text>
-          <Text style={styles.descriptionText}>
-            At Scholar Link, share your high school highlights and challenges.
-            It's your space to voice your unique story.
-          </Text>
-          <Image
-            source={require("../assets/bus.gif")} // Replace with your image path
-            style={styles.descriptionImage}
-          />
-        </View>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.embraceText}>📚 Embrace Your Journey:</Text>
+            <Text style={styles.descriptionText}>
+              At Scholar Link, share your high school highlights and challenges.
+              It's your space to voice your unique story.
+            </Text>
+            <Image
+              source={require("../assets/bus.gif")} // Replace with your image path
+              style={styles.descriptionImage}
+            />
+          </View>
 
-        {/* Swiper/Slideshow */}
+          {/* Swiper/Slideshow */}
 
-        <View style={styles.missionSection}>
-          <Text style={styles.subheading}>🤝 Our Mission</Text>
-          <Text style={styles.missionText}>
-            To help high schoolers with college applications and academic
-            guidance.
-          </Text>
-          <Image
-            source={require("../assets/mission.png")}
-            style={styles.missionImage}
-          />
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.subheading} onPress={() => test()}>About Us</Text>
-          {teamMembers.map((member, index) => (
-            <View key={index}>
-              <TouchableOpacity
-                style={styles.memberContainer}
-                onPress={() => toggleMemberInfo(index)}
-              >
-                <Image source={member.image} style={styles.memberImage} />
-                <View style={styles.memberInfo}>
-                  <Text style={styles.memberName}>{member.name}</Text>
-                  <Text style={styles.memberRole}>{member.role}</Text>
-                </View>
-              </TouchableOpacity>
-              {expandedMember === index && (
-                <View style={styles.memberDetails}>
-                  <Text>{member.details}</Text>
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-        {/* Features Section */}
-        <TouchableOpacity
-          style={styles.section}
-          onPress={() => toggleSection("features")}
-        >
-          <Text style={styles.subheading}>Our Features</Text>
-          {expandedSection === "features" && (
-            <View style={styles.dropdownContent}>
-              <Text>Feature 1: Collaborative Learning Tools</Text>
-              <Text>Feature 2: Real-time Academic Assistance</Text>
-              <Text>Feature 3: Gamified Learning Experience</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+          <View style={styles.missionSection}>
+            <Text style={styles.subheading}>🤝 Our Mission</Text>
+            <Text style={styles.missionText}>
+              To help high schoolers with college applications and academic
+              guidance.
+            </Text>
+            <Image
+              source={require("../assets/mission.png")}
+              style={styles.missionImage}
+            />
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.subheading} onPress={() => test()}>
+              About Us
+            </Text>
+            {teamMembers.map((member, index) => (
+              <View key={index}>
+                <TouchableOpacity
+                  style={styles.memberContainer}
+                  onPress={() => toggleMemberInfo(index)}
+                >
+                  <Image source={member.image} style={styles.memberImage} />
+                  <View style={styles.memberInfo}>
+                    <Text style={styles.memberName}>{member.name}</Text>
+                    <Text style={styles.memberRole}>{member.role}</Text>
+                  </View>
+                </TouchableOpacity>
+                {expandedMember === index && (
+                  <View style={styles.memberDetails}>
+                    <Text>{member.details}</Text>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+          {/* Features Section */}
+          <TouchableOpacity
+            style={styles.section}
+            onPress={() => toggleSection("features")}
+          >
+            <Text style={styles.subheading}>Our Features</Text>
+            {expandedSection === "features" && (
+              <View style={styles.dropdownContent}>
+                <Text>Feature 1: Collaborative Learning Tools</Text>
+                <Text>Feature 2: Real-time Academic Assistance</Text>
+                <Text>Feature 3: Gamified Learning Experience</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <View style={styles.divider} />
+          <View style={styles.divider} />
 
-        {/* Testimonials Section */}
-        <TouchableOpacity
-          style={styles.section}
-          onPress={() => toggleSection("testimonials")}
-        >
-          <Text style={styles.subheading}>What Our Users Say</Text>
-          {expandedSection === "testimonials" && (
-            <View style={styles.dropdownContent}>
-              <Text>"ScholarSync has transformed the way I study!" - Alex</Text>
-              <Text>
-                "I love the community aspect of ScholarSync." - Jordan
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
+          {/* Testimonials Section */}
+          <TouchableOpacity
+            style={styles.section}
+            onPress={() => toggleSection("testimonials")}
+          >
+            <Text style={styles.subheading}>What Our Users Say</Text>
+            {expandedSection === "testimonials" && (
+              <View style={styles.dropdownContent}>
+                <Text>
+                  "ScholarSync has transformed the way I study!" - Alex
+                </Text>
+                <Text>
+                  "I love the community aspect of ScholarSync." - Jordan
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <View style={styles.divider} />
+          <View style={styles.divider} />
 
-        {/* FAQ Section */}
-        <TouchableOpacity
-          style={styles.section}
-          onPress={() => toggleSection("faqs")}
-        >
-          <Text style={styles.subheading}>Frequently Asked Questions</Text>
-          {expandedSection === "faqs" && (
-            <View style={styles.dropdownContent}>
-              <Text>Q: How do I sign up?</Text>
-              <Text>
-                A: You can sign up using your email or social media accounts.
-              </Text>
-              <Text>Q: Is ScholarSync free to use?</Text>
-              <Text>A: Yes, it's completely free for students.</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+          {/* FAQ Section */}
+          <TouchableOpacity
+            style={styles.section}
+            onPress={() => toggleSection("faqs")}
+          >
+            <Text style={styles.subheading}>Frequently Asked Questions</Text>
+            {expandedSection === "faqs" && (
+              <View style={styles.dropdownContent}>
+                <Text>Q: How do I sign up?</Text>
+                <Text>
+                  A: You can sign up using your email or social media accounts.
+                </Text>
+                <Text>Q: Is ScholarSync free to use?</Text>
+                <Text>A: Yes, it's completely free for students.</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <View style={styles.divider} />
+          <View style={styles.divider} />
 
-        {/* Contact Section */}
-        <TouchableOpacity
-          style={styles.section}
-          onPress={() => toggleSection("contact")}
-        >
-          <Text style={styles.subheading}>Get in Touch</Text>
-          {expandedSection === "contact" && (
-            <View style={styles.dropdownContent}>
-              <Text>Email: contact@scholarsync.com</Text>
-              <Text>Phone: 123-456-7890</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+          {/* Contact Section */}
+          <TouchableOpacity
+            style={styles.section}
+            onPress={() => toggleSection("contact")}
+          >
+            <Text style={styles.subheading}>Get in Touch</Text>
+            {expandedSection === "contact" && (
+              <View style={styles.dropdownContent}>
+                <Text>Email: contact@scholarsync.com</Text>
+                <Text>Phone: 123-456-7890</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <View style={styles.divider1} />
-
-      </ScrollView>
-    </ImageBackground>
+          <View style={styles.divider1} />
+        </ScrollView>
+      </ImageBackground>
     </Animated.View>
   );
 };
@@ -261,14 +267,14 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     height: 200,
-    marginBottom: -10
+    marginBottom: -10,
   },
   slideImage: {
     width: "100%",
     height: "100%",
     resizeMode: "contain",
     shadowColor: "#F7B500", // Same color as the border
-    shadowOpacity: .3, // Adjust as needed
+    shadowOpacity: 0.3, // Adjust as needed
     shadowRadius: 10, // Adjust for the spread of the shadow
     shadowOffset: { width: 0, height: 4 }, // Adjust as needed
     borderColor: "#F7B500",
@@ -276,7 +282,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 10,
     borderRadius: 10,
     marginBottom: -50,
-
   },
   headingContainer: {
     borderRadius: 10,
@@ -340,7 +345,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dropdownContent: {
-
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",
@@ -432,18 +436,17 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1, // or 2 for a thicker line
-    width: '100%',
-    backgroundColor: 'black', // You can choose any color
+    width: "100%",
+    backgroundColor: "black", // You can choose any color
     marginVertical: 5, // Spacing above and below the line
   },
   divider1: {
     height: 1, // or 2 for a thicker line
-    width: '100%',
-    backgroundColor: 'black', // You can choose any color
+    width: "100%",
+    backgroundColor: "black", // You can choose any color
     marginVertical: 5,
     marginBottom: 100, // Spacing above and below the line
   },
-
 });
 
 export default HomeScreen;

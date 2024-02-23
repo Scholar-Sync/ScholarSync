@@ -28,10 +28,7 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
       style={styles.itemContainer}
       onPress={() => handleClick()}
     >
-      <View
-        style={styles.itemContainerInner}
-        onPress={() => handleClick()}
-      >
+      <View style={styles.itemContainerInner} onPress={() => handleClick()}>
         <Icon name="bookmark" size={30} color="#F7B500" style={styles.icon} />
         <View style={styles.textContainer}>
           <Text style={styles.name}>{user?.basic?.firstName}</Text>
@@ -47,44 +44,41 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
           </Text>
         </View>
         {isClicked ? (
-        <Icon name="keyboard-arrow-down" size={24} color="#BDBDBD" />
-      ) : (
-        <Icon name="keyboard-arrow-right" size={24} color="#BDBDBD" />
-      )}
+          <Icon name="keyboard-arrow-down" size={24} color="#BDBDBD" />
+        ) : (
+          <Icon name="keyboard-arrow-right" size={24} color="#BDBDBD" />
+        )}
       </View>
       {isClicked ? (
         <View style={styles.itemContainerDrop}>
-        <Text style={styles.details}>GPA:</Text>
-        <Text style={styles.value}>{user.academics.gpa}</Text>
-        <Text style={styles.details}>PSAT:</Text>
-        <Text style={styles.value}>{user.academics.psat}</Text>
-        <Text style={styles.details}>SAT:</Text>
-        <Text style={styles.value}>{user.academics.sat}</Text>
-        <Text style={styles.details}>ACT:</Text>
-        <Text style={styles.value}>{user.academics.act}</Text>
-        <Text style={styles.details}>Class Rank:</Text>
-        <Text style={styles.value}>{user.academics.classRank}</Text>
-        <Text style={styles.details}>AP Courses:</Text>
-        <Text style={styles.value}>{user.academics.apCourses}</Text>
-        <Text style={styles.details}>Other Courses:</Text>
-        <Text style={styles.value}>{user.academics.others}</Text>
-        <Text style={styles.details}>Clubs:</Text>
-        <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
-        <Text style={styles.details}>Sports:</Text>
-        <Text style={styles.value}>{user.extracurriculars.sports}</Text>
-        <Text style={styles.details}>Volunteering:</Text>
-        <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
-        <Text style={styles.details}>Awards:</Text>
-        <Text style={styles.value}>{user.honors.awards}</Text>
-        <Text style={styles.details}>Scholarships:</Text>
-        <Text style={styles.value}>{user.honors.scholarships}</Text>
-        <Text style={styles.details}>Certifications:</Text>
-        <Text style={styles.value}>{user.honors.certifications
-        }</Text>
+          <Text style={styles.details}>GPA:</Text>
+          <Text style={styles.value}>{user.academics.gpa}</Text>
+          <Text style={styles.details}>PSAT:</Text>
+          <Text style={styles.value}>{user.academics.psat}</Text>
+          <Text style={styles.details}>SAT:</Text>
+          <Text style={styles.value}>{user.academics.sat}</Text>
+          <Text style={styles.details}>ACT:</Text>
+          <Text style={styles.value}>{user.academics.act}</Text>
+          <Text style={styles.details}>Class Rank:</Text>
+          <Text style={styles.value}>{user.academics.classRank}</Text>
+          <Text style={styles.details}>AP Courses:</Text>
+          <Text style={styles.value}>{user.academics.apCourses}</Text>
+          <Text style={styles.details}>Other Courses:</Text>
+          <Text style={styles.value}>{user.academics.others}</Text>
+          <Text style={styles.details}>Clubs:</Text>
+          <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
+          <Text style={styles.details}>Sports:</Text>
+          <Text style={styles.value}>{user.extracurriculars.sports}</Text>
+          <Text style={styles.details}>Volunteering:</Text>
+          <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
+          <Text style={styles.details}>Awards:</Text>
+          <Text style={styles.value}>{user.honors.awards}</Text>
+          <Text style={styles.details}>Scholarships:</Text>
+          <Text style={styles.value}>{user.honors.scholarships}</Text>
+          <Text style={styles.details}>Certifications:</Text>
+          <Text style={styles.value}>{user.honors.certifications}</Text>
         </View>
       ) : null}
-      
-
     </TouchableOpacity>
   );
 };
@@ -204,7 +198,7 @@ const BookmarksScreen = ({ userMetadata }) => {
       setFilteredData(bookmarkedUsers);
     } else {
       const filtered = bookmarkedUsers.filter((item) => {
-        console.log("item-------", item)
+        console.log("item-------", item);
         const searchContent = [
           item?.basic?.firstName,
           item?.basic?.grade,
@@ -225,7 +219,13 @@ const BookmarksScreen = ({ userMetadata }) => {
       return null;
     }
     console.log("Rendering item:", item);
-    return <UserCard key={item.uid} item={item} handleRemoveBookmark={handleRemoveBookmark} />;
+    return (
+      <UserCard
+        key={item.uid}
+        item={item}
+        handleRemoveBookmark={handleRemoveBookmark}
+      />
+    );
   };
 
   return (
@@ -249,7 +249,7 @@ const BookmarksScreen = ({ userMetadata }) => {
           <FlatList
             data={filteredData}
             renderItem={renderUserCard}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.uid}
             extraData={filteredData}
             contentContainerStyle={{ flexGrow: 1 }}
             ListEmptyComponent={
@@ -275,9 +275,10 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 14,
     color: "#757575",
-    fontWeight: 'bold', // Make labels bold
+    fontWeight: "bold", // Make labels bold
   },
-  value: { // New style for values if needed
+  value: {
+    // New style for values if needed
     fontSize: 14,
     color: "#757575",
   },
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingBottom: 15,
   },
-  itemContainerDrop:{
+  itemContainerDrop: {
     alignItems: "right",
     textAlign: "right",
     borderTopWidth: 1,
