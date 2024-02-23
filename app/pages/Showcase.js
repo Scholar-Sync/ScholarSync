@@ -18,6 +18,7 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 
@@ -82,8 +83,7 @@ const UserCard = ({ item, handleSaveToBookmark }) => {
           <Text style={styles.details}>Scholarships:</Text>
           <Text style={styles.value}>{user.honors.scholarships}</Text>
           <Text style={styles.details}>Certifications:</Text>
-          <Text style={styles.value}>{user.honors.certifications
-          }</Text>
+          <Text style={styles.value}>{user.honors.certifications}</Text>
         </View>
       ) : null}
     </TouchableOpacity>
@@ -172,7 +172,7 @@ const ShowcasesScreen = ({ userMetadata }) => {
           console.log("Error getting document:", error);
         });
 
-      const q = query(collection(db, "users"));
+      const q = query(collection(db, "users"), where("private", "==", false));
       getDocs(q)
         .then((docSnap) => {
           let users = [];
@@ -282,9 +282,10 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 14,
     color: "#757575",
-    fontWeight: 'bold', // Make labels bold
+    fontWeight: "bold", // Make labels bold
   },
-  value: { // New style for values if needed
+  value: {
+    // New style for values if needed
     fontSize: 14,
     color: "#757575",
   },

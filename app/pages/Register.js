@@ -46,6 +46,7 @@ const DEFAULT_USER_DATA = {
     certifications: [],
   },
   bookmarks: [],
+  private: false,
 };
 
 export default function RegistrationScreen({ navigation }) {

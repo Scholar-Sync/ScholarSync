@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,18 +14,41 @@ import {
   Animated,
   ScrollView,
 } from "react-native";
+import { doc, setDoc, getDoc, collection } from "firebase/firestore";
+import { db } from "../firebase/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../utils/auth";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"; // Import MaterialIcons
 import emailjs from "@emailjs/browser";
-const SettingsScreen = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const SettingsScreen = ({ userMetadata }) => {
+  const [isPrivateAccount, setIsPrivateAccount] = useState(false);
   const [bugReportText, setBugReportText] = useState("");
   const [status, setStatus] = useState("");
+  const [userData, setUserData] = useState({});
 
   const [problemReportText, setProblemReportText] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
-
+  React.useEffect(() => {
+    if (!userMetadata) {
+      return;
+    }
+    console.log(userMetadata);
+    const uid = userMetadata?.uid;
+    const docRef = doc(db, "users", uid);
+    getDoc(docRef)
+      .then((docSnap) => {
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+          setIsPrivateAccount(docSnap.data().private);
+        } else {
+          console.log("No such document!");
+          return {};
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
+  }, [userMetadata]);
   const sendEmail = () => {
     let templateParams = {
       to_name: "scholarsyncrra@gmail.com",
@@ -75,11 +98,24 @@ const SettingsScreen = () => {
     }, [fadeAnim]) // Add fadeAnim to the dependency array
   );
 
-  const toggleSwitch = () => setIsDarkMode((previousState) => !previousState);
+  const handleSetPrivateAccount = async () => {
+    if (!userMetadata) {
+      return;
+    }
+    const uid = userMetadata?.uid;
+    const userDBRef = collection(db, "users");
+    var newUserData = userData;
+    newUserData["private"] = !isPrivateAccount;
+    setIsPrivateAccount((previousState) => !previousState);
+    try {
+      await setDoc(doc(userDBRef, uid), newUserData);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
 
   // Function to handle the logout action
   const handleLogout = () => {
-    // Implement your logout functionality here
     console.log("User logged out");
     logout();
   };
@@ -115,7 +151,7 @@ const SettingsScreen = () => {
                     style={styles.profileImage}
                   />
                   <Text style={styles.usernameText}>
-                    Change Username: RileyProCoder
+                    Username: {userData?.basic?.username}
                   </Text>
                 </View>
 
@@ -126,7 +162,7 @@ const SettingsScreen = () => {
                     style={styles.emailIcon}
                   />
                   <Text style={styles.usernameText}>
-                    Email: mr.webgeeek@gmail.com
+                    Email: {userData?.basic?.email}
                   </Text>
                 </View>
 
@@ -135,10 +171,10 @@ const SettingsScreen = () => {
                   <Text style={styles.darkModeText}>Private Mode</Text>
                   <Switch
                     trackColor={{ false: "#767577", true: "#AEF359" }}
-                    thumbColor={isDarkMode ? "#FFFFFF" : "#f4f3f4"}
+                    thumbColor={isPrivateAccount ? "#FFFFFF" : "#f4f3f4"}
                     ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={isDarkMode}
+                    onValueChange={handleSetPrivateAccount}
+                    value={isPrivateAccount}
                   />
                 </View>
                 <View style={styles.divider1} />

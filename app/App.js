@@ -25,7 +25,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-if (typeof localStorage === 'undefined') {
+if (typeof localStorage === "undefined") {
   global.localStorage = {
     storage: {},
     setItem: function (key, value) {
@@ -39,16 +39,15 @@ if (typeof localStorage === 'undefined') {
     },
     clear: function () {
       this.storage = {};
-    }
+    },
   };
 }
-if (typeof global.location === 'undefined') {
+if (typeof global.location === "undefined") {
   global.location = {
-    href: '',
+    href: "",
     // Add other properties and methods as needed
   };
 }
-
 
 // POLYFILLS TODO delete
 const Tab = createBottomTabNavigator();
@@ -99,43 +98,42 @@ export default function App() {
   return (
     <SafeAreaView style={{ flex: 21, backgroundColor: "#F2C64E" }}>
       <NavigationContainer>
-      <Tab.Navigator
-  screenOptions={({ route }) => ({
-    tabBarIcon: ({ focused, color, size }) => {
-      let iconName;
-      switch (route.name) {
-        case "Welcome":
-          iconName = "tab"
-          break;
-        case "Login":
-          iconName = "login"
-          break;
-        case "Register":
-          iconName = "account-box"
-          break;
-        case "Home":
-          iconName = "home";
-          break;
-        case "Bookmarks":
-          iconName = "bookmark";
-          break;
-        case "Showcase":
-          iconName = "dashboard";
-          break;
-        case "Settings":
-          iconName = "settings";
-          break;
-        case "Profile":
-          iconName = "person";
-          break;
-      }
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              switch (route.name) {
+                case "Welcome":
+                  iconName = "tab";
+                  break;
+                case "Login":
+                  iconName = "login";
+                  break;
+                case "Register":
+                  iconName = "account-box";
+                  break;
+                case "Home":
+                  iconName = "home";
+                  break;
+                case "Bookmarks":
+                  iconName = "bookmark";
+                  break;
+                case "Showcase":
+                  iconName = "dashboard";
+                  break;
+                case "Settings":
+                  iconName = "settings";
+                  break;
+                case "Profile":
+                  iconName = "person";
+                  break;
+              }
               const isLastIcon = route.name === "Profile"; // Assuming "Profile" is the last tab
               return (
-                  <MaterialIcons name={iconName} size={size} color={color} />
-                  
-                 );
+                <MaterialIcons name={iconName} size={size} color={color} />
+              );
             },
-        
+
             tabBarLabel: ({ focused, color }) => (
               // Adjusting here to include a custom label with a pseudo divider
               <View
@@ -167,10 +165,11 @@ export default function App() {
               </View>
             ),
             tabBarLabel: ({ focused, color }) => (
-              <Text style={{ color, fontSize: 12, textAlign: 'center' }}>
+              <Text style={{ color, fontSize: 12, textAlign: "center" }}>
                 {route.name}
               </Text>
-            ),            tabBarActiveTintColor: "tomato",
+            ),
+            tabBarActiveTintColor: "tomato",
             tabBarInactiveTintColor: "black",
             tabBarStyle: {
               height: 65,
@@ -265,7 +264,7 @@ export default function App() {
               />
               <Tab.Screen
                 name="Settings"
-                component={SettingsScreen}
+                children={() => <SettingsScreen userMetadata={userMetadata} />}
                 options={{
                   headerTitle: () => (
                     <CustomHeaderTitle
@@ -275,8 +274,6 @@ export default function App() {
                   ),
                 }}
               />
-              
-              
             </>
           ) : (
             <>
@@ -332,15 +329,14 @@ const styles = StyleSheet.create({
     marginBottom: -70,
   },
   iconContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%', // Ensure it fills the tab bar height
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%", // Ensure it fills the tab bar height
     paddingHorizontal: 10, // Optional: depending on your design
   },
   verticalDivider: {
     borderRightWidth: 1,
-    borderColor: 'gray', // Choose a color that matches your design
-    
+    borderColor: "gray", // Choose a color that matches your design
   },
   backgroundImage: {
     flex: 1,
