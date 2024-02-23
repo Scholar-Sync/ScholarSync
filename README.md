@@ -14,7 +14,7 @@ Created by Roi M., Riley W., and Ayla M.
 - Bug report system
 - Persistent data (Firestore)
 
-## How run this app
+## How to run this app
 
 First, ensure that you have Node and Expo installed on your computer. The run the following commands.
 
