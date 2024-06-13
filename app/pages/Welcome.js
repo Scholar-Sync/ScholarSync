@@ -143,7 +143,7 @@ export default function WelcomeScreen() {
   return (
     <Animated.View style={{ flex: 1, opacity: pageOpacity }}>
       <ImageBackground
-        source={require("../assets/background.png")}
+        source={require("../assets/background1.png")}
         style={styles.background}
       >
         <View style={styles.divider1} />
@@ -202,8 +202,10 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     resizeMode: "contain",
-    
-   
+    shadowColor: "#4A3903",
+    shadowOpacity: 5,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   quoteWrapper: {
     height: 200, // Fixed height to accommodate quote and author text
@@ -211,7 +213,8 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the quote horizontally
     paddingHorizontal: 40, // Keep some padding
     marginTop: -100,
-    marginBottom:  -70
+    marginBottom:  -70,
+    
   },
   quoteContainer: {
     alignItems: "center",
@@ -221,8 +224,13 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginBottom: 10,
-    color: "gray",
+    color: "#F7B500",
     fontWeight: "bold",
+    shadowColor: "#F7B500",
+    shadowOpacity: .8,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 10,
   },
   authorText: {
     fontSize: 10,

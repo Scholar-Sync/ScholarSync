@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager } from "react-native";
 
 import HomeScreen from "./pages/Home";
 import SettingsScreen from "./pages/Settings";
@@ -25,6 +25,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+
 if (typeof localStorage === 'undefined') {
   global.localStorage = {
     storage: {},
@@ -49,8 +50,6 @@ if (typeof global.location === 'undefined') {
   };
 }
 
-
-// POLYFILLS TODO delete
 const Tab = createBottomTabNavigator();
 
 function CustomHeaderTitle({ title, imagePath }) {
@@ -75,6 +74,18 @@ function CustomHeaderTitle({ title, imagePath }) {
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [userMetadata, setUserMetadata] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Enable layout animation for Android
+  if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+
+  const toggleExpand = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsExpanded(!isExpanded);
+  };
+
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {
     console.log("user", user?.uid);
@@ -96,115 +107,75 @@ export default function App() {
       </View>
     );
   }
-  return (
-    <SafeAreaView style={{ flex: 21, backgroundColor: "#F2C64E" }}>
-      <NavigationContainer>
-      <Tab.Navigator
-  screenOptions={({ route }) => ({
-    tabBarIcon: ({ focused, color, size }) => {
-      let iconName;
-      switch (route.name) {
-        case "Welcome":
-          iconName = "tab"
-          break;
-        case "Login":
-          iconName = "login"
-          break;
-        case "Register":
-          iconName = "account-box"
-          break;
-        case "Home":
-          iconName = "home";
-          break;
-        case "Bookmarks":
-          iconName = "bookmark";
-          break;
-        case "Showcase":
-          iconName = "dashboard";
-          break;
-        case "Settings":
-          iconName = "settings";
-          break;
-        case "Profile":
-          iconName = "person";
-          break;
-      }
-              const isLastIcon = route.name === "Profile"; // Assuming "Profile" is the last tab
-              return (
-                  <MaterialIcons name={iconName} size={size} color={color} />
-                  
-                 );
-            },
-        
-            tabBarLabel: ({ focused, color }) => (
-              // Adjusting here to include a custom label with a pseudo divider
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <View
-                  style={{
-                    height: "40%",
-                    width: 3,
-                    backgroundColor: color,
-                    marginRight: 2,
-                  }}
-                />
 
-                <Text style={{ color, fontSize: 12 }}>{route.name}</Text>
-                {/* Adding a pseudo divider as a View element */}
-                <View
-                  style={{
-                    height: "40%",
-                    width: 3,
-                    backgroundColor: color,
-                    marginLeft: 2,
-                  }}
-                />
-              </View>
-            ),
+  return (
+    <SafeAreaView style={{ flex: 21, backgroundColor: "transparent" }}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              switch (route.name) {
+                case "Welcome":
+                  iconName = "tab";
+                  break;
+                case "Login":
+                  iconName = "login";
+                  break;
+                case "Register":
+                  iconName = "account-box";
+                  break;
+                case "Home":
+                  iconName = "home";
+                  break;
+                case "Bookmarks":
+                  iconName = "bookmark";
+                  break;
+                case "Showcase":
+                  iconName = "dashboard";
+                  break;
+                case "Settings":
+                  iconName = "settings";
+                  break;
+                case "Profile":
+                  iconName = "person";
+                  break;
+              }
+              return <MaterialIcons name={iconName} size={size} color={color} />;
+            },
             tabBarLabel: ({ focused, color }) => (
               <Text style={{ color, fontSize: 12, textAlign: 'center' }}>
                 {route.name}
               </Text>
-            ),            tabBarActiveTintColor: "tomato",
+            ),
+            tabBarActiveTintColor: "tomato",
             tabBarInactiveTintColor: "black",
             tabBarStyle: {
-              height: 65,
-              backgroundColor: "#FFEAA9",
-              borderTopStartRadius: 0,
-              borderTopEndRadius: 0,
-              // Shadow properties for iOS
-              shadowColor: "#FFEAA9",
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0,
-              shadowRadius: 10,
-              // Elevation for Android
-              elevation: 8, // Adjust the elevation value as needed
-              paddingBottom: 5, // Added padding at the bottom for extra space
+              height: isExpanded ? 65 : 0, // Use state to determine height
+              backgroundColor: "white", // Make tab bar background transparent
+              borderTopWidth: 0, // Remove border top if present
+              elevation: 0, // Remove elevation shadow on Android
+              shadowOpacity: 0, // Remove shadow on iOS
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              
             },
             tabBarIconStyle: {
-              marginTop: 15, // Reduced marginTop to move icons up
+              marginTop: 15,
             },
             tabBarLabelStyle: {
               fontSize: 12,
               marginBottom: 10,
-              fontWeight: "900", // Make the label text thicker
+              fontWeight: "900",
             },
             headerStyle: {
-              backgroundColor: "#FFEAA9",
-              borderBottomStartRadius: 0,
-              borderBottomEndRadius: 0,
-              // Shadow properties for iOS
-              shadowColor: "#FFEAA9",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0,
-              shadowRadius: 10,
-              // Elevation for Android
-              elevation: 8, // Adjust the elevation value as needed
+              height: 65,
+              backgroundColor: "#F9EFDF", // Make header background transparent
+              borderBottomWidth: 0, // Remove border bottom if present
+              elevation: 0, // Remove elevation shadow on Android
+              shadowOpacity: 0, // Remove shadow on iOS
             },
             headerTintColor: "#fff",
             headerTitleStyle: {
@@ -253,7 +224,7 @@ export default function App() {
               />
               <Tab.Screen
                 name="Settings"
-                component={SettingsScreen}
+                children={() => <SettingsScreen userMetadata={userMetadata} />}
                 options={{
                   headerTitle: () => (
                     <CustomHeaderTitle
@@ -265,11 +236,11 @@ export default function App() {
               />
               <Tab.Screen
                 name="Profile"
-                children={() => <ProfileScreen userMetadata={userMetadata} />}
+                component={ProfileScreen}
                 options={{
                   headerTitle: () => (
                     <CustomHeaderTitle
-                      title="Profile     "
+                      title="Profile"
                       imagePath={require("./assets/scholar.png")}
                     />
                   ),
@@ -281,14 +252,6 @@ export default function App() {
               <Tab.Screen
                 name="Welcome"
                 component={WelcomeScreen}
-                options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Welcome"
-                      imagePath={require("./assets/scholar.png")}
-                    />
-                  ),
-                }}
               />
               <Tab.Screen
                 name="Login"
@@ -318,6 +281,10 @@ export default function App() {
           )}
         </Tab.Navigator>
       </NavigationContainer>
+      <TouchableOpacity style={[styles.arrowContainer, { bottom: isExpanded ? 55 : -10 }]} onPress={toggleExpand}>
+        <MaterialIcons name={isExpanded ? "expand-more" : "expand-less"} size={30} color="black" />
+        <Text></Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -348,6 +315,18 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
+    marginBottom: -50
   },
-  // ... other styles you might need
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrowContainer: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -15 }],
+    alignItems: 'center',
+  },
 });
+
