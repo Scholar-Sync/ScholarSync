@@ -65,7 +65,7 @@ const HomeScreen = ({ navigation }) => {
     return (
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <ImageBackground
-          source={require("../assets/background.png")}
+          source={require("../assets/background4.png")}
           style={styles.backgroundImage}
         >
       <ScrollView style={styles.container}>

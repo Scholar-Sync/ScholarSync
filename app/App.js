@@ -26,6 +26,7 @@ import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
+
 if (typeof localStorage === 'undefined') {
   global.localStorage = {
     storage: {},
@@ -152,15 +153,10 @@ export default function App() {
             tabBarInactiveTintColor: "black",
             tabBarStyle: {
               height: isExpanded ? 65 : 0, // Use state to determine height
-              backgroundColor: "white", // Make tab bar background transparent
+              backgroundColor: "#DFD0B8", // Make tab bar background transparent
               borderTopWidth: 0, // Remove border top if present
               elevation: 0, // Remove elevation shadow on Android
               shadowOpacity: 0, // Remove shadow on iOS
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              
             },
             tabBarIconStyle: {
               marginTop: 15,
@@ -172,7 +168,7 @@ export default function App() {
             },
             headerStyle: {
               height: 65,
-              backgroundColor: "#F9EFDF", // Make header background transparent
+              backgroundColor: "#DFD0B8", // Make header background transparent
               borderBottomWidth: 0, // Remove border bottom if present
               elevation: 0, // Remove elevation shadow on Android
               shadowOpacity: 0, // Remove shadow on iOS
@@ -236,7 +232,7 @@ export default function App() {
               />
               <Tab.Screen
                 name="Profile"
-                component={ProfileScreen}
+                children={() => <ProfileScreen userMetadata={userMetadata} />}
                 options={{
                   headerTitle: () => (
                     <CustomHeaderTitle
@@ -252,6 +248,7 @@ export default function App() {
               <Tab.Screen
                 name="Welcome"
                 component={WelcomeScreen}
+                
               />
               <Tab.Screen
                 name="Login"
@@ -329,4 +326,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-

@@ -175,7 +175,7 @@ const SettingsScreen = ({ userMetadata }) => {
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <ImageBackground
-        source={require("../assets/background108.png")}
+        source={require("../assets/background140.jpg")}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
