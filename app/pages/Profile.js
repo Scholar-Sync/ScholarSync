@@ -17,80 +17,112 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db, storage } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const EditableBox = ({ label, category, data, updateUserData }) => {
   const [items, setItems] = useState(data || []);
-  const [isEditable, setIsEditable] = useState(false);
-  const [newItem, setNewItem] = useState("");
+  const [dropdownIndex, setDropdownIndex] = useState(null);
 
-  const handleBlur = (index, text) => {
-    const updatedItems = items.map((item, i) => (i === index ? { text } : item));
+  const calculateFontSize = (text) => {
+    const length = text.length;
+    if (length < 20) return 24;
+    if (length < 50) return 20;
+    if (length < 100) return 16;
+    return 12;
+  };
+
+  const handleSave = (index, text) => {
+    const updatedItems = items.map((item, i) => (i === index ? { text, isEditable: false } : item));
     setItems(updatedItems);
     updateUserData(label, category, updatedItems);
   };
 
-  const handleEdit = () => {
-    setIsEditable(!isEditable);
+  const handleEdit = (index) => {
+    const updatedItems = items.map((item, i) => (i === index ? { ...item, isEditable: !item.isEditable } : item));
+    setItems(updatedItems);
+    setDropdownIndex(null); // Close the dropdown after edit
+  };
+
+  const handleRemove = (index) => {
+    const updatedItems = items.filter((_, i) => i !== index);
+    setItems(updatedItems);
+    updateUserData(label, category, updatedItems);
   };
 
   const addItem = () => {
-    const updatedItems = [...items, { text: newItem }];
-    setItems(updatedItems);
-    updateUserData(label, category, updatedItems);
-    setNewItem("");
+    Alert.prompt(
+      "New Item",
+      "Enter the text for the new item:",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: (newItemText) => {
+            if (newItemText) {
+              const updatedItems = [...items, { text: newItemText, isEditable: false }];
+              setItems(updatedItems);
+              updateUserData(label, category, updatedItems);
+            }
+          },
+        },
+      ],
+      "plain-text"
+    );
   };
 
   return (
     <View style={styles.editableBox}>
       <Text style={styles.label}>{label}</Text>
-      {items.map((item, index) => (
-        <View key={index} style={styles.itemContainer}>
-          <TextInput
-            style={[
-              styles.itemText,
-              item.text.includes("Example:") && { color: "#DFD0B8" },
-            ]}
-            value={item.text}
-            editable={isEditable}
-            onFocus={() => {
-              if (item.text.includes("Example:")) {
-                const updatedItems = items.map((item, i) =>
-                  i === index ? { text: "" } : item
-                );
-                setItems(updatedItems);
-              }
-            }}
-            onChangeText={(text) => {
-              const updatedItems = items.map((item, i) =>
-                i === index ? { text } : item
-              );
-              setItems(updatedItems);
-            }}
-            onBlur={() => handleBlur(index, item.text)}
-          />
-        </View>
-      ))}
-      {isEditable && (
-        <View style={styles.newItemContainer}>
-          <TextInput
-            style={styles.newItemInput}
-            value={newItem}
-            onChangeText={setNewItem}
-            placeholder="Add new item"
-            placeholderTextColor="#DFD0B8"
-          />
-          <TouchableOpacity style={styles.addButton} onPress={addItem}>
-            <Icon name="add" size={20} color="#EEEEEE" />
-          </TouchableOpacity>
-        </View>
-      )}
-      <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-        <Text style={styles.editButtonText}>
-          {isEditable ? <Icon name="save" size={20} color="#EEEEEE" /> : <Icon name="edit" size={20} color="#EEEEEE" />}
-        </Text>
-      </TouchableOpacity>
+      <ScrollView horizontal style={styles.horizontalScrollView}>
+        {items.map((item, index) => (
+          <View key={index} style={styles.squareBox}>
+            {item.isEditable ? (
+              <TextInput
+                style={[styles.itemTextInput, { fontSize: calculateFontSize(item.text) }]}
+                value={item.text}
+                onChangeText={(text) => {
+                  const updatedItems = items.map((item, i) =>
+                    i === index ? { ...item, text } : item
+                  );
+                  setItems(updatedItems);
+                }}
+                onBlur={() => handleSave(index, item.text)}
+                autoFocus
+                multiline
+              />
+            ) : (
+              <Text style={[styles.itemText, { fontSize: calculateFontSize(item.text) }]}>{item.text}</Text>
+            )}
+            <TouchableOpacity onPress={() => setDropdownIndex(dropdownIndex === index ? null : index)} style={styles.moreButton}>
+              <Icon name="more-vert" size={20} color="#F58B44" />
+            </TouchableOpacity>
+            {dropdownIndex === index && (
+              <View style={styles.dropdownMenu}>
+                {item.isEditable ? (
+                  <TouchableOpacity onPress={() => handleSave(index, item.text)} style={styles.dropdownItem}>
+                    <Text style={styles.dropdownItemText}>Save</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={() => handleEdit(index)} style={styles.dropdownItem}>
+                    <Text style={styles.dropdownItemText}>Edit</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={() => handleRemove(index)} style={styles.dropdownItem}>
+                  <Text style={styles.dropdownItemText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        ))}
+        <TouchableOpacity style={styles.newSquareBox} onPress={addItem}>
+          <Icon name="add" size={40} color="#EEEEEE" />
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
@@ -104,7 +136,8 @@ const ProfileScreen = ({ userMetadata }) => {
     "Extracurricular",
     "Academics",
   ]);
-  const [showRemoveButtons, setShowRemoveButtons] = useState({});
+  const [profileImage, setProfileImage] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -127,6 +160,9 @@ const ProfileScreen = ({ userMetadata }) => {
       .then((docSnap) => {
         if (docSnap.exists()) {
           setUserData(docSnap.data());
+          if (docSnap.data().profileImage) {
+            setProfileImage(docSnap.data().profileImage);
+          }
         } else {
           return {};
         }
@@ -199,36 +235,54 @@ const ProfileScreen = ({ userMetadata }) => {
     );
   };
 
-  const toggleRemoveButton = (index) => {
-    setShowRemoveButtons((prevState) => ({
-      ...prevState,
-      [index]: !prevState[index],
-    }));
+  const removeSection = (index) => {
+    const newSections = sections.filter((_, i) => i !== index);
+    setSections(newSections);
+    setSectionDropdownIndex(null); // Close the dropdown after removing the section
   };
 
-  const removeSection = (index) => {
-    Alert.alert(
-      "Remove Section",
-      "Are you sure you want to remove this section?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Remove",
-          onPress: () => {
-            const updatedSections = sections.filter((_, i) => i !== index);
-            setSections(updatedSections);
-            setShowRemoveButtons((prevState) => ({
-              ...prevState,
-              [index]: false,
-            }));
-          },
-          style: "destructive",
-        },
-      ]
-    );
+  const uploadImage = async (uri) => {
+    if (!userMetadata) return;
+    const uid = userMetadata.uid;
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const ref = storage.ref().child(`profilePictures/${uid}`);
+    const snapshot = await ref.put(blob);
+    const downloadURL = await snapshot.ref.getDownloadURL();
+    return downloadURL;
+  };
+
+  const handleProfileImageChange = () => {
+    launchImageLibrary({ mediaType: 'photo' })
+      .then((response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorMessage) {
+          console.log('ImagePicker Error: ', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          const source = response.assets[0].uri;
+          setImageUri(source);
+        }
+      })
+      .catch((error) => {
+        console.error('Error launching image library: ', error);
+      });
+  };
+
+  const handleSavePhoto = async () => {
+    if (imageUri) {
+      try {
+        const downloadURL = await uploadImage(imageUri);
+        setProfileImage(downloadURL);
+        await updateUserData('profileImage', 'basic', downloadURL);
+        Alert.alert('Success', 'Profile picture updated successfully!');
+      } catch (error) {
+        console.error('Error saving profile picture: ', error);
+        Alert.alert('Error', 'Failed to update profile picture. Please try again.');
+      }
+    } else {
+      Alert.alert('Error', 'Please select an image first.');
+    }
   };
 
   const prefilledData = {
@@ -242,28 +296,23 @@ const ProfileScreen = ({ userMetadata }) => {
     ],
   };
 
-  const icons = {
-    Achievements: "star",
-    Extracurricular: "emoji-events",
-    Academics: "school",
-  };
-
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#DFD0B8" }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : null}
-      >
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#F58B44" }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : null}>
         <ScrollView style={{ flex: 1 }}>
-          
-
           <View style={styles.headerContainer}>
-            {sections.map((section, index) => (
-              <View key={index} style={styles.iconContainer}>
-                <Icon name={icons[section]} size={40} color="#153448" />
-                <Text style={styles.iconLabel}>{section}</Text>
-              </View>
-            ))}
+            <TouchableOpacity onPress={handleProfileImageChange}>
+              <Image
+                source={profileImage ? { uri: profileImage } : require('../assets/pfp1.png')}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleProfileImageChange} style={styles.uploadImageButton}>
+              <Text style={styles.uploadImageButtonText}>Upload Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSavePhoto} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save Photo</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.socialButtonsTitleContainer}>
             <Text style={styles.socialButtonsTitle}>Share to:</Text>
@@ -279,7 +328,6 @@ const ProfileScreen = ({ userMetadata }) => {
                 style={styles.buttonIcon}
               />
             </TouchableOpacity>
-
             <TouchableOpacity
               activeOpacity={0.7}
               style={styles.socialButton2}
@@ -291,21 +339,15 @@ const ProfileScreen = ({ userMetadata }) => {
               />
             </TouchableOpacity>
           </View>
-
           <View style={styles.infoContainer}>
             {sections.map((section, index) => (
               <View key={index} style={styles.sectionContainer}>
                 <View style={styles.sectionHeaderContainer}>
                   <Text style={styles.sectionHeader}>{section}</Text>
-                  <TouchableOpacity onPress={() => toggleRemoveButton(index)} style={styles.moreButton}>
-                    <Icon name="more-vert" size={20} color="#3C5B6F" />
+                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
+                    <Icon name="delete" size={20} color="#F58B44" />
                   </TouchableOpacity>
                 </View>
-                {showRemoveButtons[index] && (
-                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.confirmRemoveButton}>
-                    <Text style={styles.confirmRemoveButtonText}>Remove</Text>
-                  </TouchableOpacity>
-                )}
                 <EditableBox
                   label={`Add ${section}`}
                   category={section.toLowerCase()}
@@ -327,17 +369,17 @@ const ProfileScreen = ({ userMetadata }) => {
 const styles = StyleSheet.create({
   label: {
     fontSize: 14,
-    color: "#DFD0B8",
+    color: "#F58B44",
     marginBottom: 3,
   },
   input: {
     flex: 1,
     fontSize: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#3C5B6F",
+    borderBottomColor: "#F58B44",
     paddingVertical: 5,
     marginRight: 10,
-    color: "#DFD0B8",
+    color: "#F58B44",
   },
   inputContainer: {
     marginBottom: 20,
@@ -350,11 +392,11 @@ const styles = StyleSheet.create({
   editButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#153448",
+    backgroundColor: "#F58B44",
     borderRadius: 5,
   },
   editButtonText: {
-    color: "#DFD0B8",
+    color: "#FFFFFF",
     fontSize: 12,
   },
   socialButtonsTitleContainer: {
@@ -364,19 +406,17 @@ const styles = StyleSheet.create({
   socialButtonsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: "#3C5B6F",
-    marginLeft: -250,
+    color: "#F58B44",
     marginBottom: 10,
   },
   socialButtonsContainer: {
     flexDirection: "row",
-    justifyContent: "left",
+    justifyContent: "center",
     marginTop: 10,
-    marginLeft: 20
   },
   socialButton: {
     flexDirection: "row",
-    backgroundColor: "#3C5B6F",
+    backgroundColor: "#F58B44",
     borderRadius: 100,
     height: 45,
     width: 45,
@@ -387,11 +427,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 2,
-    marginRight: 1,
+    marginRight: 10,
   },
   socialButton2: {
     flexDirection: "row",
-    backgroundColor: "#153448",
+    backgroundColor: "#F6B833",
     borderRadius: 100,
     height: 45,
     width: 45,
@@ -402,11 +442,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 2,
-    marginLeft: 15,
+    marginLeft: 10,
   },
   buttonIcon: {
-    width: 150,
-    height: 150,
+    width: 30,
+    height: 30,
     resizeMode: "contain",
   },
   multilineInput: {
@@ -414,7 +454,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    backgroundColor: "#DFD0B8",
+    backgroundColor: "#FFFFFF",
     padding: 30,
   },
   profileImage: {
@@ -428,29 +468,34 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 20,
     fontWeight: "bold",
-    color: "#DFD0B8",
+    color: "#F58B44",
   },
   headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
     marginVertical: 20,
   },
-  iconContainer: {
+  saveButton: {
+    backgroundColor: "#F58B44",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
     alignItems: "center",
   },
-  iconLabel: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#DFD0B8",
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   infoContainer: {
-    backgroundColor: "#DFD0B8",
+    backgroundColor: "#FFFFFF",
     margin: 15,
     borderRadius: 10,
     padding: 20,
   },
   sectionContainer: {
-    backgroundColor: "#948979",
+    backgroundColor: "transparent",
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
@@ -470,10 +515,19 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#DFD0B8",
+    color: "#F58B44",
     marginBottom: 10,
   },
   moreButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: 'transparent',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  trashButton: {
     backgroundColor: 'transparent',
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -500,20 +554,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginVertical: 5,
+    
+  },
+  squareBox: {
+    width: 150,
+    height: 150,
+    borderColor: "#F58B44",
+    borderWidth: 1,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 5,
+    position: "relative",
+    padding: 10,
+    backgroundColor: '#FFFFFF'
+  },
+  newSquareBox: {
+    width: 150,
+    height: 150,
+    borderColor: "#F58B44",
+    borderWidth: 1,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 5,
   },
   itemText: {
     flex: 1,
     fontSize: 16,
-    color: "#948979",
+    color: "black",
+    textAlign: "center",
+    paddingHorizontal: 10,
+    textAlignVertical: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  removeButton: {
-    backgroundColor: "red",
-    borderRadius: 5,
-    padding: 5,
-  },
-  removeButtonText: {
-    color: "white",
-    fontWeight: "bold",
+  itemTextInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "black",
+    textAlign: "center",
+    paddingHorizontal: 10,
+    textAlignVertical: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   newItemContainer: {
     flexDirection: "row",
@@ -523,16 +607,16 @@ const styles = StyleSheet.create({
   newItemInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#3C5B6F",
+    borderColor: "#F58B44",
     borderRadius: 5,
     padding: 10,
     marginVertical: 10,
     fontSize: 16,
     marginRight: 10,
-    color: "#DFD0B8",
+    color: "#F58B44",
   },
   addButton: {
-    backgroundColor: "#153448",
+    backgroundColor: "#F58B44",
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -542,7 +626,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   addSectionButton: {
-    backgroundColor: "#153448",
+    backgroundColor: "#F58B44",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -556,7 +640,7 @@ const styles = StyleSheet.create({
   boxLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#DFD0B8",
+    color: "#F58B44",
     marginBottom: 5,
   },
   sectionTitleContainer: {
@@ -566,7 +650,42 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#DFD0B8",
+    color: "#F58B44",
+  },
+  horizontalScrollView: {
+    flexDirection: "row",
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: 30,
+    right: 5,
+    backgroundColor: "#F6B833",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1,
+  },
+  dropdownItem: {
+    padding: 10,
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  uploadImageButton: {
+    backgroundColor: "#F58B44",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  uploadImageButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

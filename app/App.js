@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text, Image, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager } from "react-native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { View, Text, StyleSheet, Platform, UIManager } from "react-native";
 
 import HomeScreen from "./pages/Home";
 import SettingsScreen from "./pages/Settings";
@@ -14,18 +14,10 @@ import WelcomeScreen from "./pages/Welcome";
 import LoginScreen from "./pages/Login";
 import RegisterScreen from "./pages/Register";
 
-// Import icons
-import HomeIcon from "./assets/homeicon.png";
-import BookmarksIcon from "./assets/bookmarkicon.png";
-import ShowcaseIcon from "./assets/showcaseicon.png";
-import SettingsIcon from "./assets/settingsicon.png";
-import ProfileIcon from "./assets/profileicon.png";
-
 import { onAuthStateChanged } from "firebase/auth";
 import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-
 
 if (typeof localStorage === 'undefined') {
   global.localStorage = {
@@ -51,45 +43,20 @@ if (typeof global.location === 'undefined') {
   };
 }
 
-const Tab = createBottomTabNavigator();
-
-function CustomHeaderTitle({ title, imagePath }) {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        marginRight: 180,
-        marginBottom: 20,
-      }}
-    >
-      <Image
-        source={imagePath}
-        style={{ width: 75, height: 75, marginLeft: -20, marginBottom: 1 }}
-      />
-      <Text style={{ fontWeight: "bold", fontSize: 30 }}>{title}</Text>
-    </View>
-  );
-}
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [userMetadata, setUserMetadata] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   // Enable layout animation for Android
   if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-  const toggleExpand = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setIsExpanded(!isExpanded);
-  };
-
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {
-    console.log("user", user?.uid);
+    console.log('user', user?.uid);
     setUserMetadata(user);
     if (initializing) {
       setInitializing(false);
@@ -110,209 +77,129 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 21, backgroundColor: "transparent" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-              switch (route.name) {
-                case "Welcome":
-                  iconName = "tab";
-                  break;
-                case "Login":
-                  iconName = "login";
-                  break;
-                case "Register":
-                  iconName = "account-box";
-                  break;
-                case "Home":
-                  iconName = "home";
-                  break;
-                case "Bookmarks":
-                  iconName = "bookmark";
-                  break;
-                case "Showcase":
-                  iconName = "dashboard";
-                  break;
-                case "Settings":
-                  iconName = "settings";
-                  break;
-                case "Profile":
-                  iconName = "person";
-                  break;
-              }
-              return <MaterialIcons name={iconName} size={size} color={color} />;
+        <Drawer.Navigator
+          screenOptions={{
+            headerShown: true, // Show the header with the hamburger icon
+            drawerStyle: {
+              backgroundColor: '#DFD0B8',
             },
-            tabBarLabel: ({ focused, color }) => (
-              <Text style={{ color, fontSize: 12, textAlign: 'center' }}>
-                {route.name}
-              </Text>
-            ),
-            tabBarActiveTintColor: "tomato",
-            tabBarInactiveTintColor: "black",
-            tabBarStyle: {
-              height: isExpanded ? 65 : 0, // Use state to determine height
-              backgroundColor: "#DFD0B8", // Make tab bar background transparent
-              borderTopWidth: 0, // Remove border top if present
-              elevation: 0, // Remove elevation shadow on Android
-              shadowOpacity: 0, // Remove shadow on iOS
-            },
-            tabBarIconStyle: {
-              marginTop: 15,
-            },
-            tabBarLabelStyle: {
-              fontSize: 12,
-              marginBottom: 10,
-              fontWeight: "900",
-            },
-            headerStyle: {
-              height: 65,
-              backgroundColor: "#DFD0B8", // Make header background transparent
-              borderBottomWidth: 0, // Remove border bottom if present
-              elevation: 0, // Remove elevation shadow on Android
-              shadowOpacity: 0, // Remove shadow on iOS
-            },
-            headerTintColor: "#fff",
-            headerTitleStyle: {
-              fontWeight: "bold",
-              color: "white",
-            },
-          })}
+            drawerActiveTintColor: 'tomato',
+            drawerInactiveTintColor: 'black',
+          }}
         >
           {userMetadata ? (
             <>
-              <Tab.Screen
+              <Drawer.Screen
                 name="Home"
                 component={HomeScreen}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Home    "
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="home" size={size} color={color} />
                   ),
                 }}
               />
-              <Tab.Screen
+              <Drawer.Screen
                 name="Bookmarks"
                 children={() => <BookmarksScreen userMetadata={userMetadata} />}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Bookmarks"
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="bookmark" size={size} color={color} />
                   ),
                 }}
               />
-              <Tab.Screen
+              <Drawer.Screen
                 name="Showcase"
                 children={() => <ShowcaseScreen userMetadata={userMetadata} />}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Showcase"
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="dashboard" size={size} color={color} />
                   ),
                 }}
               />
-              <Tab.Screen
+              <Drawer.Screen
                 name="Settings"
                 children={() => <SettingsScreen userMetadata={userMetadata} />}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Settings"
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="settings" size={size} color={color} />
                   ),
                 }}
               />
-              <Tab.Screen
+              <Drawer.Screen
                 name="Profile"
                 children={() => <ProfileScreen userMetadata={userMetadata} />}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Profile"
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="person" size={size} color={color} />
                   ),
                 }}
               />
             </>
           ) : (
             <>
-              <Tab.Screen
+              <Drawer.Screen
                 name="Welcome"
                 component={WelcomeScreen}
-                
-              />
-              <Tab.Screen
-                name="Login"
-                component={LoginScreen}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Login     "
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="tab" size={size} color={color} />
                   ),
                 }}
               />
-              <Tab.Screen
+              <Drawer.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="login" size={size} color={color} />
+                  ),
+                }}
+              />
+              <Drawer.Screen
                 name="Register"
                 component={RegisterScreen}
                 options={{
-                  headerTitle: () => (
-                    <CustomHeaderTitle
-                      title="Register"
-                      imagePath={require("./assets/scholar.png")}
-                    />
+                  drawerIcon: ({ color, size }) => (
+                    <MaterialIcons name="account-box" size={size} color={color} />
                   ),
                 }}
               />
             </>
           )}
-        </Tab.Navigator>
+        </Drawer.Navigator>
       </NavigationContainer>
-      <TouchableOpacity style={[styles.arrowContainer, { bottom: isExpanded ? 55 : -10 }]} onPress={toggleExpand}>
-        <MaterialIcons name={isExpanded ? "expand-more" : "expand-less"} size={30} color="black" />
-        <Text></Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   divider1: {
-    height: 1, // or 2 for a thicker line
-    width: "70%",
-    backgroundColor: "black", // You can choose any color
+    height: 1,
+    width: '70%',
+    backgroundColor: 'black',
     marginBottom: -70,
   },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%', // Ensure it fills the tab bar height
-    paddingHorizontal: 10, // Optional: depending on your design
+    height: '100%',
+    paddingHorizontal: 10,
   },
   verticalDivider: {
     borderRightWidth: 1,
-    borderColor: 'gray', // Choose a color that matches your design
-    
+    borderColor: 'gray',
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: "cover", // or 'stretch'
-    backgroundColor: "#F7B500",
+    resizeMode: 'cover',
+    backgroundColor: '#F7B500',
   },
   icon: {
     width: 20,
     height: 20,
-    marginBottom: -50
+    marginBottom: -50,
   },
   container: {
     flex: 1,
