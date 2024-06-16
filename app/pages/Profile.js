@@ -99,7 +99,7 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
               <Text style={[styles.itemText, { fontSize: calculateFontSize(item.text) }]}>{item.text}</Text>
             )}
             <TouchableOpacity onPress={() => setDropdownIndex(dropdownIndex === index ? null : index)} style={styles.moreButton}>
-              <Icon name="more-vert" size={20} color="#F58B44" />
+              <Icon name="more-vert" size={20} color="#e74c3c" />
             </TouchableOpacity>
             {dropdownIndex === index && (
               <View style={styles.dropdownMenu}>
@@ -120,7 +120,7 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
           </View>
         ))}
         <TouchableOpacity style={styles.newSquareBox} onPress={addItem}>
-          <Icon name="add" size={40} color="#EEEEEE" />
+          <Icon name="add" size={40} color="#ecf0f1" />
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -206,7 +206,11 @@ const ProfileScreen = ({ userMetadata }) => {
     const url =
       socialType === "reddit"
         ? `https://www.reddit.com/submit?title=My ScholarSync Profile&url=${payload}`
-        : `https://twitter.com/intent/tweet?text=${encodeURI(payload)}`;
+        : socialType === "twitter"
+        ? `https://twitter.com/intent/tweet?text=${encodeURI(payload)}`
+        : `https://www.instagram.com/create/story
+
+`;
 
     Linking.openURL(url)
       .then(() => {
@@ -297,7 +301,7 @@ const ProfileScreen = ({ userMetadata }) => {
   };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#F58B44" }}>
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#2c3e50" }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : null}>
         <ScrollView style={{ flex: 1 }}>
           <View style={styles.headerContainer}>
@@ -314,6 +318,26 @@ const ProfileScreen = ({ userMetadata }) => {
               <Text style={styles.saveButtonText}>Save Photo</Text>
             </TouchableOpacity>
           </View>
+          
+          {sections.map((section, index) => (
+            <View key={index} style={styles.sectionWrapper}>
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeaderContainer}>
+                  <Text style={styles.sectionHeader}>{section}</Text>
+                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
+                    <Icon name="delete" size={20} color="#e74c3c" />
+                  </TouchableOpacity>
+                </View>
+                <EditableBox
+                  label={`Add ${section}`}
+                  category={section.toLowerCase()}
+                  data={userData?.[section.toLowerCase()]?.custom || prefilledData[section.toLowerCase()]}
+                  updateUserData={updateUserData}
+                />
+              </View>
+              {index < sections.length - 1 && <View style={styles.divider} />}
+            </View>
+          ))}
           <View style={styles.socialButtonsTitleContainer}>
             <Text style={styles.socialButtonsTitle}>Share to:</Text>
           </View>
@@ -339,27 +363,21 @@ const ProfileScreen = ({ userMetadata }) => {
               />
             </TouchableOpacity>
           </View>
-          <View style={styles.infoContainer}>
-            {sections.map((section, index) => (
-              <View key={index} style={styles.sectionContainer}>
-                <View style={styles.sectionHeaderContainer}>
-                  <Text style={styles.sectionHeader}>{section}</Text>
-                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
-                    <Icon name="delete" size={20} color="#F58B44" />
-                  </TouchableOpacity>
-                </View>
-                <EditableBox
-                  label={`Add ${section}`}
-                  category={section.toLowerCase()}
-                  data={userData?.[section.toLowerCase()]?.custom || prefilledData[section.toLowerCase()]}
-                  updateUserData={updateUserData}
-                />
-              </View>
-            ))}
-            <TouchableOpacity onPress={addSection} style={styles.addSectionButton}>
-              <Text style={styles.addSectionButtonText}>+ Add New Section</Text>
+          <View style={styles.instagramButtonContainer}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.instagramButton}
+              onPress={() => shareToSocial("instagram")}
+            >
+              <Image
+                source={require("../assets/instagram.png")} // Adjust the path as necessary
+                style={styles.instagramButtonIcon}
+              />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity onPress={addSection} style={styles.addSectionButton}>
+            <Text style={styles.addSectionButtonText}>+ Add New Section</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </Animated.View>
@@ -369,17 +387,17 @@ const ProfileScreen = ({ userMetadata }) => {
 const styles = StyleSheet.create({
   label: {
     fontSize: 14,
-    color: "#F58B44",
+    color: "#34495e",
     marginBottom: 3,
   },
   input: {
     flex: 1,
     fontSize: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F58B44",
+    borderBottomColor: "#34495e",
     paddingVertical: 5,
     marginRight: 10,
-    color: "#F58B44",
+    color: "#34495e",
   },
   inputContainer: {
     marginBottom: 20,
@@ -392,7 +410,7 @@ const styles = StyleSheet.create({
   editButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     borderRadius: 5,
   },
   editButtonText: {
@@ -406,17 +424,19 @@ const styles = StyleSheet.create({
   socialButtonsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: "#F58B44",
+    color: "#34495e",
     marginBottom: 10,
   },
   socialButtonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 10,
+    marginRight: 200,
+    marginBottom: 30
   },
   socialButton: {
     flexDirection: "row",
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     borderRadius: 100,
     height: 45,
     width: 45,
@@ -427,11 +447,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 2,
-    marginRight: 10,
+    marginRight: 2,
   },
   socialButton2: {
     flexDirection: "row",
-    backgroundColor: "#F6B833",
+    backgroundColor: "#e74c3c",
     borderRadius: 100,
     height: 45,
     width: 45,
@@ -443,10 +463,39 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2,
     marginLeft: 10,
+    marginRight: 20
+
+  },
+  instagramButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: -75,
+    marginLeft: -45,
+    marginBottom: 20
+
+    
+  },
+  instagramButton: {
+    backgroundColor: "#d35400",
+    borderRadius: 100,
+    height: 45,
+    width: 45,
+    justifyContent: "center",
+    alignItems: "center",
+    opacity: 0.9,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  instagramButtonIcon: {
+    width: 75,
+    height: 75,
+    resizeMode: "contain",
   },
   buttonIcon: {
-    width: 30,
-    height: 30,
+    width: 140,
+    height: 140,
     resizeMode: "contain",
   },
   multilineInput: {
@@ -454,8 +503,8 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    backgroundColor: "#FFFFFF",
-    padding: 30,
+    backgroundColor: "#2c3e50",
+    padding: 20,
   },
   profileImage: {
     width: 200,
@@ -468,7 +517,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 20,
     fontWeight: "bold",
-    color: "#F58B44",
+    color: "#34495e",
   },
   headerContainer: {
     flexDirection: "column",
@@ -477,7 +526,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   saveButton: {
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     padding: 10,
     borderRadius: 10,
     marginTop: 10,
@@ -489,23 +538,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   infoContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
     margin: 15,
     borderRadius: 10,
     padding: 20,
   },
-  sectionContainer: {
-    backgroundColor: "transparent",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
+  sectionWrapper: {
+    backgroundColor: "#ffffff",
+    borderRadius: 0,
+    padding: 20,
+    marginVertical: 10,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
-    marginLeft: -15,
+    marginRight: 15,
+    marginLeft: 15
+  },
+  sectionContainer: {
+    backgroundColor: "transparent",
+    borderRadius: 0,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 3,
     marginRight: -15,
+    marginLeft: -15
   },
   sectionHeaderContainer: {
     flexDirection: "row",
@@ -515,7 +576,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#F58B44",
+    color: "#34495e",
     marginBottom: 10,
   },
   moreButton: {
@@ -535,7 +596,7 @@ const styles = StyleSheet.create({
   },
   confirmRemoveButton: {
     marginTop: 5,
-    backgroundColor: "tomato",
+    backgroundColor: "#e74c3c",
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -554,12 +615,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginVertical: 5,
-    
   },
   squareBox: {
     width: 150,
     height: 150,
-    borderColor: "#F58B44",
+    borderColor: "#34495e",
     borderWidth: 1,
     borderRadius: 10,
     justifyContent: "center",
@@ -567,12 +627,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     position: "relative",
     padding: 10,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#ecf0f1'
   },
   newSquareBox: {
     width: 150,
     height: 150,
-    borderColor: "#F58B44",
+    borderColor: "#34495e",
     borderWidth: 1,
     borderRadius: 10,
     justifyContent: "center",
@@ -607,16 +667,16 @@ const styles = StyleSheet.create({
   newItemInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#F58B44",
+    borderColor: "#34495e",
     borderRadius: 5,
     padding: 10,
     marginVertical: 10,
     fontSize: 16,
     marginRight: 10,
-    color: "#F58B44",
+    color: "#34495e",
   },
   addButton: {
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -626,7 +686,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   addSectionButton: {
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -640,7 +700,7 @@ const styles = StyleSheet.create({
   boxLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#F58B44",
+    color: "#34495e",
     marginBottom: 5,
   },
   sectionTitleContainer: {
@@ -650,7 +710,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#F58B44",
+    color: "#34495e",
   },
   horizontalScrollView: {
     flexDirection: "row",
@@ -659,7 +719,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 30,
     right: 5,
-    backgroundColor: "#F6B833",
+    backgroundColor: "#e74c3c",
     borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -676,7 +736,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   uploadImageButton: {
-    backgroundColor: "#F58B44",
+    backgroundColor: "#34495e",
     padding: 10,
     borderRadius: 10,
     marginTop: 10,
@@ -686,6 +746,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#34495e",
+    marginVertical: 20,
   },
 });
 
