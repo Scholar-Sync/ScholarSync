@@ -1,23 +1,18 @@
-import * as React from "react";
-import { useState, useRef, useCallback } from "react";import {
-  Button,
+import React, { useState, useRef, useCallback } from "react";
+import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   Image,
   TouchableOpacity,
-  ImageBackground,
-  Animated
+  Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import Swiper from "react-native-swiper";
-import { doc, setDoc, getDocs, collection } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { theme } from '../utils/theme'; // Adjust the import path as needed
 
 const HomeScreen = ({ navigation }) => {
-
   const [teamMembers] = useState([
     {
       name: "Roi Mahns",
@@ -38,46 +33,41 @@ const HomeScreen = ({ navigation }) => {
       details: "Detail information about Ayla Mahns.",
     },
   ]);
+
   const [expandedSection, setExpandedSection] = useState(null);
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
+
   const [expandedMember, setExpandedMember] = useState(null);
   const toggleMemberInfo = (memberIndex) => {
     setExpandedMember(expandedMember === memberIndex ? null : memberIndex);
   };
 
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
-  
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   useFocusEffect(
     useCallback(() => {
-      // Reset the animation state to 0
       fadeAnim.setValue(0);
-  
-      // Start the fade-in animation
       Animated.timing(fadeAnim, {
-        toValue: 1, // Fade to full opacity
-        duration: 600, // Duration of the animation
-        useNativeDriver: true, // Use native driver for better performance
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
       }).start();
-    }, [fadeAnim]) // Add fadeAnim to the dependency array
+    }, [fadeAnim])
   );
-    return (
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <ImageBackground
-          source={require("../assets/background4.png")}
-          style={styles.backgroundImage}
-        >
+
+  return (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
       <ScrollView style={styles.container}>
         <Swiper
           style={styles.wrapper}
           showsButtons={false}
           loop
           autoplay
-          marginBottom="10"
-          buttonColor="grey" // Color for the buttons
-          dotColor="grey" // Color for the dots
-          activeDotColor="black" // Color for the active dot
+          buttonColor="grey"
+          dotColor="grey"
+          activeDotColor="black"
         >
           <Image
             source={require("../assets/page1.png")}
@@ -100,25 +90,18 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Welcome to ScholarSync!</Text>
         </View>
-        <View dtyle={styles.textBelow}>
+        <View style={styles.textBelow}>
           <Text style={styles.below}>
             "Elevate your high school success on ScholarSync, the ultimate hub
             for learning and peer connection."
           </Text>
         </View>
-        {/* Call to Action Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Profile")} // Add the navigation call here
+          onPress={() => navigation.navigate("Profile")}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
-        <View>
-          <Image
-          //source={require("../assets/border.jpg")} // Replace with your image path
-          //style={styles.borderImage}
-          />
-        </View>
 
         <View style={styles.descriptionContainer}>
           <Text style={styles.embraceText}>📚 Embrace Your Journey:</Text>
@@ -127,12 +110,10 @@ const HomeScreen = ({ navigation }) => {
             It's your space to voice your unique story.
           </Text>
           <Image
-            source={require("../assets/bus.gif")} // Replace with your image path
+            source={require("../assets/bus.gif")}
             style={styles.descriptionImage}
           />
         </View>
-
-        {/* Swiper/Slideshow */}
 
         <View style={styles.missionSection}>
           <Text style={styles.subheading}>🤝 Our Mission</Text>
@@ -145,8 +126,9 @@ const HomeScreen = ({ navigation }) => {
             style={styles.missionImage}
           />
         </View>
+
         <View style={styles.section}>
-          <Text style={styles.subheading} onPress={() => test()}>About Us</Text>
+          <Text style={styles.subheading}>About Us</Text>
           {teamMembers.map((member, index) => (
             <View key={index}>
               <TouchableOpacity
@@ -167,7 +149,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
           ))}
         </View>
-        {/* Features Section */}
+
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("features")}
@@ -184,7 +166,6 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.divider} />
 
-        {/* Testimonials Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("testimonials")}
@@ -193,16 +174,13 @@ const HomeScreen = ({ navigation }) => {
           {expandedSection === "testimonials" && (
             <View style={styles.dropdownContent}>
               <Text>"ScholarSync has transformed the way I study!" - Alex</Text>
-              <Text>
-                "I love the community aspect of ScholarSync." - Jordan
-              </Text>
+              <Text>"I love the community aspect of ScholarSync." - Jordan</Text>
             </View>
           )}
         </TouchableOpacity>
 
         <View style={styles.divider} />
 
-        {/* FAQ Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("faqs")}
@@ -222,7 +200,6 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.divider} />
 
-        {/* Contact Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("contact")}
@@ -237,9 +214,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.divider1} />
-
       </ScrollView>
-    </ImageBackground>
     </Animated.View>
   );
 };
@@ -249,34 +224,25 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingBottom: 100, // Replace with the actual height
-  },
-
-  // Style for the inner content view
-
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    backgroundColor: theme.colors.background, // Use the background color from the theme
   },
   wrapper: {
     height: 200,
-    marginBottom: -10
+    marginBottom: -10,
   },
   slideImage: {
     width: "100%",
     height: "100%",
     resizeMode: "contain",
-    shadowColor: "#F7B500", // Same color as the border
-    shadowOpacity: .3, // Adjust as needed
-    shadowRadius: 10, // Adjust for the spread of the shadow
-    shadowOffset: { width: 0, height: 4 }, // Adjust as needed
-    borderColor: "#F7B500",
+    shadowColor: theme.colors.selected,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    borderColor: theme.colors.selected,
     borderWidth: 15,
     borderTopWidth: 10,
     borderRadius: 10,
     marginBottom: -50,
-
   },
   headingContainer: {
     borderRadius: 10,
@@ -286,7 +252,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "black",
+    color: theme.colors.text,
     textAlign: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -298,8 +264,7 @@ const styles = StyleSheet.create({
   },
   below: {
     fontSize: 15,
-
-    color: "black",
+    color: theme.colors.text,
     textAlign: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -309,26 +274,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
-    marginTop: 200,
+    marginTop: 20,
   },
   descriptionText: {
     fontSize: 16,
-    color: "#4A4A4A",
+    color: theme.colors.text,
     lineHeight: 22,
   },
   embraceText: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
     marginBottom: 10,
   },
-
   descriptionImage: {
-    width: "165%", // Adjust as needed
-    height: 200, // Adjust as needed
-    borderRadius: 10, // Optional: if you want rounded corners
-    resizeMode: "cover", // Or 'contain' based on your requirement
-    marginTop: 15, // Optional: adjust space between text and image
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    resizeMode: "cover",
+    marginTop: 15,
   },
   section: {
     marginVertical: 20,
@@ -336,11 +300,10 @@ const styles = StyleSheet.create({
   subheading: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
     marginBottom: 10,
   },
   dropdownContent: {
-
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",
@@ -349,6 +312,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
     marginTop: 10,
+    backgroundColor: "white", // Ensure it's readable
   },
   missionSection: {
     backgroundColor: "white",
@@ -362,7 +326,7 @@ const styles = StyleSheet.create({
   },
   missionText: {
     fontSize: 18,
-    color: "#6C6C6C",
+    color: theme.colors.text,
     marginBottom: 15,
   },
   missionImage: {
@@ -404,20 +368,20 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
   },
   memberRole: {
     fontSize: 16,
-    color: "#6C6C6C",
+    color: theme.colors.text,
   },
   button: {
-    backgroundColor: "#F7B500",
+    backgroundColor: theme.colors.selected,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
     marginVertical: 20,
-    shadowColor: "#F7B500",
+    shadowColor: theme.colors.selected,
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -431,19 +395,18 @@ const styles = StyleSheet.create({
     color: "white",
   },
   divider: {
-    height: 1, // or 2 for a thicker line
+    height: 1,
     width: '100%',
-    backgroundColor: 'black', // You can choose any color
-    marginVertical: 5, // Spacing above and below the line
+    backgroundColor: 'black',
+    marginVertical: 5,
   },
   divider1: {
-    height: 1, // or 2 for a thicker line
+    height: 1,
     width: '100%',
-    backgroundColor: 'black', // You can choose any color
+    backgroundColor: 'black',
     marginVertical: 5,
-    marginBottom: 100, // Spacing above and below the line
+    marginBottom: 100,
   },
-
 });
 
 export default HomeScreen;
