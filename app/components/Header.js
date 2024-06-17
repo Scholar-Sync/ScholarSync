@@ -10,7 +10,7 @@ const Header = ({ title }) => {
 
   return (
     <View style={styles.headerContainer}>
-      <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{title}</Text>
+      <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{" "}</Text>
       <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
         <MaterialIcons name="menu" size={28} color={theme.colors.text} />
       </TouchableOpacity>
@@ -24,8 +24,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'transparent',
-    position: 'absolute',
+    backgroundColor: 'white',
     top: 0,
     left: 0,
     right: 0,
