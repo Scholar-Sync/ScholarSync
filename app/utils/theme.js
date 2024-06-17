@@ -1,4 +1,3 @@
-
 //theme.js
 export const theme = {
     colors: {
@@ -21,6 +20,11 @@ export const theme = {
       medium: "Roboto-Medium",
       bold: "Roboto-Bold",
     },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
   };
   
   export const darkTheme = {

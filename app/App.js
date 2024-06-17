@@ -8,8 +8,8 @@ import SettingsScreen from "./pages/Settings";
 import ShowcaseScreen from "./pages/Showcase";
 import BookmarksScreen from "./pages/Bookmarks";
 import ProfileScreen from "./pages/Profile";
-import { ThemeProvider } from "./utils/ThemeProvider"; 
-
+import { ThemeProvider } from "./utils/ThemeProvider";
+import Loading from "./components/Loading";
 // Auth pages
 import WelcomeScreen from "./pages/Welcome";
 import LoginScreen from "./pages/Login";
@@ -25,8 +25,7 @@ const Drawer = createDrawerNavigator();
 const App = () => {
   const [initializing, setInitializing] = useState(true);
   const [userMetadata, setUserMetadata] = useState(null);
-  const { theme, toggleTheme } = useTheme();
-    
+
   if (
     Platform.OS === "android" &&
     UIManager.setLayoutAnimationEnabledExperimental
@@ -34,7 +33,7 @@ const App = () => {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-//user logging in or signing up
+  //user logging in or signing up
   const onAuthStateChangedHandler = (user) => {
     console.log("user", user?.uid);
     setUserMetadata(user);
@@ -43,7 +42,7 @@ const App = () => {
     }
   };
 
-//notifies when user logs out or screen goes out
+  //notifies when user logs out or screen goes out
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
     return unsubscribe;
@@ -51,11 +50,7 @@ const App = () => {
 
   //if the page is still loading "loading..." will appear
   if (initializing) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
