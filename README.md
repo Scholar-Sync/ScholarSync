@@ -1,4 +1,4 @@
-# Scholar Sync App
+  # Scholar Sync App
 
 Created by Roi M., Riley W., and Ayla M.
 

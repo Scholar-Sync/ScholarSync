@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ImageBackground,
   Animated
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -13,9 +12,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { StyleSheet } from "react-native";
 import { signup } from "../utils/auth";
 import { db } from "../firebase/config";
-import { doc, setDoc, getDocs, collection } from "firebase/firestore";
-
-// import ( saveUserData } from "../coongi/firebaseDatabase";
+import { doc, setDoc, collection } from "firebase/firestore";
+import { theme } from '../utils/theme'; // Adjust the import path as needed
 
 const DEFAULT_USER_DATA = {
   uid: "",
@@ -99,7 +97,7 @@ export default function RegistrationScreen({ navigation }) {
       }
     } catch (error) {
       console.log("Error signing up: ", error.code, error.message);
-      if ((error.code = a = "auth/email-already-in-use")) {
+      if (error.code === "auth/email-already-in-use") {
         alert("Email already in use. Please choose a different email.");
       } else if (error.code === "auth/weak-password") {
         alert("Weak password. Please choose a stronger password.");
@@ -108,12 +106,9 @@ export default function RegistrationScreen({ navigation }) {
       }
     }
   };
+
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-    <ImageBackground
-      source={require("../assets/background.png")} // Specify your background image path here
-      style={styles.background}
-    >
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <KeyboardAwareScrollView
         style={{ flex: 1, width: "100%" }}
         keyboardShouldPersistTaps="always"
@@ -180,8 +175,7 @@ export default function RegistrationScreen({ navigation }) {
             underlineColorAndroid="transparent"
             autoCapitalize="none"
           />
-            <View style={styles.divider1} />
-
+          <View style={styles.divider1} />
 
           <TouchableOpacity
             style={styles.button}
@@ -191,7 +185,6 @@ export default function RegistrationScreen({ navigation }) {
           </TouchableOpacity>
           <View style={styles.footerView}>
             <Text style={styles.footerText}>
-              {" "}
               <Text
                 onPress={() => navigation.navigate("Welcome")}
                 style={styles.footerLink}
@@ -202,45 +195,29 @@ export default function RegistrationScreen({ navigation }) {
           </View>
         </View>
       </KeyboardAwareScrollView>
-    </ImageBackground>
     </Animated.View>
   );
 }
 
-// This is the styling for the Registration screen.
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    length: "100%",
     width: "100%",
+    backgroundColor: theme.colors.background, // Use the background color from the theme
   },
   divider1: {
     height: 1, // or 2 for a thicker line
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginTop: 10,
-    marginHorizontal: 55
+    marginHorizontal: 55,
   },
   divider: {
     height: 1, // or 2 for a thicker line
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginBottom: 10, // Spacing above and below the line
-    marginHorizontal: 55
-    
-  },
-  background: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {},
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    marginHorizontal: 55,
   },
   logo: {
     flex: 1,
@@ -262,13 +239,13 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
   },
   button: {
-    backgroundColor: "#F7B500",
+    backgroundColor: theme.colors.selected, // Use the selected color from the theme
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
     marginVertical: 20,
-    shadowColor: "#F7B500",
+    shadowColor: theme.colors.selected, // Use the selected color from the theme
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -291,7 +268,7 @@ const styles = StyleSheet.create({
     color: "#2e2e2d",
   },
   footerLink: {
-    color: "#F7B500",
+    color: theme.colors.selected, // Use the selected color from the theme
     fontWeight: "bold",
     fontSize: 16,
   },

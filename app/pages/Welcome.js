@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
-  ImageBackground,
   TouchableOpacity,
   StyleSheet,
   Image,
   Animated,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
+import { theme } from '../utils/theme'; // Adjust the import path as needed
 
 const quotes = [
   {
@@ -141,11 +142,8 @@ export default function WelcomeScreen() {
   );
 
   return (
-    <Animated.View style={{ flex: 1, opacity: pageOpacity }}>
-      <ImageBackground
-        source={require("../assets/background1.png")}
-        style={styles.background}
-      >
+    <Animated.View style={[styles.container, { opacity: pageOpacity }]}>
+      <View style={styles.background}>
         <View style={styles.divider1} />
         <Image
           source={require("../assets/scholar.png")}
@@ -159,26 +157,28 @@ export default function WelcomeScreen() {
           </Animated.View>
         </View>
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.button}
+          <StyledButton
+            title="Login"
             onPress={() => navigation.navigate("Login")}
-          >
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
+          />
+          <StyledButton
+            title="Register"
             onPress={() => navigation.navigate("Register")}
-          >
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
+          />
           <View style={styles.divider} />
         </View>
-      </ImageBackground>
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.background, // Use the background color from the theme
+  },
   background: {
     flex: 1,
     alignItems: "center",
@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginBottom: -70
-    
   },
   divider: {
     height: 1, // or 2 for a thicker line
@@ -202,8 +201,8 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     resizeMode: "contain",
-    shadowColor: "#4A3903",
-    shadowOpacity: 5,
+    shadowColor: "#f9feff",
+    shadowOpacity: 1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
@@ -214,7 +213,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40, // Keep some padding
     marginTop: -100,
     marginBottom:  -70,
-    
   },
   quoteContainer: {
     alignItems: "center",
@@ -224,10 +222,10 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginBottom: 10,
-    color: "#F7B500",
+    color: theme.colors.selected, // Use the selected color from the theme
     fontWeight: "bold",
-    shadowColor: "#F7B500",
-    shadowOpacity: .8,
+    shadowColor: theme.colors.selected, // Use the selected color from the theme
+    shadowOpacity: 0.8,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
     elevation: 10,
@@ -235,33 +233,10 @@ const styles = StyleSheet.create({
   authorText: {
     fontSize: 10,
     textAlign: "center",
-    color: "gray",
+    color: theme.colors.text, // Use the text color from the theme
   },
   buttonsContainer: {
     width: "100%", // Ensure buttons container spans the full width
     alignItems: "center",
-    
-  },
-  button: {
-    backgroundColor: "#F7B500",
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginVertical: 10,
-    width: 200, // Set a fixed width for buttons
-    height: 50, // Set a fixed height for buttons
-    shadowColor: "#F7B500",
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
   },
 });

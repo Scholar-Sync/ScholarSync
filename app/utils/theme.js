@@ -1,14 +1,12 @@
-//theme.js
 export const theme = {
     colors: {
-      primary: "#6200ee",
-      secondary: "#03dac4",
-      background: "#f6f6f6",
-      surface: "#ffffff",
-      error: "#B00020",
-      text: "#000000",
-      disabled: "#f0f0f0",
-      placeholder: "#a0a0a0",
+   
+      background: "#efedec",
+      background_b: "#f9feff",
+      selected: "#ffb95d",
+      highlight: "#f5f1ee",
+      text: "#4b4e52",
+     
     },
     spacing: {
       small: 8,

@@ -5,13 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ImageBackground,
   Animated, // Import Animated for the fade-in effect
   StyleSheet,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { login } from "../utils/auth";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { theme } from '../utils/theme'; // Adjust the import path as needed
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -58,92 +58,80 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/background.png")}
-      style={styles.background}
-    >
-      <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-        <KeyboardAwareScrollView
-          style={{ flex: 1, width: "100%" }}
-          keyboardShouldPersistTaps="always"
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1, width: "100%" }}
+        keyboardShouldPersistTaps="always"
+      >
+        <Image
+          style={styles.logo}
+          source={require("../assets/scholar.png")}
+        />
+        <View style={styles.divider} />
+
+        <TextInput
+          style={styles.input}
+          placeholder="E-mail"
+          placeholderTextColor="#aaaaaa"
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          underlineColorAndroid="transparent"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholderTextColor="#aaaaaa"
+          secureTextEntry
+          placeholder="Password"
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          underlineColorAndroid="transparent"
+          autoCapitalize="none"
+        />
+        <View style={styles.divider1} />
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => handleLogin(email, password)}
         >
-          <Image
-            style={styles.logo}
-            source={require("../assets/scholar.png")}
-          />
-          <View style={styles.divider} />
-
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            placeholderTextColor="#aaaaaa"
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#aaaaaa"
-            secureTextEntry
-            placeholder="Password"
-            onChangeText={(text) => setPassword(text)}
-            value={password}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-          />
-          <View style={styles.divider1} />
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleLogin(email, password)}
-          >
-            <Text style={styles.buttonTitle}>Log in</Text>
-          </TouchableOpacity>
-          <View style={styles.footerView}>
-            <Text style={styles.footerText}>
-              <Text
-                onPress={() => navigation.navigate("Welcome")}
-                style={styles.footerLink}
-              >
-                Go Back
-              </Text>
+          <Text style={styles.buttonTitle}>Log in</Text>
+        </TouchableOpacity>
+        <View style={styles.footerView}>
+          <Text style={styles.footerText}>
+            <Text
+              onPress={() => navigation.navigate("Welcome")}
+              style={styles.footerLink}
+            >
+              Go Back
             </Text>
-          </View>
-        </KeyboardAwareScrollView>
-      </Animated.View>
-    </ImageBackground>
+          </Text>
+        </View>
+      </KeyboardAwareScrollView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%", // Ensure container fills the width
-    height: "100%", // Ensure container fills the height
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.background, // Use the background color from the theme
   },
   divider1: {
     height: 1, // or 2 for a thicker line
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginTop: 10,
-    marginHorizontal: 55
+    marginHorizontal: 55,
   },
   divider: {
     height: 1, // or 2 for a thicker line
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginBottom: 10, // Spacing above and below the line
-    marginHorizontal: 55
+    marginHorizontal: 55,
   },
-
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  title: {},
   logo: {
     flex: 1,
     height: 200,
@@ -151,7 +139,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 23,
   },
-
   input: {
     height: 48,
     borderRadius: 5,
@@ -164,13 +151,13 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
   },
   button: {
-    backgroundColor: "#F7B500",
+    backgroundColor: theme.colors.selected, // Use the selected color from the theme
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
     marginVertical: 20,
-    shadowColor: "#F7B500",
+    shadowColor: theme.colors.selected, // Use the selected color from the theme
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -192,7 +179,7 @@ const styles = StyleSheet.create({
     color: "#2e2e2d",
   },
   footerLink: {
-    color: "#F7B500",
+    color: theme.colors.selected, // Use the selected color from the theme
     fontWeight: "bold",
     fontSize: 16,
   },
