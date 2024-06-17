@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1,
-    marginTop: 40, // Space from the top
   },
   headerTitle: {
     fontSize: 20,

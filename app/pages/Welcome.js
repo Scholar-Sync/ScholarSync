@@ -149,13 +149,6 @@ export default function WelcomeScreen() {
           source={require("../assets/scholar.png")}
           style={styles.topImage}
         />
-        {/* Wrap the Animated.View in a View with fixed height */}
-        <View style={styles.quoteWrapper}>
-          <Animated.View style={[styles.quoteContainer, { opacity }]}>
-            <Text style={styles.quoteText}>“{quote.text}”</Text>
-            <Text style={styles.authorText}>- {quote.author}</Text>
-          </Animated.View>
-        </View>
         <View style={styles.buttonsContainer}>
           <StyledButton
             title="Login"
@@ -165,6 +158,14 @@ export default function WelcomeScreen() {
             title="Register"
             onPress={() => navigation.navigate("Register")}
           />
+        {/* Wrap the Animated.View in a View with fixed height */}
+        <View style={styles.quoteWrapper}>
+          <Animated.View style={[styles.quoteContainer, { opacity }]}>
+            <Text style={styles.quoteText}>“{quote.text}”</Text>
+            <Text style={styles.authorText}>- {quote.author}</Text>
+          </Animated.View>
+        </View>
+        
           <View style={styles.divider} />
         </View>
       </View>
@@ -216,6 +217,7 @@ const styles = StyleSheet.create({
   },
   quoteContainer: {
     alignItems: "center",
+    marginBottom: -100
   },
   quoteText: {
     fontSize: 13,
@@ -238,5 +240,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     width: "100%", // Ensure buttons container spans the full width
     alignItems: "center",
+    marginBottom: 150
   },
 });
