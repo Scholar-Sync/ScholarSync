@@ -8,6 +8,7 @@ import SettingsScreen from "./pages/Settings";
 import ShowcaseScreen from "./pages/Showcase";
 import BookmarksScreen from "./pages/Bookmarks";
 import ProfileScreen from "./pages/Profile";
+import { ThemeProvider } from "./utils/ThemeProvider"; 
 
 // Auth pages
 import WelcomeScreen from "./pages/Welcome";
@@ -19,55 +20,36 @@ import { app, auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-if (typeof localStorage === 'undefined') {
-  global.localStorage = {
-    storage: {},
-    setItem: function (key, value) {
-      this.storage[key] = value;
-    },
-    getItem: function (key) {
-      return this.storage[key] || null;
-    },
-    removeItem: function (key) {
-      delete this.storage[key];
-    },
-    clear: function () {
-      this.storage = {};
-    }
-  };
-}
-if (typeof global.location === 'undefined') {
-  global.location = {
-    href: '',
-    // Add other properties and methods as needed
-  };
-}
-
 const Drawer = createDrawerNavigator();
 
-export default function App() {
+const App = () => {
   const [initializing, setInitializing] = useState(true);
   const [userMetadata, setUserMetadata] = useState(null);
-
-  // Enable layout animation for Android
-  if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  const { theme, toggleTheme } = useTheme();
+    
+  if (
+    Platform.OS === "android" &&
+    UIManager.setLayoutAnimationEnabledExperimental
+  ) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-  // Handle user state changes
+//user logging in or signing up
   const onAuthStateChangedHandler = (user) => {
-    console.log('user', user?.uid);
+    console.log("user", user?.uid);
     setUserMetadata(user);
     if (initializing) {
       setInitializing(false);
     }
   };
 
+//notifies when user logs out or screen goes out
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
     return unsubscribe;
   }, []);
 
+  //if the page is still loading "loading..." will appear
   if (initializing) {
     return (
       <View style={styles.container}>
@@ -77,124 +59,148 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <NavigationContainer>
-        <Drawer.Navigator
-          screenOptions={{
-            headerShown: true, // Show the header with the hamburger icon
-            drawerStyle: {
-              backgroundColor: '#DFD0B8',
-            },
-            drawerActiveTintColor: 'tomato',
-            drawerInactiveTintColor: 'black',
-          }}
-        >
-          {userMetadata ? (
-            <>
-              <Drawer.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="home" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Bookmarks"
-                children={() => <BookmarksScreen userMetadata={userMetadata} />}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="bookmark" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Showcase"
-                children={() => <ShowcaseScreen userMetadata={userMetadata} />}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="dashboard" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Settings"
-                children={() => <SettingsScreen userMetadata={userMetadata} />}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="settings" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Profile"
-                children={() => <ProfileScreen userMetadata={userMetadata} />}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="person" size={size} color={color} />
-                  ),
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <Drawer.Screen
-                name="Welcome"
-                component={WelcomeScreen}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="tab" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="login" size={size} color={color} />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="Register"
-                component={RegisterScreen}
-                options={{
-                  drawerIcon: ({ color, size }) => (
-                    <MaterialIcons name="account-box" size={size} color={color} />
-                  ),
-                }}
-              />
-            </>
-          )}
-        </Drawer.Navigator>
-      </NavigationContainer>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
+      <ThemeProvider>
+        <NavigationContainer>
+          <Drawer.Navigator
+            screenOptions={{
+              headerShown: true,
+              drawerStyle: {
+                backgroundColor: "#DFD0B8",
+              },
+              drawerActiveTintColor: "tomato",
+              drawerInactiveTintColor: "black",
+            }}
+          >
+            {userMetadata ? (
+              <>
+                <Drawer.Screen
+                  name="Home"
+                  component={HomeScreen}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons name="home" size={size} color={color} />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Bookmarks"
+                  children={() => (
+                    <BookmarksScreen userMetadata={userMetadata} />
+                  )}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons
+                        name="bookmark"
+                        size={size}
+                        color={color}
+                      />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Showcase"
+                  children={() => (
+                    <ShowcaseScreen userMetadata={userMetadata} />
+                  )}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons
+                        name="dashboard"
+                        size={size}
+                        color={color}
+                      />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Settings"
+                  children={() => (
+                    <SettingsScreen userMetadata={userMetadata} />
+                  )}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons
+                        name="settings"
+                        size={size}
+                        color={color}
+                      />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Profile"
+                  children={() => <ProfileScreen userMetadata={userMetadata} />}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons name="person" size={size} color={color} />
+                    ),
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <Drawer.Screen
+                  name="Welcome"
+                  component={WelcomeScreen}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons name="tab" size={size} color={color} />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Login"
+                  component={LoginScreen}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons name="login" size={size} color={color} />
+                    ),
+                  }}
+                />
+                <Drawer.Screen
+                  name="Register"
+                  component={RegisterScreen}
+                  options={{
+                    drawerIcon: ({ color, size }) => (
+                      <MaterialIcons
+                        name="account-box"
+                        size={size}
+                        color={color}
+                      />
+                    ),
+                  }}
+                />
+              </>
+            )}
+          </Drawer.Navigator>
+        </NavigationContainer>
+      </ThemeProvider>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   divider1: {
     height: 1,
-    width: '70%',
-    backgroundColor: 'black',
+    width: "70%",
+    backgroundColor: "black",
     marginBottom: -70,
   },
   iconContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
     paddingHorizontal: 10,
   },
   verticalDivider: {
     borderRightWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
   },
   backgroundImage: {
     flex: 1,
-    resizeMode: 'cover',
-    backgroundColor: '#F7B500',
+    resizeMode: "cover",
+    backgroundColor: "#F7B500",
   },
   icon: {
     width: 20,
@@ -203,13 +209,15 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   arrowContainer: {
-    position: 'absolute',
-    left: '50%',
+    position: "absolute",
+    left: "50%",
     transform: [{ translateX: -15 }],
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
+
+export default App;
