@@ -1,40 +1,74 @@
-import React from 'react';
-import { useTheme } from '../utils/ThemeProvider';
-import HomeScreen from '../pages/Home';
-import SettingsScreen from '../pages/Settings';
-import ShowcaseScreen from '../pages/Showcase';
-import BookmarksScreen from '../pages/Bookmarks';
-import ProfileScreen from '../pages/Profile';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Header from './Header'; 
+import React from "react";
+import { useTheme } from "../utils/ThemeProvider";
+import HomeScreen from "../pages/Home";
+import SettingsScreen from "../pages/Settings";
+import ShowcaseScreen from "../pages/Showcase";
+import BookmarksScreen from "../pages/Bookmarks";
+import ProfileScreen from "../pages/Profile";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Header from "./Header";
 
 // Auth pages
-import WelcomeScreen from '../pages/Welcome';
-import LoginScreen from '../pages/Login';
-import RegisterScreen from '../pages/Register';
+import WelcomeScreen from "../pages/Welcome";
+import LoginScreen from "../pages/Login";
+import RegisterScreen from "../pages/Register";
 
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 const Drawer = createDrawerNavigator();
+
 const Nav = ({ userMetadata }) => {
   const { theme } = useTheme();
-  return (
-    <Drawer.Navigator
-      screenOptions={{
-        header: ({ route }) => <Header title={route.name} />, 
+
+  const screenOptions = userMetadata
+    ? {
+        header: ({ route }) => <Header title={route.name} />,
         headerStyle: {
-          backgroundColor: theme.colors.primary, 
+          backgroundColor: theme.colors.primary,
         },
-        headerTintColor: theme.colors.text, 
+        headerTintColor: theme.colors.text,
         drawerStyle: {
           backgroundColor: theme.colors.background_b,
         },
-        drawerPosition: 'right', 
+        drawerPosition: "right",
         drawerActiveTintColor: theme.colors.selected,
         drawerInactiveTintColor: theme.colors.text,
-      }}
-    >
-      {userMetadata ? (
+      }
+    : { headerShown: false };
+
+  return (
+    <Drawer.Navigator screenOptions={screenOptions}>
+      {userMetadata === null ? (
+        <>
+          <Drawer.Screen
+            name="Welcome"
+            component={WelcomeScreen}
+            options={{
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="tab" size={size} color={color} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="login" size={size} color={color} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="account-box" size={size} color={color} />
+              ),
+            }}
+          />
+        </>
+      ) : (
         <>
           <Drawer.Screen
             name="Home"
@@ -50,11 +84,7 @@ const Nav = ({ userMetadata }) => {
             children={() => <BookmarksScreen userMetadata={userMetadata} />}
             options={{
               drawerIcon: ({ color, size }) => (
-                <MaterialIcons
-                  name="bookmark"
-                  size={size}
-                  color={theme.color}
-                />
+                <MaterialIcons name="bookmark" size={size} color={theme.color} />
               ),
             }}
           />
@@ -82,40 +112,6 @@ const Nav = ({ userMetadata }) => {
             options={{
               drawerIcon: ({ color, size }) => (
                 <MaterialIcons name="person" size={size} color={color} />
-              ),
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <Drawer.Screen
-            name="Welcome"
-            component={WelcomeScreen}
-            options={{
-              drawerIcon: ({ color, size }) => (
-                <MaterialIcons name="tab" size={size} color={color} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{
-              drawerIcon: ({ color, size }) => (
-                <MaterialIcons name="login" size={size} color={color} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={{
-              drawerIcon: ({ color, size }) => (
-                <MaterialIcons
-                  name="account-box"
-                  size={size}
-                  color={color}
-                />
               ),
             }}
           />

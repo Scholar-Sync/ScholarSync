@@ -10,6 +10,7 @@ import {
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
 import { theme } from '../utils/theme'; // Adjust the import path as needed
+import Page1 from "../components/Page1";
 
 const quotes = [
   {
@@ -80,7 +81,7 @@ const quotes = [
 
 export default function WelcomeScreen() {
   const navigation = useNavigation();
-  const [quote, setQuote] = useState({ text: "", author: "" });
+  const [quote, setQuote] = useState({ text: '', author: '' });
   const [isQuoteUpdated, setIsQuoteUpdated] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current; // Use for quote animation
   const pageOpacity = useRef(new Animated.Value(1)).current; // Initialized to 1 for initial fade-in
@@ -143,32 +144,34 @@ export default function WelcomeScreen() {
 
   return (
     <Animated.View style={[styles.container, { opacity: pageOpacity }]}>
-      <View style={styles.background}>
-        <View style={styles.divider1} />
-        <Image
-          source={require("../assets/scholar.png")}
-          style={styles.topImage}
-        />
-        <View style={styles.buttonsContainer}>
-          <StyledButton
-            title="Login"
-            onPress={() => navigation.navigate("Login")}
+      <Page1>
+        <View style={styles.background}>
+          <View style={styles.divider1} />
+          <Image
+            source={require('../assets/scholar.png')}
+            style={styles.topImage}
           />
-          <StyledButton
-            title="Register"
-            onPress={() => navigation.navigate("Register")}
-          />
-        {/* Wrap the Animated.View in a View with fixed height */}
-        <View style={styles.quoteWrapper}>
-          <Animated.View style={[styles.quoteContainer, { opacity }]}>
-            <Text style={styles.quoteText}>“{quote.text}”</Text>
-            <Text style={styles.authorText}>- {quote.author}</Text>
-          </Animated.View>
+          <View style={styles.buttonsContainer}>
+            <StyledButton
+              title='Login'
+              onPress={() => navigation.navigate('Login')}
+            />
+            <StyledButton
+              title='Register'
+              onPress={() => navigation.navigate('Register')}
+            />
+            {/* Wrap the Animated.View in a View with fixed height */}
+            <View style={styles.quoteWrapper}>
+              <Animated.View style={[styles.quoteContainer, { opacity }]}>
+                <Text style={styles.quoteText}>“{quote.text}”</Text>
+                <Text style={styles.authorText}>- {quote.author}</Text>
+              </Animated.View>
+            </View>
+
+            <View style={styles.divider} />
+          </View>
         </View>
-        
-          <View style={styles.divider} />
-        </View>
-      </View>
+      </Page1>
     </Animated.View>
   );
 }
@@ -176,33 +179,30 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: theme.colors.background, // Use the background color from the theme
   },
   background: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between", // Distribute space evenly
+    alignItems: 'center',
+    justifyContent: 'space-between', // Distribute space evenly
     paddingVertical: 50, // Add padding to top and bottom
   },
-  divider1:{
+  divider1: {
     height: 1, // or 2 for a thicker line
-    width: "70%",
-    backgroundColor: "black", // You can choose any color
-    marginBottom: -70
+    width: '70%',
+    backgroundColor: 'black', // You can choose any color
+    marginBottom: -70,
   },
   divider: {
     height: 1, // or 2 for a thicker line
-    width: "70%",
-    backgroundColor: "black", // You can choose any color
+    width: '70%',
+    backgroundColor: 'black', // You can choose any color
     marginVertical: 5, // Spacing above and below the line
   },
   topImage: {
     width: 200,
     height: 200,
-    resizeMode: "contain",
-    shadowColor: "#f9feff",
+    resizeMode: 'contain',
+    shadowColor: '#f9feff',
     shadowOpacity: 1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -213,19 +213,19 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the quote horizontally
     paddingHorizontal: 40, // Keep some padding
     marginTop: -100,
-    marginBottom:  -70,
+    marginBottom: -70,
   },
   quoteContainer: {
-    alignItems: "center",
-    marginBottom: -100
+    alignItems: 'center',
+    marginBottom: -100,
   },
   quoteText: {
     fontSize: 13,
-    fontStyle: "italic",
-    textAlign: "center",
+    fontStyle: 'italic',
+    textAlign: 'center',
     marginBottom: 10,
     color: theme.colors.selected, // Use the selected color from the theme
-    fontWeight: "bold",
+    fontWeight: 'bold',
     shadowColor: theme.colors.selected, // Use the selected color from the theme
     shadowOpacity: 0.8,
     shadowRadius: 10,
@@ -234,12 +234,12 @@ const styles = StyleSheet.create({
   },
   authorText: {
     fontSize: 10,
-    textAlign: "center",
+    textAlign: 'center',
     color: theme.colors.text, // Use the text color from the theme
   },
   buttonsContainer: {
-    width: "100%", // Ensure buttons container spans the full width
-    alignItems: "center",
-    marginBottom: 150
+    width: '100%', // Ensure buttons container spans the full width
+    alignItems: 'center',
+    marginBottom: 150,
   },
 });

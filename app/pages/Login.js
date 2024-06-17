@@ -12,6 +12,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { login } from "../utils/auth";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import { theme } from '../utils/theme'; // Adjust the import path as needed
+import Page1 from '../components/Page1'
+
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -59,6 +61,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+      <Page1>
       <KeyboardAwareScrollView
         style={{ flex: 1, width: "100%" }}
         keyboardShouldPersistTaps="always"
@@ -107,6 +110,7 @@ export default function LoginScreen({ navigation }) {
           </Text>
         </View>
       </KeyboardAwareScrollView>
+      </Page1>
     </Animated.View>
   );
 }
