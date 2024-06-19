@@ -9,7 +9,6 @@ import {
   Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import Swiper from "react-native-swiper";
 import { theme } from '../utils/theme'; // Adjust the import path as needed
 
 const HomeScreen = ({ navigation }) => {
@@ -59,33 +58,11 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
-      <ScrollView style={styles.container}>
-        <Swiper
-          style={styles.wrapper}
-          showsButtons={false}
-          loop
-          autoplay
-          buttonColor="grey"
-          dotColor="grey"
-          activeDotColor="black"
-        >
-          <Image
-            source={require("../assets/page1.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page2.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page3.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page4.png")}
-            style={styles.slideImage}
-          />
-        </Swiper>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Image
+          source={require("../assets/image102.png")} // Replace with the desired static image
+          style={styles.headerImage}
+        />
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Welcome to ScholarSync!</Text>
@@ -104,25 +81,24 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.descriptionContainer}>
-          <Text style={styles.embraceText}>📚 Embrace Your Journey:</Text>
+          <Text style={styles.embraceText}>Journey forward:</Text>
           <Text style={styles.descriptionText}>
-            At Scholar Link, share your high school highlights and challenges.
-            It's your space to voice your unique story.
+          At Scholar Link, share your professional achievements and career challenges. It's your platform to voice your story.
           </Text>
           <Image
-            source={require("../assets/bus.gif")}
+            source={require("../assets/image103.png")}
             style={styles.descriptionImage}
           />
         </View>
 
         <View style={styles.missionSection}>
-          <Text style={styles.subheading}>🤝 Our Mission</Text>
+          <Text style={styles.mission}>Our Mission:</Text>
           <Text style={styles.missionText}>
             To help high schoolers with college applications and academic
             guidance.
           </Text>
           <Image
-            source={require("../assets/mission.png")}
+            source={require("../assets/image104.png")}
             style={styles.missionImage}
           />
         </View>
@@ -222,83 +198,99 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingBottom: 100, // Replace with the actual height
     backgroundColor: theme.colors.background, // Use the background color from the theme
   },
-  wrapper: {
-    height: 200,
-    marginBottom: -10,
+  scrollContainer: {
+    padding: 20,
+    paddingBottom: 120, // Ensure enough space at the bottom
   },
-  slideImage: {
+  headerImage: {
     width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-    shadowColor: theme.colors.selected,
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    borderColor: theme.colors.selected,
-    borderWidth: 15,
-    borderTopWidth: 10,
+    height: 250, // Increased height for a larger image
+    resizeMode: "cover",
     borderRadius: 10,
-    marginBottom: -50,
+    marginBottom: 20,
+    padding: 150,
+    marginTop: -30
   },
   headingContainer: {
     borderRadius: 10,
     marginVertical: 20,
     alignItems: "center",
+    paddingHorizontal: 20, // Added paddingHorizontal to ensure consistent padding
   },
   heading: {
     fontSize: 28,
     fontWeight: "bold",
     color: theme.colors.text,
     textAlign: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
   },
   textBelow: {
     borderRadius: 10,
-    marginVertical: 20,
+    marginVertical: 10,
     alignItems: "center",
+    paddingHorizontal: 20, // Added paddingHorizontal to ensure consistent padding
   },
   below: {
     fontSize: 15,
     color: theme.colors.text,
     textAlign: "center",
     paddingVertical: 15,
-    paddingHorizontal: 20,
   },
   descriptionContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#f5f1ee",
     borderRadius: 10,
     padding: 15,
-    marginBottom: 15,
-    marginTop: 20,
+    paddingLeft: 30,
+    marginLeft: -30,
+    marginTop: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 10,
+    marginRight: 80,
+    paddingBottom: 10,
+    paddingTop: 50
+
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: 13,
     color: theme.colors.text,
-    lineHeight: 22,
+    lineHeight: 0,
+    paddingRight: 40,
+    marginLeft: 20
   },
   embraceText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: theme.colors.text,
     marginBottom: 10,
+    marginLeft: 20
+  },
+  mission: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: theme.colors.text,
+    marginBottom: 10,
+    marginLeft: 50
   },
   descriptionImage: {
-    width: "100%",
+    width: 200,
     height: 200,
     borderRadius: 10,
     resizeMode: "cover",
-    marginTop: 15,
+    marginTop: -150,
+    marginRight: -175,
+    marginLeft: 165
+    
   },
   section: {
     marginVertical: 20,
   },
   subheading: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: theme.colors.text,
     marginBottom: 10,
@@ -315,30 +307,44 @@ const styles = StyleSheet.create({
     backgroundColor: "white", // Ensure it's readable
   },
   missionSection: {
-    backgroundColor: "white",
+    backgroundColor: "#f5f1ee",
     borderRadius: 10,
     padding: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+    paddingLeft: 30,
+    marginLeft: 80,
+    marginTop: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 10,
+    marginRight: -30,
+    paddingBottom: 20,
+    paddingTop: 50,
+    marginBottom: 60
+    
   },
   missionText: {
-    fontSize: 18,
+    fontSize: 13,
     color: theme.colors.text,
     marginBottom: 15,
+    marginLeft: 50,
+  
   },
   missionImage: {
-    width: "100%",
-    height: 200,
+    width: 150,
+    height: 150,
     borderRadius: 10,
     resizeMode: "cover",
+    alignItems: 'left',
+    marginLeft: -115,
+    marginTop: -130
   },
   memberContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "f5f1ee",
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -386,8 +392,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
-    marginRight: 75,
-    marginLeft: 75,
+    marginHorizontal: 75,
   },
   buttonText: {
     fontSize: 18,
@@ -405,7 +410,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'black',
     marginVertical: 5,
-    marginBottom: 100,
+    marginBottom: 20, // Adjusted to ensure proper spacing
   },
 });
 

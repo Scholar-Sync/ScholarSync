@@ -1,5 +1,5 @@
-import * as React from "react";
-import { useState, useRef, useCallback } from "react";
+// Profile.js
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db, storage } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from "expo-image-picker";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const EditableBox = ({ label, category, data, updateUserData }) => {
   const [items, setItems] = useState(data || []);
@@ -34,13 +35,17 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
   };
 
   const handleSave = (index, text) => {
-    const updatedItems = items.map((item, i) => (i === index ? { text, isEditable: false } : item));
+    const updatedItems = items.map((item, i) =>
+      i === index ? { text, isEditable: false } : item
+    );
     setItems(updatedItems);
     updateUserData(label, category, updatedItems);
   };
 
   const handleEdit = (index) => {
-    const updatedItems = items.map((item, i) => (i === index ? { ...item, isEditable: !item.isEditable } : item));
+    const updatedItems = items.map((item, i) =>
+      i === index ? { ...item, isEditable: !item.isEditable } : item
+    );
     setItems(updatedItems);
     setDropdownIndex(null); // Close the dropdown after edit
   };
@@ -64,7 +69,10 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
           text: "OK",
           onPress: (newItemText) => {
             if (newItemText) {
-              const updatedItems = [...items, { text: newItemText, isEditable: false }];
+              const updatedItems = [
+                ...items,
+                { text: newItemText, isEditable: false },
+              ];
               setItems(updatedItems);
               updateUserData(label, category, updatedItems);
             }
@@ -83,7 +91,10 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
           <View key={index} style={styles.squareBox}>
             {item.isEditable ? (
               <TextInput
-                style={[styles.itemTextInput, { fontSize: calculateFontSize(item.text) }]}
+                style={[
+                  styles.itemTextInput,
+                  { fontSize: calculateFontSize(item.text) },
+                ]}
                 value={item.text}
                 onChangeText={(text) => {
                   const updatedItems = items.map((item, i) =>
@@ -96,23 +107,44 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
                 multiline
               />
             ) : (
-              <Text style={[styles.itemText, { fontSize: calculateFontSize(item.text) }]}>{item.text}</Text>
+              <Text
+                style={[
+                  styles.itemText,
+                  { fontSize: calculateFontSize(item.text) },
+                ]}
+              >
+                {item.text}
+              </Text>
             )}
-            <TouchableOpacity onPress={() => setDropdownIndex(dropdownIndex === index ? null : index)} style={styles.moreButton}>
+            <TouchableOpacity
+              onPress={() =>
+                setDropdownIndex(dropdownIndex === index ? null : index)
+              }
+              style={styles.moreButton}
+            >
               <Icon name="more-vert" size={20} color="#e74c3c" />
             </TouchableOpacity>
             {dropdownIndex === index && (
               <View style={styles.dropdownMenu}>
                 {item.isEditable ? (
-                  <TouchableOpacity onPress={() => handleSave(index, item.text)} style={styles.dropdownItem}>
+                  <TouchableOpacity
+                    onPress={() => handleSave(index, item.text)}
+                    style={styles.dropdownItem}
+                  >
                     <Text style={styles.dropdownItemText}>Save</Text>
                   </TouchableOpacity>
                 ) : (
-                  <TouchableOpacity onPress={() => handleEdit(index)} style={styles.dropdownItem}>
+                  <TouchableOpacity
+                    onPress={() => handleEdit(index)}
+                    style={styles.dropdownItem}
+                  >
                     <Text style={styles.dropdownItemText}>Edit</Text>
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={() => handleRemove(index)} style={styles.dropdownItem}>
+                <TouchableOpacity
+                  onPress={() => handleRemove(index)}
+                  style={styles.dropdownItem}
+                >
                   <Text style={styles.dropdownItemText}>Remove</Text>
                 </TouchableOpacity>
               </View>
@@ -138,6 +170,7 @@ const ProfileScreen = ({ userMetadata }) => {
   ]);
   const [profileImage, setProfileImage] = useState(null);
   const [imageUri, setImageUri] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -150,7 +183,7 @@ const ProfileScreen = ({ userMetadata }) => {
     }, [fadeAnim])
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!userMetadata) {
       return;
     }
@@ -174,6 +207,7 @@ const ProfileScreen = ({ userMetadata }) => {
 
   const updateUserData = async (field, category, value) => {
     if (!userMetadata) {
+      console.error("No user metadata available");
       return;
     }
     const uid = userMetadata?.uid;
@@ -186,6 +220,7 @@ const ProfileScreen = ({ userMetadata }) => {
     try {
       await setDoc(doc(userDBRef, uid), newUserData);
       setUserData(newUserData);
+      console.log("User data updated:", newUserData);
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -208,13 +243,13 @@ const ProfileScreen = ({ userMetadata }) => {
         ? `https://www.reddit.com/submit?title=My ScholarSync Profile&url=${payload}`
         : socialType === "twitter"
         ? `https://twitter.com/intent/tweet?text=${encodeURI(payload)}`
-        : `https://www.instagram.com/create/story
-
-`;
+        : `https://www.instagram.com/create/story`;
 
     Linking.openURL(url)
       .then(() => {
-        alert(`${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`);
+        alert(
+          `${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`
+        );
       })
       .catch(() => {});
   };
@@ -242,56 +277,83 @@ const ProfileScreen = ({ userMetadata }) => {
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
     setSections(newSections);
-    setSectionDropdownIndex(null); // Close the dropdown after removing the section
   };
 
-  const uploadImage = async (uri) => {
-    if (!userMetadata) return;
-    const uid = userMetadata.uid;
-    const response = await fetch(uri);
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
+      }
+    })();
+  }, []);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    console.log('Image picker result:', result);  // Log the full result object
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;  // Access the URI from the assets array
+      console.log('Image picked:', uri);
+      setImageUri(uri);
+      setProfileImage(uri); // Update profile image immediately
+    } else {
+      console.log('Image pick cancelled');
+    }
+  };
+  const uploadImage = async () => {
+    if (!imageUri) {
+      Alert.alert("Error", "Please select an image first.");
+      return;
+    }
+    setUploading(true);
+    console.log('Uploading image:', imageUri);
+    const response = await fetch(imageUri);
     const blob = await response.blob();
-    const ref = storage.ref().child(`profilePictures/${uid}`);
-    const snapshot = await ref.put(blob);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    return downloadURL;
-  };
-
-  const handleProfileImageChange = () => {
-    launchImageLibrary({ mediaType: 'photo' })
-      .then((response) => {
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        } else if (response.errorMessage) {
-          console.log('ImagePicker Error: ', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          const source = response.assets[0].uri;
-          setImageUri(source);
-        }
+    const uid = userMetadata.uid;
+    const storageRef = ref(storage, `profilePictures/${uid}`);
+    uploadBytes(storageRef, blob)
+      .then((snapshot) => {
+        console.log('Image uploaded, getting download URL');
+        getDownloadURL(snapshot.ref)
+          .then((downloadURL) => {
+            console.log('Download URL:', downloadURL);
+            setProfileImage(downloadURL);
+            updateUserData("profileImage", "basic", downloadURL);
+            setUploading(false);
+            Alert.alert("Success", "Profile picture updated successfully!");
+          })
+          .catch((error) => {
+            console.error("Error getting download URL:", error);
+            setUploading(false);
+            Alert.alert(
+              "Error",
+              "Failed to update profile picture. Please try again."
+            );
+          });
       })
       .catch((error) => {
-        console.error('Error launching image library: ', error);
+        console.error("Error uploading image:", error);
+        setUploading(false);
+        Alert.alert("Error", "Failed to upload image. Please try again.");
       });
   };
 
-  const handleSavePhoto = async () => {
-    if (imageUri) {
-      try {
-        const downloadURL = await uploadImage(imageUri);
-        setProfileImage(downloadURL);
-        await updateUserData('profileImage', 'basic', downloadURL);
-        Alert.alert('Success', 'Profile picture updated successfully!');
-      } catch (error) {
-        console.error('Error saving profile picture: ', error);
-        Alert.alert('Error', 'Failed to update profile picture. Please try again.');
-      }
-    } else {
-      Alert.alert('Error', 'Please select an image first.');
-    }
-  };
-
   const prefilledData = {
-    achievements: [{ text: "Example: Valedictorian" }, { text: "Example: National Merit Scholar" }],
-    extracurricular: [{ text: "Example: Debate Team Captain" }, { text: "Example: Varsity Soccer" }],
+    achievements: [
+      { text: "Example: Valedictorian" },
+      { text: "Example: National Merit Scholar" },
+    ],
+    extracurricular: [
+      { text: "Example: Debate Team Captain" },
+      { text: "Example: Varsity Soccer" },
+    ],
     academics: [
       { text: "SAT: " },
       { text: "PSAT: " },
@@ -301,37 +363,56 @@ const ProfileScreen = ({ userMetadata }) => {
   };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#2c3e50" }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : null}>
+    <Animated.View
+      style={{ flex: 1, opacity: fadeAnim, backgroundColor: "#2c3e50" }}
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : null}
+      >
         <ScrollView style={{ flex: 1 }}>
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={handleProfileImageChange}>
+            <TouchableOpacity onPress={pickImage}>
               <Image
-                source={profileImage ? { uri: profileImage } : require('../assets/pfp1.png')}
+                source={
+                  profileImage
+                    ? { uri: profileImage }
+                    : require("../assets/pfp1.png")
+                }
                 style={styles.profileImage}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleProfileImageChange} style={styles.uploadImageButton}>
+            <TouchableOpacity
+              onPress={pickImage}
+              style={styles.uploadImageButton}
+            >
               <Text style={styles.uploadImageButtonText}>Upload Image</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSavePhoto} style={styles.saveButton}>
+            <TouchableOpacity onPress={uploadImage} style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Save Photo</Text>
             </TouchableOpacity>
+            {uploading && <Text>Uploading...</Text>}
           </View>
-          
+
           {sections.map((section, index) => (
             <View key={index} style={styles.sectionWrapper}>
               <View style={styles.sectionContainer}>
                 <View style={styles.sectionHeaderContainer}>
                   <Text style={styles.sectionHeader}>{section}</Text>
-                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
+                  <TouchableOpacity
+                    onPress={() => removeSection(index)}
+                    style={styles.trashButton}
+                  >
                     <Icon name="delete" size={20} color="#e74c3c" />
                   </TouchableOpacity>
                 </View>
                 <EditableBox
                   label={`Add ${section}`}
                   category={section.toLowerCase()}
-                  data={userData?.[section.toLowerCase()]?.custom || prefilledData[section.toLowerCase()]}
+                  data={
+                    userData?.[section.toLowerCase()]?.custom ||
+                    prefilledData[section.toLowerCase()]
+                  }
                   updateUserData={updateUserData}
                 />
               </View>
@@ -348,7 +429,7 @@ const ProfileScreen = ({ userMetadata }) => {
               onPress={() => shareToSocial("twitter")}
             >
               <Image
-                source={require("../assets/twitterlogo.png")} // Adjust the path as necessary
+                source={require("../assets/twitterlogo.png")}
                 style={styles.buttonIcon}
               />
             </TouchableOpacity>
@@ -358,7 +439,7 @@ const ProfileScreen = ({ userMetadata }) => {
               onPress={() => shareToSocial("reddit")}
             >
               <Image
-                source={require("../assets/redditlogo.png")} // Adjust the path as necessary
+                source={require("../assets/redditlogo.png")}
                 style={styles.buttonIcon}
               />
             </TouchableOpacity>
@@ -370,12 +451,15 @@ const ProfileScreen = ({ userMetadata }) => {
               onPress={() => shareToSocial("instagram")}
             >
               <Image
-                source={require("../assets/instagram.png")} // Adjust the path as necessary
+                source={require("../assets/instagram.png")}
                 style={styles.instagramButtonIcon}
               />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={addSection} style={styles.addSectionButton}>
+          <TouchableOpacity
+            onPress={addSection}
+            style={styles.addSectionButton}
+          >
             <Text style={styles.addSectionButtonText}>+ Add New Section</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -418,12 +502,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   socialButtonsTitleContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   socialButtonsTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: "#34495e",
     marginBottom: 10,
   },
@@ -432,7 +516,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
     marginRight: 200,
-    marginBottom: 30
+    marginBottom: 30,
   },
   socialButton: {
     flexDirection: "row",
@@ -463,17 +547,14 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2,
     marginLeft: 10,
-    marginRight: 20
-
+    marginRight: 20,
   },
   instagramButtonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: -75,
     marginLeft: -45,
-    marginBottom: 20
-
-    
+    marginBottom: 20,
   },
   instagramButton: {
     backgroundColor: "#d35400",
@@ -554,7 +635,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
     marginRight: 15,
-    marginLeft: 15
+    marginLeft: 15,
   },
   sectionContainer: {
     backgroundColor: "transparent",
@@ -566,7 +647,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 3,
     marginRight: -15,
-    marginLeft: -15
+    marginLeft: -15,
   },
   sectionHeaderContainer: {
     flexDirection: "row",
@@ -580,16 +661,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   moreButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 5,
     right: 5,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   trashButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -627,7 +708,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     position: "relative",
     padding: 10,
-    backgroundColor: '#ecf0f1'
+    backgroundColor: "#ecf0f1",
   },
   newSquareBox: {
     width: 150,

@@ -5,7 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  ImageBackground,
+  Image,
   Animated,
 } from "react-native";
 import React, { useState, useCallback, useRef } from "react";
@@ -13,6 +13,9 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
+import Page1 from "../components/Page1";
+import { theme } from "../utils/theme"; // Adjust the import path as needed
+import StyledButton from "../components/StyledButton";
 
 const UserCard = ({ item, handleRemoveBookmark }) => {
   const user = item;
@@ -23,71 +26,71 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
     setIsClicked(!isClicked);
     userRef.current && userRef.current.focus();
   };
+
   return (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => handleClick()}
-    >
-      <View
-        style={styles.itemContainerInner}
-        onPress={() => handleClick()}
-      >
-        <Icon name="bookmark" size={30} color="#F7B500" style={styles.icon} />
+    <View style={styles.itemContainer}>
+      <View style={styles.itemContainerInner}>
+        <Image
+          source={
+            user.profileImage
+              ? { uri: user.profileImage }
+              : require("../assets/pfp1.png")
+          }
+          style={styles.profileImage}
+        />
         <View style={styles.textContainer}>
           <Text style={styles.name}>{user?.basic?.firstName}</Text>
-          <Text style={styles.details}>{user?.basic?.school} </Text>
-
+          <Text style={styles.details}>{user?.basic?.school}</Text>
           <Text style={styles.details}>Grade {user?.basic.grade}</Text>
-
-          <Text
-            style={styles.bookmark}
-            onPress={() => handleRemoveBookmark(user.uid)}
-          >
-            Remove Bookmark
-          </Text>
+          <TouchableOpacity>
+            <Icon onPress={() => handleRemoveBookmark(user.uid)}
+              name="delete"
+              size={24}
+              color="#BDBDBD"
+              style={styles.trashIcon}
+            />
+          </TouchableOpacity>
         </View>
-        {isClicked ? (
-        <Icon name="keyboard-arrow-down" size={24} color="#BDBDBD" />
-      ) : (
-        <Icon name="keyboard-arrow-right" size={24} color="#BDBDBD" />
-      )}
       </View>
-      {isClicked ? (
+      {isClicked && (
         <View style={styles.itemContainerDrop}>
-        <Text style={styles.details}>GPA:</Text>
-        <Text style={styles.value}>{user.academics.gpa}</Text>
-        <Text style={styles.details}>PSAT:</Text>
-        <Text style={styles.value}>{user.academics.psat}</Text>
-        <Text style={styles.details}>SAT:</Text>
-        <Text style={styles.value}>{user.academics.sat}</Text>
-        <Text style={styles.details}>ACT:</Text>
-        <Text style={styles.value}>{user.academics.act}</Text>
-        <Text style={styles.details}>Class Rank:</Text>
-        <Text style={styles.value}>{user.academics.classRank}</Text>
-        <Text style={styles.details}>AP Courses:</Text>
-        <Text style={styles.value}>{user.academics.apCourses}</Text>
-        <Text style={styles.details}>Other Courses:</Text>
-        <Text style={styles.value}>{user.academics.others}</Text>
-        <Text style={styles.details}>Clubs:</Text>
-        <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
-        <Text style={styles.details}>Sports:</Text>
-        <Text style={styles.value}>{user.extracurriculars.sports}</Text>
-        <Text style={styles.details}>Volunteering:</Text>
-        <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
-        <Text style={styles.details}>Awards:</Text>
-        <Text style={styles.value}>{user.honors.awards}</Text>
-        <Text style={styles.details}>Scholarships:</Text>
-        <Text style={styles.value}>{user.honors.scholarships}</Text>
-        <Text style={styles.details}>Certifications:</Text>
-        <Text style={styles.value}>{user.honors.certifications
-        }</Text>
+          <Text style={styles.details}>GPA:</Text>
+          <Text style={styles.value}>{user.academics.gpa}</Text>
+          <Text style={styles.details}>PSAT:</Text>
+          <Text style={styles.value}>{user.academics.psat}</Text>
+          <Text style={styles.details}>SAT:</Text>
+          <Text style={styles.value}>{user.academics.sat}</Text>
+          <Text style={styles.details}>ACT:</Text>
+          <Text style={styles.value}>{user.academics.act}</Text>
+          <Text style={styles.details}>Class Rank:</Text>
+          <Text style={styles.value}>{user.academics.classRank}</Text>
+          <Text style={styles.details}>AP Courses:</Text>
+          <Text style={styles.value}>{user.academics.apCourses}</Text>
+          <Text style={styles.details}>Other Courses:</Text>
+          <Text style={styles.value}>{user.academics.others}</Text>
+          <Text style={styles.details}>Clubs:</Text>
+          <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
+          <Text style={styles.details}>Sports:</Text>
+          <Text style={styles.value}>{user.extracurriculars.sports}</Text>
+          <Text style={styles.details}>Volunteering:</Text>
+          <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
+          <Text style={styles.details}>Awards:</Text>
+          <Text style={styles.value}>{user.honors.awards}</Text>
+          <Text style={styles.details}>Scholarships:</Text>
+          <Text style={styles.value}>{user.honors.scholarships}</Text>
+          <Text style={styles.details}>Certifications:</Text>
+          <Text style={styles.value}>{user.honors.certifications}</Text>
         </View>
-      ) : null}
-      
-
-    </TouchableOpacity>
+      )}
+      <TouchableOpacity style={styles.viewButton}>
+        <StyledButton title="View" onPress={() => handleClick()}>
+          <Icon name={isClicked ? "remove" : "add"} size={16} color="#BDBDBD" />
+        </StyledButton>
+      </TouchableOpacity>
+    </View>
   );
 };
+
 
 const BookmarksScreen = ({ userMetadata }) => {
   const [localQuery, setLocalQuery] = useState("");
@@ -204,7 +207,7 @@ const BookmarksScreen = ({ userMetadata }) => {
       setFilteredData(bookmarkedUsers);
     } else {
       const filtered = bookmarkedUsers.filter((item) => {
-        console.log("item-------", item)
+        console.log("item-------", item);
         const searchContent = [
           item?.basic?.firstName,
           item?.basic?.grade,
@@ -219,31 +222,42 @@ const BookmarksScreen = ({ userMetadata }) => {
       setFilteredData(filtered);
     }
   };
+
   const renderUserCard = ({ item }) => {
     if (!item || typeof item !== "object") {
       console.log("Invalid item:", item);
       return null;
     }
     console.log("Rendering item:", item);
-    return <UserCard key={item.uid} item={item} handleRemoveBookmark={handleRemoveBookmark} />;
+    return (
+      <UserCard
+        key={item.uid}
+        item={item}
+        handleRemoveBookmark={handleRemoveBookmark}
+      />
+    );
   };
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <ImageBackground
-        source={require("../assets/background.png")}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
+      <Page1>
         <View style={styles.container}>
-          <TextInput
-            placeholder="Search/Filter"
-            style={styles.searchBar}
-            value={localQuery}
-            onChangeText={handleSearch}
-          />
+          <View style={styles.searchContainer}>
+            <Icon
+              name="search"
+              size={24}
+              color="#BDBDBD"
+              style={styles.searchIcon}
+            />
+            <TextInput
+              placeholder="Search/Filter"
+              style={styles.searchBar}
+              value={localQuery}
+              onChangeText={handleSearch}
+            />
+          </View>
           <Text style={styles.refresh} onPress={() => setRefresh(!refresh)}>
-            Refresh
+            <Icon name="refresh" size={24} color="#BDBDBD" />
           </Text>
           <View style={styles.divider} />
           <FlatList
@@ -259,25 +273,17 @@ const BookmarksScreen = ({ userMetadata }) => {
             }
           />
         </View>
-      </ImageBackground>
+      </Page1>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1, // This will ensure the image background takes up the whole screen
-  },
   container: {
-    flex: 1,
-    backgroundColor: "transparent",
+    width: 380,
+    height: "100%",
   },
-  details: {
-    fontSize: 14,
-    color: "#757575",
-    fontWeight: 'bold', // Make labels bold
-  },
-  value: { // New style for values if needed
+  value: {
     fontSize: 14,
     color: "#757575",
   },
@@ -292,19 +298,23 @@ const styles = StyleSheet.create({
     color: "#757575",
   },
   itemContainer: {
-    padding: 30,
-    backgroundColor: "#FFFFFF",
+    paddingLeft: 30,
+    paddingRight: 30,
+    alignSelf: 'center',
+    width: '90%',
+    paddingTop: 5,
+    paddingBottom: 30,
+    backgroundColor: "#f9feff",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    marginBottom: 5,
+    borderBottomColor: "transparent",
     borderRadius: 10,
-    marginHorizontal: 20,
+    marginTop: 20,
   },
   itemContainerInner: {
     flexDirection: "row",
     paddingBottom: 15,
   },
-  itemContainerDrop:{
+  itemContainerDrop: {
     alignItems: "right",
     textAlign: "right",
     borderTopWidth: 1,
@@ -322,51 +332,63 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#212121",
+    marginTop: -10,
+    
   },
   details: {
     fontSize: 14,
     color: "#757575",
+    marginRight: 50
   },
-  bookmark: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#757575",
-    textDecorationLine: "underline",
-    textAlign: "right",
+  trashIcon: {
+    marginLeft: 160,
+    marginTop: -57,
   },
   refresh: {
-    marginTop: 5,
     fontSize: 12,
-    color: "#757575",
-    textDecorationLine: "underline",
-    textAlign: "center",
+    color: "black",
+    marginLeft: 345,
+    marginBottom: 20,
+    marginTop: -32,
   },
-  searchBar: {
-    margin: 10,
-    padding: 10,
+  searchContainer: {
+    flexDirection: "row",
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E0E0E0",
+    padding: 7,
+    width: 300,
+    height: 40,
+    alignSelf: "center",
+  },
+  searchIcon: {
+    marginLeft: 10,
+  },
+  searchBar: {
+    flex: 1,
     fontSize: 16,
-    marginBottom: 20,
-    marginTop: 20,
+    marginleft: 10,
   },
-  divider: {
-    height: 5, // or 2 for a thicker line
-    width: "89%",
-    marginLeft: 20,
-    marginBottom: 20,
-    marginRight: 20,
-    backgroundColor: "#FFD700", // You can choose any color
-    marginVertical: 5, // Spacing above and below the line
+  profileImage: {
+    width: 130,
+    height: 130,
+    borderRadius: 25,
+    marginLeft: -30
   },
-  // ... other styles you might need ...
+  viewButton: {
+    width: 100,
+    height: 30,
+    marginTop: 100,
+    position: 'absolute',
+    marginLeft: 100,
+    marginBottom: 100,
+  },
+  viewButtonText: {
+    fontSize: 16,
+    color: "black",
+    position: 'absolute'
+  },
 });
 
 export default BookmarksScreen;
-
-// 1. go to database for jose (uid = mz...) and get his data
-// 2. get jose's bookmarks (eg. [uid1, uid2, uid3])
-// 3. for each uid in jose's bookmarks, go to database and get the user data
-// 4. display the user data in the bookmarks page

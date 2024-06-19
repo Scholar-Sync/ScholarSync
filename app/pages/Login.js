@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }) {
         duration: 600, // Adjust the duration as needed
         useNativeDriver: true,
       }).start();
-    }, [])
+    }, [fadeAnim])
   );
 
   const onFooterLinkPress = () => {
@@ -62,54 +62,55 @@ export default function LoginScreen({ navigation }) {
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <Page1>
-      <KeyboardAwareScrollView
-        style={{ flex: 1, width: "100%" }}
-        keyboardShouldPersistTaps="always"
-      >
-        <Image
-          style={styles.logo}
-          source={require("../assets/scholar.png")}
-        />
-        <View style={styles.divider} />
-
-        <TextInput
-          style={styles.input}
-          placeholder="E-mail"
-          placeholderTextColor="#aaaaaa"
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          underlineColorAndroid="transparent"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholderTextColor="#aaaaaa"
-          secureTextEntry
-          placeholder="Password"
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          underlineColorAndroid="transparent"
-          autoCapitalize="none"
-        />
-        <View style={styles.divider1} />
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => handleLogin(email, password)}
+        <KeyboardAwareScrollView
+          style={{ flex: 1, width: "100%" }}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={styles.scrollViewContent}
         >
-          <Text style={styles.buttonTitle}>Log in</Text>
-        </TouchableOpacity>
-        <View style={styles.footerView}>
-          <Text style={styles.footerText}>
-            <Text
-              onPress={() => navigation.navigate("Welcome")}
-              style={styles.footerLink}
-            >
-              Go Back
+          <Image
+            style={styles.logo}
+            source={require("../assets/scholar.png")}
+          />
+          <View style={styles.divider} />
+
+          <TextInput
+            style={styles.input}
+            placeholder="E-mail"
+            placeholderTextColor="#aaaaaa"
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            underlineColorAndroid="transparent"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#aaaaaa"
+            secureTextEntry
+            placeholder="Password"
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            underlineColorAndroid="transparent"
+            autoCapitalize="none"
+          />
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleLogin(email, password)}
+          >
+            <Text style={styles.buttonTitle}>Log in</Text>
+          </TouchableOpacity>
+          <View style={styles.footerView}>
+            <Text style={styles.footerText}>
+              <Text
+                onPress={() => navigation.navigate("Welcome")}
+                style={styles.footerLink}
+              >
+                Go Back
+              </Text>
             </Text>
-          </Text>
-        </View>
-      </KeyboardAwareScrollView>
+          </View>
+        </KeyboardAwareScrollView>
       </Page1>
     </Animated.View>
   );
@@ -122,26 +123,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.background, // Use the background color from the theme
   },
-  divider1: {
-    height: 1, // or 2 for a thicker line
-    width: "70%",
-    backgroundColor: "black", // You can choose any color
-    marginTop: 10,
-    marginHorizontal: 55,
-  },
-  divider: {
-    height: 1, // or 2 for a thicker line
-    width: "70%",
-    backgroundColor: "black", // You can choose any color
-    marginBottom: 10, // Spacing above and below the line
-    marginHorizontal: 55,
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   logo: {
-    flex: 1,
     height: 200,
     width: 200,
     alignSelf: "center",
-    marginTop: 23,
+    marginTop: -35,
   },
   input: {
     height: 48,
@@ -153,6 +143,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginRight: 30,
     paddingLeft: 16,
+    width: 300
   },
   button: {
     backgroundColor: theme.colors.selected, // Use the selected color from the theme
@@ -166,8 +157,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
-    marginRight: 75,
-    marginLeft: 75,
+    marginHorizontal: 75,
   },
   buttonTitle: {
     color: "white",
@@ -175,8 +165,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   footerView: {
-    flex: 1,
     alignItems: "center",
+    marginTop: 20,
   },
   footerText: {
     fontSize: 16,
@@ -186,5 +176,12 @@ const styles = StyleSheet.create({
     color: theme.colors.selected, // Use the selected color from the theme
     fontWeight: "bold",
     fontSize: 16,
+  },
+  divider: {
+    height: 1, // or 2 for a thicker line
+    width: "70%",
+    backgroundColor: "black", // You can choose any color
+    marginVertical: 10, // Spacing above and below the line
+    alignSelf: 'center',
   },
 });

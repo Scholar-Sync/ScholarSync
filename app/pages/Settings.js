@@ -16,11 +16,14 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../utils/auth";
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import emailjs from '@emailjs/browser';
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import emailjs from "@emailjs/browser";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
+import { theme } from "../utils/theme"; // Adjust the import path as needed
+import Page1 from "../components/Page1";
 
 const EditableText = ({
   label,
@@ -64,7 +67,9 @@ const EditableText = ({
           onBlur={handleBlur}
         />
         <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-          <Text style={styles.editButtonText}>{isEditable ? "Save" : "Edit"}</Text>
+          <Text style={styles.editButtonText}>
+            {isEditable ? "Save" : "Edit"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -75,8 +80,8 @@ const SettingsScreen = ({ userMetadata }) => {
   console.log("SettingsScreen - userMetadata:", userMetadata);
 
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [bugReportText, setBugReportText] = useState('');
-  const [status, setStatus] = useState('');
+  const [bugReportText, setBugReportText] = useState("");
+  const [status, setStatus] = useState("");
   const [userData, setUserData] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -84,27 +89,34 @@ const SettingsScreen = ({ userMetadata }) => {
     let templateParams = {
       to_name: "scholarsyncrra@gmail.com",
       to_email: "scholarsyncrra@gmail.com",
-      from_name: 'scholar sync app',
+      from_name: "scholar sync app",
       message: bugReportText,
     };
 
-    emailjs.send("service_r9nrk6w", "template_alzjmlj", templateParams, "2OfAIsT81cPeFczkl").then(
-      (response) => {
-        setStatus("Report Sent Successfully");
-        console.log('SUCCESS!', response.status, response.text);
-        setBugReportText('');
-        setTimeout(() => {
-          setStatus('');
-        }, 3000);
-      },
-      (error) => {
-        setStatus('Failed to send the report. Please try again.');
-        console.log('FAILED...', error);
-        setTimeout(() => {
-          setStatus('');
-        }, 3000);
-      }
-    );
+    emailjs
+      .send(
+        "service_r9nrk6w",
+        "template_alzjmlj",
+        templateParams,
+        "2OfAIsT81cPeFczkl"
+      )
+      .then(
+        (response) => {
+          setStatus("Report Sent Successfully");
+          console.log("SUCCESS!", response.status, response.text);
+          setBugReportText("");
+          setTimeout(() => {
+            setStatus("");
+          }, 3000);
+        },
+        (error) => {
+          setStatus("Failed to send the report. Please try again.");
+          console.log("FAILED...", error);
+          setTimeout(() => {
+            setStatus("");
+          }, 3000);
+        }
+      );
   };
 
   useFocusEffect(
@@ -118,7 +130,7 @@ const SettingsScreen = ({ userMetadata }) => {
     }, [fadeAnim])
   );
 
-  const toggleSwitch = () => setIsDarkMode(previousState => !previousState);
+  const toggleSwitch = () => setIsDarkMode((previousState) => !previousState);
   const handleLogout = () => {
     console.log("User logged out");
     logout();
@@ -174,13 +186,13 @@ const SettingsScreen = ({ userMetadata }) => {
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <ImageBackground
-        source={require("../assets/background140.jpg")}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
+      <Page1>
         <ScrollView>
-          <TouchableOpacity activeOpacity={1} onPress={dismissKeyboard} style={styles.container}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={dismissKeyboard}
+            style={styles.container}
+          >
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               style={{ flex: 1 }}
@@ -235,14 +247,25 @@ const SettingsScreen = ({ userMetadata }) => {
                   placeholder="Type here..."
                   placeholderTextColor="#C7C7CD"
                 />
-                <TouchableOpacity style={styles.reportButton} onPress={sendEmail}>
+                <TouchableOpacity
+                  style={styles.reportButton}
+                  onPress={sendEmail}
+                >
                   <Text style={styles.buttonText}>Send Report</Text>
                 </TouchableOpacity>
                 <Text style={styles.statusText}>{status}</Text>
 
                 <View style={styles.logoutSection}>
-                  <MaterialIcons name="exit-to-app" size={24} color="#000" style={styles.iconStyle} />
-                  <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                  <MaterialIcons
+                    name="exit-to-app"
+                    size={24}
+                    color="#000"
+                    style={styles.iconStyle}
+                  />
+                  <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={handleLogout}
+                  >
                     <Text style={styles.buttonText}>Logout</Text>
                   </TouchableOpacity>
                 </View>
@@ -253,7 +276,7 @@ const SettingsScreen = ({ userMetadata }) => {
             </KeyboardAvoidingView>
           </TouchableOpacity>
         </ScrollView>
-      </ImageBackground>
+      </Page1>
     </Animated.View>
   );
 };
@@ -266,30 +289,30 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   card: {
-    backgroundColor: '#F9EFDF',
+    backgroundColor: "#F9EFDF",
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
     margin: 15,
     padding: 20,
-    width: '90%',
+    width: "90%",
   },
   reportBugText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 20,
   },
   bugReportInput: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -301,31 +324,31 @@ const styles = StyleSheet.create({
   reportButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#F6B833',
+    backgroundColor: "#F6B833",
     borderRadius: 20,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
     marginTop: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
   },
   statusText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#6e6e6e',
-    flexWrap: 'wrap',
-    width: '80%',
-    alignSelf: 'center',
-    textAlign: 'center',
+    color: "#6e6e6e",
+    flexWrap: "wrap",
+    width: "80%",
+    alignSelf: "center",
+    textAlign: "center",
   },
   logoutSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 20,
   },
   iconStyle: {
@@ -334,7 +357,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#F6B833',
+    backgroundColor: "#F6B833",
     borderRadius: 20,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
@@ -344,11 +367,11 @@ const styles = StyleSheet.create({
   logoutInfoText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#6e6e6e',
-    flexWrap: 'wrap',
-    width: '80%',
-    alignSelf: 'center',
-    textAlign: 'center',
+    color: "#6e6e6e",
+    flexWrap: "wrap",
+    width: "80%",
+    alignSelf: "center",
+    textAlign: "center",
   },
   labelContainer: {
     flexDirection: "row",
@@ -369,7 +392,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     paddingVertical: 5,
     marginRight: 10,
-    color: '#808080'
+    color: "#808080",
   },
   inputContainer: {
     marginBottom: 20,
