@@ -13,6 +13,7 @@ import {
   Animated,
   ScrollView,
   Alert,
+  Switch,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../utils/auth";
@@ -24,6 +25,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
 import { theme } from "../utils/theme"; // Adjust the import path as needed
 import Page1 from "../components/Page1";
+import { useTheme } from "../utils/ThemeProvider";
 
 const EditableText = ({
   label,
@@ -79,7 +81,7 @@ const EditableText = ({
 const SettingsScreen = ({ userMetadata }) => {
   console.log("SettingsScreen - userMetadata:", userMetadata);
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const [bugReportText, setBugReportText] = useState("");
   const [status, setStatus] = useState("");
   const [userData, setUserData] = useState(null);
@@ -184,61 +186,24 @@ const SettingsScreen = ({ userMetadata }) => {
     }
   };
 
-  return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+  return  (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
       <Page1>
-        <ScrollView>
+        <ScrollView style={{ backgroundColor: 'transparent' }}>
           <TouchableOpacity
             activeOpacity={1}
             onPress={dismissKeyboard}
-            style={styles.container}
+            style={[styles.container, { backgroundColor: 'transparent' }]}
           >
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               style={{ flex: 1 }}
             >
-              <View style={styles.card}>
-                {userData ? (
-                  <>
-                    <EditableText
-                      label={"School"}
-                      iconName="school"
-                      category="basic"
-                      initialText={userData.basic?.school || ""}
-                      updateUserData={updateUserData}
-                      multiline={false}
-                    />
-                    <EditableText
-                      label={"Email"}
-                      iconName="email"
-                      category="basic"
-                      initialText={userData.basic?.email || ""}
-                      updateUserData={updateUserData}
-                      multiline={false}
-                    />
-                    <EditableText
-                      label={"Username"}
-                      iconName="account-circle"
-                      category="basic"
-                      initialText={userData.basic?.username || ""}
-                      updateUserData={updateUserData}
-                      multiline={false}
-                    />
-                    <EditableText
-                      label={"Grade"}
-                      iconName="grade"
-                      category="basic"
-                      initialText={userData.basic?.grade || ""}
-                      updateUserData={updateUserData}
-                      multiline={false}
-                    />
-                  </>
-                ) : (
-                  <View style={{ alignItems: "center", padding: 20 }}>
-                    <Text>Loading...</Text>
-                  </View>
-                )}
-
+              <View style={[styles.card, { backgroundColor: theme.colors.background }]}>
+              <View style={styles.toggleContainer}>
+                  <Text style={styles.toggleText}>Dark Mode</Text>
+                  <Switch value={theme.dark} onValueChange={toggleTheme} />
+                </View>
                 <Text style={styles.reportBugText}>Report Bug:</Text>
                 <TextInput
                   style={styles.bugReportInput}
@@ -272,6 +237,7 @@ const SettingsScreen = ({ userMetadata }) => {
                 <Text style={styles.logoutInfoText}>
                   Logging out will bring you back to the Login page.
                 </Text>
+                
               </View>
             </KeyboardAvoidingView>
           </TouchableOpacity>
@@ -282,27 +248,11 @@ const SettingsScreen = ({ userMetadata }) => {
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  card: {
-    backgroundColor: "#F9EFDF",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-    margin: 15,
+    marginTop: 50,
+    width: 375,
+    height: "100%",
     padding: 20,
-    width: "90%",
   },
   reportBugText: {
     fontSize: 16,

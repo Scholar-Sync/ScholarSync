@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { theme } from '../utils/theme'; // Adjust the import path as needed
+import Page1 from "../components/Page1";
 
 const HomeScreen = ({ navigation }) => {
   const [teamMembers] = useState([
@@ -58,6 +59,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+      <Page1>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Image
           source={require("../assets/image102.png")} // Replace with the desired static image
@@ -191,6 +193,7 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.divider1} />
       </ScrollView>
+      </Page1>
     </Animated.View>
   );
 };

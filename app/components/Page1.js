@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { theme } from '../utils/theme'; 
+import { useTheme } from '../utils/ThemeProvider'; // Adjust the import path as needed
 
 const Page1 = ({ children, style }) => {
-  return <View style={[styles.container, style]}>{children}</View>;
+  const { theme } = useTheme(); // Use theme context
+
+  return <View style={[styles.container, { backgroundColor: theme.colors.background }, style]}>{children}</View>;
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.background,
-    paddingHorizontal: 20, 
     paddingVertical: 10,   
     justifyContent: 'center',
     alignItems: 'center',

@@ -15,7 +15,7 @@ import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
 import { theme } from "../utils/theme"; // Adjust the import path as needed
-import StyledButton from "../components/StyledButton";
+import StyledButton2 from "../components/StyledButton2";
 
 const UserCard = ({ item, handleRemoveBookmark }) => {
   const user = item;
@@ -83,9 +83,9 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
         </View>
       )}
       <TouchableOpacity style={styles.viewButton}>
-        <StyledButton title="View" onPress={() => handleClick()}>
+        <StyledButton2 title="View" onPress={() => handleClick()}>
           <Icon name={isClicked ? "remove" : "add"} size={16} color="#BDBDBD" />
-        </StyledButton>
+        </StyledButton2>
       </TouchableOpacity>
     </View>
   );
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     width: '90%',
     paddingTop: 5,
     paddingBottom: 30,
-    backgroundColor: "#f9feff",
+    backgroundColor: theme.colors.background_b,
     borderBottomWidth: 1,
     borderBottomColor: "transparent",
     borderRadius: 10,
@@ -371,8 +371,8 @@ const styles = StyleSheet.create({
     marginleft: 10,
   },
   profileImage: {
-    width: 130,
-    height: 130,
+    width: 110,
+    height: 110,
     borderRadius: 25,
     marginLeft: -30
   },
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     height: 30,
     marginTop: 100,
     position: 'absolute',
-    marginLeft: 100,
+    marginLeft: 110,
     marginBottom: 100,
   },
   viewButtonText: {

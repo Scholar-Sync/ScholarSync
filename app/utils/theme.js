@@ -31,7 +31,11 @@ export const theme = {
       ...theme.colors,
       background: "#121212",
       surface: "#333333",
-      text: "#ffffff",
+      text: "gray",
+      background_b: "#212123",
+      selected: "#ffb95d",
+      highlight: "#f5f1ee",
+      text: "#4b4e52",
     },
   };
   
