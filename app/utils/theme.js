@@ -1,12 +1,13 @@
 export const theme = {
     colors: {
-   
+      primary: "#ffb95d", // Light theme header background color
       background: "#efedec",
       background_b: "#f9feff",
       selected: "#ffb95d",
       highlight: "#f5f1ee",
       text: "#4b4e52",
-     
+      text_b: "white"
+
     },
     spacing: {
       small: 8,
@@ -34,8 +35,8 @@ export const theme = {
       text: "gray",
       background_b: "#212123",
       selected: "#ffb95d",
-      highlight: "#f5f1ee",
-      text: "#4b4e52",
+      highlight: "white",
+      text: "gray",
     },
   };
   

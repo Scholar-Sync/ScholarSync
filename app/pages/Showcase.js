@@ -1,3 +1,4 @@
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -5,92 +6,96 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  ImageBackground,
+  Image,
   Animated,
 } from "react-native";
-import React, { useState, useCallback, useRef } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import {
-  collection,
-  query,
-  doc,
-  getDocs,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
+import { collection, query, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
+import Page1 from "../components/Page1";
+import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
+import StyledButton2 from "../components/StyledButton2";
+import { theme } from '../utils/theme'; // Adjust the import path as needed
 
-// Updated UserCard to accept handleSaveToBookmark as a prop
 const UserCard = ({ item, handleSaveToBookmark }) => {
-  const user = item.item;
+  const user = item;
+  const userRef = useRef(null);
   const [isClicked, setIsClicked] = useState(false);
+  const { theme } = useTheme(); // Use theme context
 
   const handleClick = () => {
     setIsClicked(!isClicked);
+    userRef.current && userRef.current.focus();
   };
+
   return (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => handleClick()}
-    >
-      <View style={styles.itemContainerInner} onPress={() => handleClick()}>
-        <Icon name="school" size={30} color="#F7B500" style={styles.icon} />
+    <View style={[styles.itemContainer, { backgroundColor: theme.colors.background_b }]}>
+      <View style={styles.itemContainerInner}>
+        <Image
+          source={
+            user.profileImage
+              ? { uri: user.profileImage }
+              : require("../assets/pfp1.png")
+          }
+          style={styles.profileImage}
+        />
         <View style={styles.textContainer}>
-          <Text style={styles.name}>{user?.basic?.firstName}</Text>
-          <Text style={styles.details}>{user?.basic?.school} </Text>
+          <Text style={[styles.name, { color: theme.colors.text }]}>{user?.basic?.firstName}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>{user?.basic?.school}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Grade {user?.basic.grade}</Text>
+          <TouchableOpacity>
+            <Text
+              style={[styles.bookmark, { color: theme.colors.text }]}
+              onPress={() => handleSaveToBookmark(user.uid)}
+            >
+            <Icon name= "bookmark" size={25} color="#BDBDBD" />
 
-          <Text style={styles.details}>Grade {user?.basic.grade}</Text>
-
-          <Text
-            style={styles.bookmark}
-            onPress={() => handleSaveToBookmark(user.uid)}
-          >
-            Bookmark
-          </Text>
+            </Text>
+          </TouchableOpacity>
         </View>
-        {isClicked ? (
-          <Icon name="keyboard-arrow-down" size={24} color="#BDBDBD" />
-        ) : (
-          <Icon name="keyboard-arrow-right" size={24} color="#BDBDBD" />
-        )}
       </View>
-      {isClicked ? (
+      {isClicked && (
         <View style={styles.itemContainerDrop}>
-          <Text style={styles.details}>GPA:</Text>
-          <Text style={styles.value}>{user.academics.gpa}</Text>
-          <Text style={styles.details}>PSAT:</Text>
-          <Text style={styles.value}>{user.academics.psat}</Text>
-          <Text style={styles.details}>SAT:</Text>
-          <Text style={styles.value}>{user.academics.sat}</Text>
-          <Text style={styles.details}>ACT:</Text>
-          <Text style={styles.value}>{user.academics.act}</Text>
-          <Text style={styles.details}>Class Rank:</Text>
-          <Text style={styles.value}>{user.academics.classRank}</Text>
-          <Text style={styles.details}>AP Courses:</Text>
-          <Text style={styles.value}>{user.academics.apCourses}</Text>
-          <Text style={styles.details}>Other Courses:</Text>
-          <Text style={styles.value}>{user.academics.others}</Text>
-          <Text style={styles.details}>Clubs:</Text>
-          <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
-          <Text style={styles.details}>Sports:</Text>
-          <Text style={styles.value}>{user.extracurriculars.sports}</Text>
-          <Text style={styles.details}>Volunteering:</Text>
-          <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
-          <Text style={styles.details}>Awards:</Text>
-          <Text style={styles.value}>{user.honors.awards}</Text>
-          <Text style={styles.details}>Scholarships:</Text>
-          <Text style={styles.value}>{user.honors.scholarships}</Text>
-          <Text style={styles.details}>Certifications:</Text>
-          <Text style={styles.value}>{user.honors.certifications
-          }</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.psat}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>SAT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.sat}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>ACT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.act}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications}</Text>
         </View>
-      ) : null}
-    </TouchableOpacity>
+      )}
+      <TouchableOpacity style={styles.viewButton}>
+        <StyledButton2 title="View" onPress={() => handleClick()}>
+          <Icon name={isClicked ? "remove" : "add"} size={16} color="#BDBDBD" />
+        </StyledButton2>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const ShowcasesScreen = ({ userMetadata }) => {
+  const { theme } = useTheme(); // Use theme context
   const [localQuery, setLocalQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -205,56 +210,90 @@ const ShowcasesScreen = ({ userMetadata }) => {
     }
   };
 
-  return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <ImageBackground
-        source={require("../assets/background.png")}
-        style={styles.background}
-      >
-        <View style={styles.container}>
-          <TextInput
-            placeholder="Search/Filter"
-            style={styles.searchBar}
-            value={localQuery}
-            onChangeText={handleSearch}
-          />
-          <View style={styles.divider} />
+  const renderUserCard = ({ item }) => {
+    if (!item || typeof item !== "object") {
+      console.log("Invalid item:", item);
+      return null;
+    }
+    console.log("Rendering item:", item);
+    return (
+      <UserCard
+        key={item.uid}
+        item={item}
+        handleSaveToBookmark={handleSaveToBookmark}
+      />
+    );
+  };
 
+  return (
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+      <Page1>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
+          <View style={[styles.searchContainer, { backgroundColor: theme.colors.background_b, borderColor: theme.colors.surface }]}>
+            <Icon
+              name="search"
+              size={24}
+              color={theme.colors.placeholderText}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              placeholder="Search/Filter"
+              style={[styles.searchBar, { color: theme.colors.text }]}
+              value={localQuery}
+              onChangeText={handleSearch}
+              placeholderTextColor={theme.colors.placeholderText}
+            />
+          </View>
+          <View style={[styles.divider, { backgroundColor: theme.colors.surface }]} />
           <FlatList
             data={filteredData}
-            renderItem={(item) => (
-              <UserCard
-                key={item.item.uid}
-                item={item}
-                handleSaveToBookmark={handleSaveToBookmark}
-              />
-            )}
-            keyExtractor={(item) => item.uid.toString()}
+            renderItem={renderUserCard}
+            keyExtractor={(item) => item.uid}
             extraData={filteredData}
+            contentContainerStyle={{ flexGrow: 1 }}
+            ListEmptyComponent={
+              <View style={styles.emptyListContainer}>
+                <Text style={[styles.emptyMessage, { color: theme.colors.text }]}>Showcases will go here!</Text>
+              </View>
+            }
           />
         </View>
-      </ImageBackground>
+      </Page1>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
   container: {
+    width: 380,
+    height: "100%",
+  },
+  value: {
+    fontSize: 14,
+    color: "#757575",
+  },
+  emptyListContainer: {
     flex: 1,
-    backgroundColor: "transparent",
-    marginBottom: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 100,
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: "#757575",
   },
   itemContainer: {
-    padding: 30,
-    backgroundColor: "#FFFFFF",
+    paddingLeft: 30,
+    paddingRight: 30,
+    alignSelf: 'center',
+    width: '90%',
+    paddingTop: 5,
+    paddingBottom: 30,
+    backgroundColor: theme.colors.background_b,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    marginBottom: 5,
+    borderBottomColor: "transparent",
     borderRadius: 10,
-    marginHorizontal: 20,
+    marginTop: 20,
   },
   itemContainerInner: {
     flexDirection: "row",
@@ -278,44 +317,62 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#212121",
+    marginTop: -10,
   },
   details: {
     fontSize: 14,
     color: "#757575",
-    fontWeight: 'bold', // Make labels bold
-  },
-  value: { // New style for values if needed
-    fontSize: 14,
-    color: "#757575",
+    marginRight: 50
   },
   bookmark: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#757575",
-    textDecorationLine: "underline",
-    textAlign: "right",
+    marginLeft: 160,
+    marginTop: -57,
   },
-  searchBar: {
-    margin: 10,
-    padding: 10,
-    backgroundColor: "#FFFFFF",
+  searchContainer: {
+    flexDirection: "row",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    padding: 7,
+    width: 300,
+    height: 40,
+    alignSelf: "center",
+  },
+  searchIcon: {
+    marginLeft: 10,
+  },
+  searchBar: {
+    flex: 1,
     fontSize: 16,
-    marginBottom: 20,
-    marginTop: 20,
+    marginLeft: 10,
+  },
+  profileImage: {
+    width: 110,
+    height: 110,
+    borderRadius: 25,
+    marginLeft: -30
+  },
+  viewButton: {
+    width: 100,
+    height: 30,
+    marginTop: 100,
+    position: 'absolute',
+    marginLeft: 110,
+    marginBottom: 100,
+  },
+  viewButtonText: {
+    fontSize: 16,
+    color: "black",
+    position: 'absolute'
   },
   divider: {
-    height: 5, // or 2 for a thicker line
+    height: 5,
     width: "89%",
     marginLeft: 20,
     marginBottom: 20,
     marginRight: 20,
-    backgroundColor: "#FFD700", // You can choose any color
-    marginVertical: 5, // Spacing above and below the line
+    backgroundColor: theme.colors.surface,
+    marginVertical: 5,
   },
-  // ... other styles you might need ...
 });
 
 export default ShowcasesScreen;

@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "../utils/ThemeProvider";
+import { useTheme } from "../utils/ThemeProvider"; // Ensure correct path
 import HomeScreen from "../pages/Home";
 import SettingsScreen from "../pages/Settings";
 import ShowcaseScreen from "../pages/Showcase";
@@ -20,21 +20,19 @@ const Drawer = createDrawerNavigator();
 const Nav = ({ userMetadata }) => {
   const { theme } = useTheme();
 
-  const screenOptions = userMetadata
-    ? {
-        header: ({ route }) => <Header title={route.name} />,
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: theme.colors.text,
-        drawerStyle: {
-          backgroundColor: theme.colors.background_b,
-        },
-        drawerPosition: "right",
-        drawerActiveTintColor: theme.colors.selected,
-        drawerInactiveTintColor: theme.colors.text,
-      }
-    : { headerShown: false };
+  const screenOptions = ({ route }) => ({
+    header: () => <Header title={route.name} />,
+    headerStyle: {
+      backgroundColor: theme.colors.background, // Header background color
+    },
+    headerTintColor: theme.colors.text, // Header text color
+    drawerStyle: {
+      backgroundColor: theme.colors.background_b, // Drawer background color
+    },
+    drawerPosition: "right",
+    drawerActiveTintColor: theme.colors.selected, // Active drawer item color
+    drawerInactiveTintColor: theme.colors.text, // Inactive drawer items color
+  });
 
   return (
     <Drawer.Navigator screenOptions={screenOptions}>
@@ -84,7 +82,7 @@ const Nav = ({ userMetadata }) => {
             children={() => <BookmarksScreen userMetadata={userMetadata} />}
             options={{
               drawerIcon: ({ color, size }) => (
-                <MaterialIcons name="bookmark" size={size} color={theme.color} />
+                <MaterialIcons name="bookmark" size={size} color={color} />
               ),
             }}
           />

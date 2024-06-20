@@ -14,6 +14,7 @@ import {
   ScrollView,
   Alert,
   Switch,
+  fontSize,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../utils/auth";
@@ -22,7 +23,6 @@ import emailjs from "@emailjs/browser";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
 import { theme } from "../utils/theme"; // Adjust the import path as needed
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider";
@@ -186,23 +186,38 @@ const SettingsScreen = ({ userMetadata }) => {
     }
   };
 
-  return  (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+  return (
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: fadeAnim,
+        backgroundColor: theme.colors.background,
+      }}
+    >
       <Page1>
-        <ScrollView style={{ backgroundColor: 'transparent' }}>
+        <ScrollView style={{ backgroundColor: "transparent" }}>
           <TouchableOpacity
             activeOpacity={1}
             onPress={dismissKeyboard}
-            style={[styles.container, { backgroundColor: 'transparent' }]}
+            style={[styles.container, { backgroundColor: "transparent" }]}
           >
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               style={{ flex: 1 }}
             >
-              <View style={[styles.card, { backgroundColor: theme.colors.background }]}>
-              <View style={styles.toggleContainer}>
+              <View
+                style={[
+                  styles.card,
+                  { backgroundColor: theme.colors.background },
+                ]}
+              >
+                <View style={styles.toggleContainer}>
                   <Text style={styles.toggleText}>Dark Mode</Text>
-                  <Switch value={theme.dark} onValueChange={toggleTheme} />
+                  <Switch
+                    style={styles.toggleDark}
+                    value={theme.dark}
+                    onValueChange={toggleTheme}
+                  />
                 </View>
                 <Text style={styles.reportBugText}>Report Bug:</Text>
                 <TextInput
@@ -219,7 +234,6 @@ const SettingsScreen = ({ userMetadata }) => {
                   <Text style={styles.buttonText}>Send Report</Text>
                 </TouchableOpacity>
                 <Text style={styles.statusText}>{status}</Text>
-
                 <View style={styles.logoutSection}>
                   <MaterialIcons
                     name="exit-to-app"
@@ -237,7 +251,6 @@ const SettingsScreen = ({ userMetadata }) => {
                 <Text style={styles.logoutInfoText}>
                   Logging out will bring you back to the Login page.
                 </Text>
-                
               </View>
             </KeyboardAvoidingView>
           </TouchableOpacity>
@@ -251,16 +264,16 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 50,
     width: 375,
-    height: "100%",
+    height: 550,
     padding: 20,
   },
   reportBugText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginTop: 20,
+    marginTop: 150,
   },
   bugReportInput: {
-    backgroundColor: "white",
+    backgroundColor: theme.colors.background_b,
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -274,7 +287,7 @@ const styles = StyleSheet.create({
   reportButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: "#F6B833",
+    backgroundColor: theme.colors.selected,
     borderRadius: 20,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
@@ -286,6 +299,17 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "bold",
     color: "white",
+  },
+  logoutButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: theme.colors.selected,
+    borderRadius: 20,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+    alignItems: "center",
   },
   statusText: {
     marginTop: 10,
@@ -304,16 +328,7 @@ const styles = StyleSheet.create({
   iconStyle: {
     marginRight: 10,
   },
-  logoutButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: "#F6B833",
-    borderRadius: 20,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
+
   logoutInfoText: {
     marginTop: 10,
     fontSize: 14,
@@ -357,6 +372,17 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: "transparent",
     borderRadius: 5,
+  },
+  toggleContainer: {
+    marginBottom: -50,
+  },
+  toggleText: {
+    marginBottom: -23,
+    fontSize,
+  },
+  toggleDark: {
+    marginLeft: 285,
+    marginBottom: 100,
   },
   editButtonText: {
     color: "#F6B833",

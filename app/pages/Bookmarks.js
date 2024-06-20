@@ -1,3 +1,4 @@
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -8,19 +9,21 @@ import {
   Image,
   Animated,
 } from "react-native";
-import React, { useState, useCallback, useRef } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
-import { theme } from "../utils/theme"; // Adjust the import path as needed
+import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
 import StyledButton2 from "../components/StyledButton2";
+import { theme } from '../utils/theme'; // Adjust the import path as needed
+
 
 const UserCard = ({ item, handleRemoveBookmark }) => {
   const user = item;
   const userRef = useRef(null);
   const [isClicked, setIsClicked] = useState(false);
+  const { theme } = useTheme(); // Use theme context
 
   const handleClick = () => {
     setIsClicked(!isClicked);
@@ -28,7 +31,7 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
   };
 
   return (
-    <View style={styles.itemContainer}>
+    <View style={[styles.itemContainer, { backgroundColor: theme.colors.background_b }]}>
       <View style={styles.itemContainerInner}>
         <Image
           source={
@@ -39,9 +42,9 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.name}>{user?.basic?.firstName}</Text>
-          <Text style={styles.details}>{user?.basic?.school}</Text>
-          <Text style={styles.details}>Grade {user?.basic.grade}</Text>
+          <Text style={[styles.name, { color: theme.colors.text }]}>{user?.basic?.firstName}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>{user?.basic?.school}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Grade {user?.basic.grade}</Text>
           <TouchableOpacity>
             <Icon onPress={() => handleRemoveBookmark(user.uid)}
               name="delete"
@@ -54,32 +57,32 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
       </View>
       {isClicked && (
         <View style={styles.itemContainerDrop}>
-          <Text style={styles.details}>GPA:</Text>
-          <Text style={styles.value}>{user.academics.gpa}</Text>
-          <Text style={styles.details}>PSAT:</Text>
-          <Text style={styles.value}>{user.academics.psat}</Text>
-          <Text style={styles.details}>SAT:</Text>
-          <Text style={styles.value}>{user.academics.sat}</Text>
-          <Text style={styles.details}>ACT:</Text>
-          <Text style={styles.value}>{user.academics.act}</Text>
-          <Text style={styles.details}>Class Rank:</Text>
-          <Text style={styles.value}>{user.academics.classRank}</Text>
-          <Text style={styles.details}>AP Courses:</Text>
-          <Text style={styles.value}>{user.academics.apCourses}</Text>
-          <Text style={styles.details}>Other Courses:</Text>
-          <Text style={styles.value}>{user.academics.others}</Text>
-          <Text style={styles.details}>Clubs:</Text>
-          <Text style={styles.value}>{user.extracurriculars.clubs}</Text>
-          <Text style={styles.details}>Sports:</Text>
-          <Text style={styles.value}>{user.extracurriculars.sports}</Text>
-          <Text style={styles.details}>Volunteering:</Text>
-          <Text style={styles.value}>{user.extracurriculars.volunteering}</Text>
-          <Text style={styles.details}>Awards:</Text>
-          <Text style={styles.value}>{user.honors.awards}</Text>
-          <Text style={styles.details}>Scholarships:</Text>
-          <Text style={styles.value}>{user.honors.scholarships}</Text>
-          <Text style={styles.details}>Certifications:</Text>
-          <Text style={styles.value}>{user.honors.certifications}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.psat}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>SAT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.sat}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>ACT:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.act}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications}</Text>
         </View>
       )}
       <TouchableOpacity style={styles.viewButton}>
@@ -91,8 +94,8 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
   );
 };
 
-
 const BookmarksScreen = ({ userMetadata }) => {
+  const { theme } = useTheme(); // Use theme context
   const [localQuery, setLocalQuery] = useState("");
   const [bookmarkedUsers, setBookmarkedUsers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -239,27 +242,28 @@ const BookmarksScreen = ({ userMetadata }) => {
   };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
       <Page1>
-        <View style={styles.container}>
-          <View style={styles.searchContainer}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
+          <View style={[styles.searchContainer, { backgroundColor: theme.colors.background_b, borderColor: theme.colors.surface }]}>
             <Icon
               name="search"
               size={24}
-              color="#BDBDBD"
+              color={theme.colors.placeholderText}
               style={styles.searchIcon}
             />
             <TextInput
               placeholder="Search/Filter"
-              style={styles.searchBar}
+              style={[styles.searchBar, { color: theme.colors.text }]}
               value={localQuery}
               onChangeText={handleSearch}
+              placeholderTextColor={theme.colors.placeholderText}
             />
           </View>
-          <Text style={styles.refresh} onPress={() => setRefresh(!refresh)}>
-            <Icon name="refresh" size={24} color="#BDBDBD" />
+          <Text style={[styles.refresh, { color: theme.colors.text }]} onPress={() => setRefresh(!refresh)}>
+            <Icon name="refresh" size={24} color={theme.colors.text} />
           </Text>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.surface }]} />
           <FlatList
             data={filteredData}
             renderItem={renderUserCard}
@@ -268,7 +272,7 @@ const BookmarksScreen = ({ userMetadata }) => {
             contentContainerStyle={{ flexGrow: 1 }}
             ListEmptyComponent={
               <View style={styles.emptyListContainer}>
-                <Text style={styles.emptyMessage}>Bookmarks will go here!</Text>
+                <Text style={[styles.emptyMessage, { color: theme.colors.text }]}>Bookmarks will go here!</Text>
               </View>
             }
           />
@@ -353,10 +357,8 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
     padding: 7,
     width: 300,
     height: 40,

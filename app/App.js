@@ -7,6 +7,7 @@ import { auth } from "./firebase/config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Nav from "./components/Nav";
 import { ThemeProvider } from "./utils/ThemeProvider";
+import { theme } from "./utils/theme";
 
 const App = () => {
   const [initializing, setInitializing] = useState(true);
