@@ -1,17 +1,17 @@
-import * as React from "react";
-import { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
-  Button,
   View,
   Text,
   ScrollView,
   StyleSheet,
   Image,
   TouchableOpacity,
-  ImageBackground,
+  Animated,
 } from "react-native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import Swiper from "react-native-swiper";
+import { useFocusEffect } from "@react-navigation/native";
+import { theme } from '../utils/theme'; // Adjust the import path as needed
+import Page1 from "../components/Page1";
+
 const HomeScreen = ({ navigation }) => {
   const [teamMembers] = useState([
     {
@@ -33,96 +33,78 @@ const HomeScreen = ({ navigation }) => {
       details: "Detail information about Ayla Mahns.",
     },
   ]);
+
   const [expandedSection, setExpandedSection] = useState(null);
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
+
   const [expandedMember, setExpandedMember] = useState(null);
   const toggleMemberInfo = (memberIndex) => {
     setExpandedMember(expandedMember === memberIndex ? null : memberIndex);
   };
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }, [fadeAnim])
+  );
+
   return (
-    <ImageBackground
-      source={require("../assets/background.png")}
-      style={styles.backgroundImage}
-    >
-      <ScrollView style={styles.container}>
-        <Swiper
-          style={styles.wrapper}
-          showsButtons={false}
-          loop
-          autoplay
-          marginBottom = "10"
-          buttonColor="grey" // Color for the buttons
-          dotColor="grey" // Color for the dots
-          activeDotColor="black" // Color for the active dot
-        >
-          <Image
-            source={require("../assets/page1.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page2.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page3.png")}
-            style={styles.slideImage}
-          />
-          <Image
-            source={require("../assets/page4.png")}
-            style={styles.slideImage}
-          />
-        </Swiper>
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+      <Page1>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Image
+          source={require("../assets/image102.png")} // Replace with the desired static image
+          style={styles.headerImage}
+        />
 
         <View style={styles.headingContainer}>
           <Text style={styles.heading}>Welcome to ScholarSync!</Text>
         </View>
-        <View dtyle={styles.textBelow}>
+        <View style={styles.textBelow}>
           <Text style={styles.below}>
             "Elevate your high school success on ScholarSync, the ultimate hub
             for learning and peer connection."
           </Text>
         </View>
-        {/* Call to Action Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Profile")} // Add the navigation call here
+          onPress={() => navigation.navigate("Profile")}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
-        <View>
-          <Image
-          //source={require("../assets/border.jpg")} // Replace with your image path
-          //style={styles.borderImage}
-          />
-        </View>
 
         <View style={styles.descriptionContainer}>
-          <Text style={styles.embraceText}>📚 Embrace Your Journey:</Text>
+          <Text style={styles.embraceText}>Journey forward:</Text>
           <Text style={styles.descriptionText}>
-            At Scholar Link, share your high school highlights and challenges.
-            It's your space to voice your unique story.
+          At Scholar Link, share your professional achievements and career challenges. It's your platform to voice your story.
           </Text>
           <Image
-            source={require("../assets/bus.gif")} // Replace with your image path
+            source={require("../assets/image103.png")}
             style={styles.descriptionImage}
           />
         </View>
 
-        {/* Swiper/Slideshow */}
-
         <View style={styles.missionSection}>
-          <Text style={styles.subheading}>🤝 Our Mission</Text>
+          <Text style={styles.mission}>Our Mission:</Text>
           <Text style={styles.missionText}>
             To help high schoolers with college applications and academic
             guidance.
           </Text>
           <Image
-            source={require("../assets/mission.png")}
+            source={require("../assets/image104.png")}
             style={styles.missionImage}
           />
         </View>
+
         <View style={styles.section}>
           <Text style={styles.subheading}>About Us</Text>
           {teamMembers.map((member, index) => (
@@ -145,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
           ))}
         </View>
-        {/* Features Section */}
+
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("features")}
@@ -159,10 +141,9 @@ const HomeScreen = ({ navigation }) => {
             </View>
           )}
         </TouchableOpacity>
-        
+
         <View style={styles.divider} />
 
-        {/* Testimonials Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("testimonials")}
@@ -171,16 +152,13 @@ const HomeScreen = ({ navigation }) => {
           {expandedSection === "testimonials" && (
             <View style={styles.dropdownContent}>
               <Text>"ScholarSync has transformed the way I study!" - Alex</Text>
-              <Text>
-                "I love the community aspect of ScholarSync." - Jordan
-              </Text>
+              <Text>"I love the community aspect of ScholarSync." - Jordan</Text>
             </View>
           )}
         </TouchableOpacity>
 
         <View style={styles.divider} />
 
-        {/* FAQ Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("faqs")}
@@ -200,7 +178,6 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.divider} />
 
-        {/* Contact Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => toggleSection("contact")}
@@ -213,112 +190,115 @@ const HomeScreen = ({ navigation }) => {
             </View>
           )}
         </TouchableOpacity>
-        
-        <View style={styles.divider1} />
 
+        <View style={styles.divider1} />
       </ScrollView>
-    </ImageBackground>
+      </Page1>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background, // Use the background color from the theme
+  },
+  scrollContainer: {
     padding: 20,
-    paddingBottom: 100, // Replace with the actual height
+    paddingBottom: 120, // Ensure enough space at the bottom
   },
-
-  // Style for the inner content view
-
-  backgroundImage: {
-    flex: 1,
+  headerImage: {
     width: "100%",
-    height: "100%",
+    height: 250, // Increased height for a larger image
     resizeMode: "cover",
-  },
-  wrapper: {
-    height: 200,
-    marginBottom: -10
-  },
-  slideImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-    shadowColor: "#F7B500", // Same color as the border
-    shadowOpacity: .3, // Adjust as needed
-    shadowRadius: 10, // Adjust for the spread of the shadow
-    shadowOffset: { width: 0, height: 4 }, // Adjust as needed
-    elevation: 6, // For Android, adjust as needed
-    borderColor: "#F7B500",
-    borderWidth: 15,
-    borderTopWidth: 10,
     borderRadius: 10,
-    marginBottom: -50,
-    
+    marginBottom: 20,
+    padding: 150,
+    marginTop: -30
   },
   headingContainer: {
     borderRadius: 10,
     marginVertical: 20,
     alignItems: "center",
+    paddingHorizontal: 20, // Added paddingHorizontal to ensure consistent padding
   },
   heading: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "black",
+    color: theme.colors.text,
     textAlign: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
   },
   textBelow: {
     borderRadius: 10,
-    marginVertical: 20,
+    marginVertical: 10,
     alignItems: "center",
+    paddingHorizontal: 20, // Added paddingHorizontal to ensure consistent padding
   },
   below: {
     fontSize: 15,
-
-    color: "black",
+    color: theme.colors.text,
     textAlign: "center",
     paddingVertical: 15,
-    paddingHorizontal: 20,
   },
   descriptionContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#f5f1ee",
     borderRadius: 10,
     padding: 15,
-    marginBottom: 15,
-    marginTop: 200,
+    paddingLeft: 30,
+    marginLeft: -30,
+    marginTop: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 10,
+    marginRight: 80,
+    paddingBottom: 10,
+    paddingTop: 50
+
   },
   descriptionText: {
-    fontSize: 16,
-    color: "#4A4A4A",
-    lineHeight: 22,
+    fontSize: 13,
+    color: theme.colors.text,
+    lineHeight: 0,
+    paddingRight: 40,
+    marginLeft: 20
   },
   embraceText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
     marginBottom: 10,
+    marginLeft: 20
   },
-
+  mission: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: theme.colors.text,
+    marginBottom: 10,
+    marginLeft: 50
+  },
   descriptionImage: {
-    width: "165%", // Adjust as needed
-    height: 200, // Adjust as needed
-    borderRadius: 10, // Optional: if you want rounded corners
-    resizeMode: "cover", // Or 'contain' based on your requirement
-    marginTop: 15, // Optional: adjust space between text and image
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    resizeMode: "cover",
+    marginTop: -150,
+    marginRight: -175,
+    marginLeft: 165
+    
   },
   section: {
     marginVertical: 20,
   },
   subheading: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
     marginBottom: 10,
   },
   dropdownContent: {
-    
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",
@@ -327,32 +307,47 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
     marginTop: 10,
+    backgroundColor: "white", // Ensure it's readable
   },
   missionSection: {
-    backgroundColor: "white",
+    backgroundColor: "#f5f1ee",
     borderRadius: 10,
     padding: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+    paddingLeft: 30,
+    marginLeft: 80,
+    marginTop: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 10,
+    marginRight: -30,
+    paddingBottom: 20,
+    paddingTop: 50,
+    marginBottom: 60
+    
   },
   missionText: {
-    fontSize: 18,
-    color: "#6C6C6C",
+    fontSize: 13,
+    color: theme.colors.text,
     marginBottom: 15,
+    marginLeft: 50,
+  
   },
   missionImage: {
-    width: "100%",
-    height: 200,
+    width: 150,
+    height: 150,
     borderRadius: 10,
     resizeMode: "cover",
+    alignItems: 'left',
+    marginLeft: -115,
+    marginTop: -130
   },
   memberContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "f5f1ee",
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -382,26 +377,25 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4A4A4A",
+    color: theme.colors.text,
   },
   memberRole: {
     fontSize: 16,
-    color: "#6C6C6C",
+    color: theme.colors.text,
   },
   button: {
-    backgroundColor: "#F7B500",
+    backgroundColor: theme.colors.selected,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
     marginVertical: 20,
-    shadowColor: "#F7B500",
+    shadowColor: theme.colors.selected,
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
-    marginRight: 75,
-    marginLeft: 75,
+    marginHorizontal: 75,
   },
   buttonText: {
     fontSize: 18,
@@ -409,19 +403,18 @@ const styles = StyleSheet.create({
     color: "white",
   },
   divider: {
-    height: 1, // or 2 for a thicker line
+    height: 1,
     width: '100%',
-    backgroundColor: 'black', // You can choose any color
-    marginVertical: 5, // Spacing above and below the line
+    backgroundColor: 'black',
+    marginVertical: 5,
   },
   divider1: {
-    height: 1, // or 2 for a thicker line
+    height: 1,
     width: '100%',
-    backgroundColor: 'black', // You can choose any color
+    backgroundColor: 'black',
     marginVertical: 5,
-    marginBottom: 100, // Spacing above and below the line
+    marginBottom: 20, // Adjusted to ensure proper spacing
   },
- 
 });
 
 export default HomeScreen;

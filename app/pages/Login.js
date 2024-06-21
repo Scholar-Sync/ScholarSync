@@ -1,25 +1,38 @@
-import React, { useState, useContext, createContext } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   Image,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ImageBackground,
+  Animated, // Import Animated for the fade-in effect
+  StyleSheet,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { login } from "../utils/auth";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { theme } from '../utils/theme'; // Adjust the import path as needed
+import Page1 from '../components/Page1'
+
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  // const navigation = useNavigation() ;
-  // const [showEmailMessage, setShowEmailMessage] = useState ( false) ;
-  // const handleSignup = async () => {
-  //     navigation.navigate("Register");
-  // };
 
-  // Handle navigation to registration screen
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+
+  useFocusEffect(
+    useCallback(() => {
+      fadeAnim.setValue(0); // Reset the opacity to 0
+      Animated.timing(fadeAnim, {
+        toValue: 1, // Fade to full opacity
+        duration: 600, // Adjust the duration as needed
+        useNativeDriver: true,
+      }).start();
+    }, [fadeAnim])
+  );
+
   const onFooterLinkPress = () => {
     navigation.navigate("RegistrationScreen");
   };
@@ -30,11 +43,6 @@ export default function LoginScreen({ navigation }) {
       const user = await login(email, password);
       if (user) {
         console.log("User signed in: ", user);
-        // if (!user.emailVerified) {
-        //     setShowmailMessage(true);
-        //     await logout();
-        //     setLoading(false);
-        // }
       }
     } catch (error) {
       setLoading(false);
@@ -50,20 +58,21 @@ export default function LoginScreen({ navigation }) {
       }
     }
   };
+
   return (
-    <View style={styles.container}>
-      <KeyboardAwareScrollView
-        style={{ flex: 1, width: "100%" }}
-        keyboardShouldPersistTaps="always"
-      >
-        <ImageBackground
-          source={require("../assets/background.png")}
-          style={styles.background}
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+      <Page1>
+        <KeyboardAwareScrollView
+          style={{ flex: 1, width: "100%" }}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={styles.scrollViewContent}
         >
           <Image
             style={styles.logo}
             source={require("../assets/scholar.png")}
           />
+          <View style={styles.divider} />
+
           <TextInput
             style={styles.input}
             placeholder="E-mail"
@@ -83,6 +92,8 @@ export default function LoginScreen({ navigation }) {
             underlineColorAndroid="transparent"
             autoCapitalize="none"
           />
+          <View style={styles.divider} />
+
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleLogin(email, password)}
@@ -91,42 +102,37 @@ export default function LoginScreen({ navigation }) {
           </TouchableOpacity>
           <View style={styles.footerView}>
             <Text style={styles.footerText}>
-              Don't have an account?{" "}
-              <Text onPress={onFooterLinkPress} style={styles.footerLink}>
-                Sign up
+              <Text
+                onPress={() => navigation.navigate("Welcome")}
+                style={styles.footerLink}
+              >
+                Go Back
               </Text>
             </Text>
           </View>
-        </ImageBackground>
-      </KeyboardAwareScrollView>
-    </View>
+        </KeyboardAwareScrollView>
+      </Page1>
+    </Animated.View>
   );
 }
 
-import { StyleSheet } from "react-native";
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: '100%', // Ensure container fills the width
-        height: '100%', // Ensure container fills the height
-    },
-    background: {
-        flex: 1,
-        width: '100%', // Ensure background image fills the width
-        height: '100%', // Ensure background image fills the height
-        resizeMode: 'cover', // This will cover the entire screen area
-    },
-  
-  title: {},
-  logo: {
+  container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.background, // Use the background color from the theme
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  logo: {
     height: 200,
     width: 200,
     alignSelf: "center",
+    marginTop: -35,
   },
-  
-  
   input: {
     height: 48,
     borderRadius: 5,
@@ -137,21 +143,21 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginRight: 30,
     paddingLeft: 16,
+    width: 300
   },
   button: {
-    backgroundColor: "#F7B500",
+    backgroundColor: theme.colors.selected, // Use the selected color from the theme
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
     marginVertical: 20,
-    shadowColor: "#F7B500",
+    shadowColor: theme.colors.selected, // Use the selected color from the theme
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
-    marginRight: 75,
-    marginLeft: 75,
+    marginHorizontal: 75,
   },
   buttonTitle: {
     color: "white",
@@ -159,7 +165,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   footerView: {
-    flex: 1,
     alignItems: "center",
     marginTop: 20,
   },
@@ -168,8 +173,15 @@ const styles = StyleSheet.create({
     color: "#2e2e2d",
   },
   footerLink: {
-    color: "#F7B500",
+    color: theme.colors.selected, // Use the selected color from the theme
     fontWeight: "bold",
     fontSize: 16,
+  },
+  divider: {
+    height: 1, // or 2 for a thicker line
+    width: "70%",
+    backgroundColor: "black", // You can choose any color
+    marginVertical: 10, // Spacing above and below the line
+    alignSelf: 'center',
   },
 });
