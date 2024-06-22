@@ -77,15 +77,8 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
   };
 
   return (
-    <View
-      style={[
-        styles.editableBox,
-        { backgroundColor: theme.colors.background_b },
-      ]}
-    >
-      <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>
-        {label}
-      </Text>
+    <View style={[styles.editableBox, { backgroundColor: theme.colors.background_b }]}>
+      <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>{label}</Text>
       {items.map((item, index) => (
         <View key={index} style={styles.itemContainer}>
           {item.isEditable ? (
@@ -109,66 +102,27 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
               multiline
             />
           ) : (
-            <Text style={[styles.itemText, { color: theme.colors.text }]}>
-              {item.text}
-            </Text>
+            <Text style={[styles.itemText, { color: theme.colors.text }]}>{item.text}</Text>
           )}
           <TouchableOpacity
-            onPress={() =>
-              setDropdownIndex(dropdownIndex === index ? null : index)
-            }
+            onPress={() => setDropdownIndex(dropdownIndex === index ? null : index)}
             style={styles.moreButton}
           >
             <Icon name="more-vert" size={20} color={theme.colors.icon} />
           </TouchableOpacity>
           {dropdownIndex === index && (
-            <View
-              style={[
-                styles.dropdownMenu,
-                { backgroundColor: theme.colors.surface },
-              ]}
-            >
+            <View style={[styles.dropdownMenu, { backgroundColor: theme.colors.selected }]}>
               {item.isEditable ? (
-                <TouchableOpacity
-                  onPress={() => handleSave(index, item.text)}
-                  style={styles.dropdownItem}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownItemText,
-                      { color: theme.colors.text },
-                    ]}
-                  >
-                    Save
-                  </Text>
+                <TouchableOpacity onPress={() => handleSave(index, item.text)} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Save</Text>
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity
-                  onPress={() => handleEdit(index)}
-                  style={styles.dropdownItem}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownItemText,
-                      { color: theme.colors.text },
-                    ]}
-                  >
-                    Edit
-                  </Text>
+                <TouchableOpacity onPress={() => handleEdit(index)} style={styles.dropdownItem}>
+                  <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Edit</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity
-                onPress={() => handleRemove(index)}
-                style={styles.dropdownItem}
-              >
-                <Text
-                  style={[
-                    styles.dropdownItemText,
-                    { color: theme.colors.text },
-                  ]}
-                >
-                  Remove
-                </Text>
+              <TouchableOpacity onPress={() => handleRemove(index)} style={styles.dropdownItem}>
+                <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Remove</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -176,9 +130,7 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
       ))}
       <TouchableOpacity style={styles.addItemButton} onPress={addItem}>
         <Icon name="add" size={20} color={theme.colors.icon} />
-        <Text style={[styles.addItemButtonText, { color: theme.colors.text }]}>
-          Add New Item
-        </Text>
+        <Text style={[styles.addItemButtonText, { color: theme.colors.text }]}>Add New Item</Text>
       </TouchableOpacity>
     </View>
   );
@@ -188,15 +140,22 @@ const ProfileScreen = ({ userMetadata }) => {
   const layout = useWindowDimensions();
   const [userData, setUserData] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [sections, setSections] = useState([
-    "Achievements",
-    "Extracurricular",
-    "Academics",
-  ]);
+  const [sections, setSections] = useState(["Achievements", "Extracurricular", "Academics"]);
   const [profileImage, setProfileImage] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [uploading, setUploading] = useState(false);
   const { theme } = useTheme(); // Use theme context
+
+  const [isNameEditable, setIsNameEditable] = useState(false);
+  const [isTitleEditable, setIsTitleEditable] = useState(false);
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [age, setAge] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [interests, setInterests] = useState("");
+  const [isAgeEditable, setIsAgeEditable] = useState(false);
+  const [isPhoneNumberEditable, setIsPhoneNumberEditable] = useState(false);
+  const [isInterestsEditable, setIsInterestsEditable] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -218,9 +177,17 @@ const ProfileScreen = ({ userMetadata }) => {
     getDoc(docRef)
       .then((docSnap) => {
         if (docSnap.exists()) {
-          setUserData(docSnap.data());
-          if (docSnap.data().profileImage) {
-            setProfileImage(docSnap.data().profileImage);
+          const data = docSnap.data();
+          setUserData(data);
+          if (data.profileImage) {
+            setProfileImage(data.profileImage);
+          }
+          if (data.basic) {
+            setName(data.basic.firstName);
+            setTitle(data.basic.school || "School");
+            setAge(data.basic.email || "");
+            setPhoneNumber(data.basic.phoneNumber || "");
+            setInterests(data.basic.interests || "");
           }
         } else {
           return {};
@@ -273,9 +240,7 @@ const ProfileScreen = ({ userMetadata }) => {
 
     Linking.openURL(url)
       .then(() => {
-        alert(
-          `${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`
-        );
+        alert(`${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`);
       })
       .catch(() => {});
   };
@@ -307,8 +272,7 @@ const ProfileScreen = ({ userMetadata }) => {
 
   useEffect(() => {
     (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
           "Permission Denied",
@@ -333,19 +297,16 @@ const ProfileScreen = ({ userMetadata }) => {
       console.log("Image picked:", uri);
       setImageUri(uri);
       setProfileImage(uri); // Update profile image immediately
+      uploadImage(uri); // Upload image immediately after picking it
     } else {
       console.log("Image pick cancelled");
     }
   };
 
-  const uploadImage = async () => {
-    if (!imageUri) {
-      Alert.alert("Error", "Please select an image first.");
-      return;
-    }
+  const uploadImage = async (uri) => {
     setUploading(true);
-    console.log("Uploading image:", imageUri);
-    const response = await fetch(imageUri);
+    console.log("Uploading image:", uri);
+    const response = await fetch(uri);
     const blob = await response.blob();
     const uid = userMetadata.uid;
     const storageRef = ref(storage, `profilePictures/${uid}`);
@@ -363,10 +324,7 @@ const ProfileScreen = ({ userMetadata }) => {
           .catch((error) => {
             console.error("Error getting download URL:", error);
             setUploading(false);
-            Alert.alert(
-              "Error",
-              "Failed to update profile picture. Please try again."
-            );
+            Alert.alert("Error", "Failed to update profile picture. Please try again.");
           });
       })
       .catch((error) => {
@@ -376,42 +334,37 @@ const ProfileScreen = ({ userMetadata }) => {
       });
   };
 
-  const prefilledData = {
-    achievements: [
-      { text: "Example: Valedictorian" },
-      { text: "Example: National Merit Scholar" },
-    ],
-    extracurricular: [
-      { text: "Example: Debate Team Captain" },
-      { text: "Example: Varsity Soccer" },
-    ],
-    academics: [
-      { text: "SAT: " },
-      { text: "PSAT: " },
-      { text: "ACT: " },
-      { text: "Class Rank: " },
-    ],
+  const handleSaveName = () => {
+    updateUserData("firstName", "basic", name);
+    setIsNameEditable(false);
+  };
+
+  const handleSaveTitle = () => {
+    updateUserData("school", "basic", title);
+    setIsTitleEditable(false);
+  };
+
+  const handleSaveAge = () => {
+    updateUserData("email", "basic", age);
+    setIsAgeEditable(false);
+  };
+
+  const handleSavePhoneNumber = () => {
+    updateUserData("phoneNumber", "basic", phoneNumber);
+    setIsPhoneNumberEditable(false);
+  };
+
+  const handleSaveInterests = () => {
+    updateUserData("interests", "basic", interests);
+    setIsInterestsEditable(false);
   };
 
   return (
-    <Animated.View
-      style={{
-        flex: 1,
-        opacity: fadeAnim,
-        backgroundColor: theme.colors.background,
-      }}
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : null}
-      >
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : null}>
         <ScrollView style={{ flex: 1 }}>
-          <View
-            style={[
-              styles.headerContainer,
-              { backgroundColor: theme.colors.background_b },
-            ]}
-          >
+          <View style={[styles.coverContainer, { backgroundColor: theme.colors.selected }]} />
+          <View style={[styles.headerContainer, { backgroundColor: theme.colors.background_b }]}>
             <TouchableOpacity onPress={pickImage}>
               <Image
                 source={
@@ -422,144 +375,120 @@ const ProfileScreen = ({ userMetadata }) => {
                 style={styles.profileImage}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={pickImage}
-              style={[
-                styles.uploadImageButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.uploadImageButtonText,
-                  { color: theme.colors.text_b },
-                ]}
-              >
-                Upload Image
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={uploadImage}
-              style={[
-                styles.saveButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            >
-              <Text
-                style={[styles.saveButtonText, { color: theme.colors.text_b }]}
-              >
-                Save Photo
-              </Text>
-            </TouchableOpacity>
-            {uploading && (
-              <Text style={{ color: theme.colors.text }}>Uploading...</Text>
-            )}
+            <View style={styles.profileInfoContainer}>
+              {isNameEditable ? (
+                <TextInput
+                  style={[styles.userName, { color: theme.colors.text }]}
+                  value={name}
+                  onChangeText={setName}
+                  onBlur={handleSaveName}
+                  autoFocus
+                />
+              ) : (
+                <TouchableOpacity onPress={() => setIsNameEditable(true)}>
+                  <Text style={[styles.userName, { color: theme.colors.text }]}>
+                    {name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {isTitleEditable ? (
+                <TextInput
+                  style={[styles.userTitle, { color: theme.colors.text }]}
+                  value={title}
+                  onChangeText={setTitle}
+                  onBlur={handleSaveTitle}
+                  autoFocus
+                />
+              ) : (
+                <TouchableOpacity onPress={() => setIsTitleEditable(true)}>
+                  <Text style={[styles.userTitle, { color: theme.colors.text }]}>
+                    {title}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {uploading && <Text style={{ color: theme.colors.text }}>Uploading...</Text>}
+            </View>
+            <View style={styles.additionalInfoContainer}>
+              {isAgeEditable ? (
+                <TextInput
+                  style={[styles.additionalInfo, { color: theme.colors.text }]}
+                  value={age}
+                  onChangeText={setAge}
+                  onBlur={handleSaveAge}
+                  keyboardType="numeric"
+                  autoFocus
+                />
+              ) : (
+                <TouchableOpacity onPress={() => setIsAgeEditable(true)}>
+                  <Text style={[styles.additionalInfo, { color: theme.colors.text }]}>
+                    Email: {age}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {isPhoneNumberEditable ? (
+                <TextInput
+                  style={[styles.additionalInfo, { color: theme.colors.text }]}
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  onBlur={handleSavePhoneNumber}
+                  keyboardType="phone-pad"
+                  autoFocus
+                />
+              ) : (
+                <TouchableOpacity onPress={() => setIsPhoneNumberEditable(true)}>
+                  <Text style={[styles.additionalInfo, { color: theme.colors.text }]}>
+                    Phone: {phoneNumber}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              
+            </View>
           </View>
 
           {sections.map((section, index) => (
             <View key={index} style={styles.sectionWrapper}>
-              <View
-                style={[
-                  styles.sectionContainer,
-                  { backgroundColor: theme.colors.background_b },
-                ]}
-              >
-                <View style={styles.sectionHeaderContainer}>
-                  <Text
-                    style={[
-                      styles.sectionHeader,
-                      { color: theme.colors.primary },
-                    ]}
-                  >
-                    {section}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => removeSection(index)}
-                    style={styles.trashButton}
-                  >
+              <View style={[styles.sectionContainer, { backgroundColor: theme.colors.background_b }]}>
+                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
                     <Icon name="delete" size={20} color="#BDBDBD" />
                   </TouchableOpacity>
-                </View>
+                
                 <EditableBox
                   label={`Add ${section}`}
                   category={section.toLowerCase()}
-                  data={
-                    userData?.[section.toLowerCase()]?.custom ||
-                    prefilledData[section.toLowerCase()]
-                  }
+                  data={userData?.[section.toLowerCase()] || []}
                   updateUserData={updateUserData}
-                  labelStyle={{ color: theme.colors.text }} // Add this line to pass the color
                 />
               </View>
             </View>
           ))}
 
-          <TouchableOpacity
-            onPress={addSection}
-            style={[
-              styles.addSectionButton,
-              { backgroundColor: theme.colors.primary },
-            ]}
-          >
-            <Text
-              style={[
-                styles.addSectionButtonText,
-                { color: theme.colors.text_b },
-              ]}
-            >
+          <TouchableOpacity onPress={addSection} style={[styles.addSectionButton, { backgroundColor: theme.colors.primary }]}>
+            <Text style={[styles.addSectionButtonText, { color: theme.colors.text_b }]}>
               + Add New Section
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.socialButtonsTitleContainer}>
-            <Text
-              style={[
-                styles.socialButtonsTitle,
-                { color: theme.colors.primary },
-              ]}
-            >
-              Share to:
-            </Text>
-          </View>
           <View style={styles.socialButtonsContainer}>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
+              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => shareToSocial("twitter")}
             >
-              <Image
-                source={require("../assets/twitterlogo.png")}
-                style={styles.buttonIcon}
-              />
+              <Image source={require("../assets/twitterlogo.png")} style={styles.buttonIcon} />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
+              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => shareToSocial("reddit")}
             >
-              <Image
-                source={require("../assets/redditlogo.png")}
-                style={styles.buttonIcon}
-              />
+              <Image source={require("../assets/redditlogo.png")} style={styles.buttonIcon} />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
+              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => shareToSocial("instagram")}
             >
-              <Image
-                source={require("../assets/instagram.png")}
-                style={styles.instagramButtonIcon}
-              />
+              <Image source={require("../assets/instagram.png")} style={styles.instagramButtonIcon} />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -569,54 +498,87 @@ const ProfileScreen = ({ userMetadata }) => {
 };
 
 const styles = StyleSheet.create({
+  coverContainer: {
+    width: "100%",
+    height: 150,
+  },
   headerContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
     alignItems: "center",
-    marginVertical: 20,
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    paddingBottom: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 30,
+  },
+  profileInfoContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  additionalInfoContainer: {
+    marginLeft: 20,
+    justifyContent: "center",
+    marginTop: 15
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 85,
+    height: 85,
+    borderRadius: 60,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 10,
+    marginTop: -105
+  },
+  userName: {
+    fontSize: 17,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginLeft: -95,
+  },
+  userTitle: {
+    fontSize: 14,
+    color: "#777",
+    marginLeft: -95,
+
+  },
+  additionalInfo: {
+    fontSize: 14,
+    marginTop: 5,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
   },
   uploadImageButton: {
-    padding: 10,
+    paddingHorizontal: 5,
+    paddingTop: 8,
     borderRadius: 5,
-    marginTop: 10,
     alignItems: "center",
+    marginRight: 10,
+    height: 30
   },
   uploadImageButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 10,
   },
   saveButton: {
     padding: 10,
     borderRadius: 5,
-    marginTop: 10,
     alignItems: "center",
   },
   saveButtonText: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: "bold",
   },
   sectionWrapper: {
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   sectionContainer: {
-    borderRadius: 5,
+    borderRadius: 30,
     padding: 20,
-    marginHorizontal: 20,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    shadowOffset: { width: 0, height: 0 },
+    shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
   sectionHeaderContainer: {
@@ -637,6 +599,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
+    marginLeft: 255,
+    marginBottom: -15
   },
   editableBox: {
     marginVertical: 10,
@@ -671,12 +635,7 @@ const styles = StyleSheet.create({
     top: 30,
     right: 5,
     borderRadius: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 1,
+    
   },
   dropdownItem: {
     padding: 10,
@@ -697,7 +656,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
-    margin: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   addSectionButtonText: {
     fontSize: 16,
@@ -716,6 +682,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 10,
+    marginBottom: 50,
   },
   socialButton: {
     flexDirection: "row",
@@ -731,7 +698,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2,
     marginHorizontal: 10,
-    marginBottom: 50
   },
   buttonIcon: {
     width: 150,
@@ -739,11 +705,10 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   instagramButtonIcon: {
-    width: 80,
-    height: 80,
+    width: 77,
+    height: 77,
     resizeMode: "contain",
   },
-
 });
 
 export default ProfileScreen;

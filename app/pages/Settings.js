@@ -2,9 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
-  ImageBackground,
   TextInput,
   TouchableOpacity,
   Keyboard,
@@ -12,9 +10,7 @@ import {
   Platform,
   Animated,
   ScrollView,
-  Alert,
   Switch,
-  fontSize,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../utils/auth";
@@ -85,6 +81,8 @@ const SettingsScreen = ({ userMetadata }) => {
   const [bugReportText, setBugReportText] = useState("");
   const [status, setStatus] = useState("");
   const [userData, setUserData] = useState(null);
+  const [isPrivateMode, setIsPrivateMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const sendEmail = () => {
@@ -132,11 +130,11 @@ const SettingsScreen = ({ userMetadata }) => {
     }, [fadeAnim])
   );
 
-  const toggleSwitch = () => setIsDarkMode((previousState) => !previousState);
   const handleLogout = () => {
     console.log("User logged out");
     logout();
   };
+
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
@@ -157,6 +155,7 @@ const SettingsScreen = ({ userMetadata }) => {
         if (docSnap.exists()) {
           console.log("Document data:", docSnap.data());
           setUserData(docSnap.data());
+          setIsPrivateMode(docSnap.data().isPrivateMode || false);
         } else {
           console.log("No such document!");
         }
@@ -186,6 +185,26 @@ const SettingsScreen = ({ userMetadata }) => {
     }
   };
 
+  const togglePrivateMode = async () => {
+    if (!userMetadata) {
+      console.log("No user metadata available");
+      return;
+    }
+    setIsLoading(true); // Show loading indicator
+    const uid = userMetadata?.uid;
+    const userDBRef = collection(db, "users");
+    const newUserData = { ...userData, isPrivateMode: !isPrivateMode };
+    try {
+      await setDoc(doc(userDBRef, uid), newUserData);
+      setUserData(newUserData);
+      setIsPrivateMode(!isPrivateMode);
+    } catch (error) {
+      console.error("Error updating document:", error);
+    } finally {
+      setIsLoading(false); // Hide loading indicator
+    }
+  };
+
   return (
     <Animated.View
       style={{
@@ -199,7 +218,7 @@ const SettingsScreen = ({ userMetadata }) => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={dismissKeyboard}
-            style={[styles.container, { backgroundColor: "transparent" }]}
+            style={[styles.container, { backgroundColor: theme.colors.background_b }]}
           >
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -208,15 +227,23 @@ const SettingsScreen = ({ userMetadata }) => {
               <View
                 style={[
                   styles.card,
-                  { backgroundColor: theme.colors.background },
+                  { backgroundColor: theme.colors.background_b },
                 ]}
               >
                 <View style={styles.toggleContainer}>
                   <Text style={styles.toggleText}>Dark Mode</Text>
                   <Switch
-                    style={styles.toggleDark}
+                    style={styles.toggleSwitch}
                     value={theme.dark}
                     onValueChange={toggleTheme}
+                  />
+                </View>
+                <View style={styles.toggleContainer}>
+                  <Text style={styles.toggleText}>Private Mode</Text>
+                  <Switch
+                    style={styles.toggleSwitch}
+                    value={isPrivateMode}
+                    onValueChange={togglePrivateMode}
                   />
                 </View>
                 <Text style={styles.reportBugText}>Report Bug:</Text>
@@ -262,15 +289,24 @@ const SettingsScreen = ({ userMetadata }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
-    width: 375,
-    height: 550,
-    padding: 20,
+    marginTop: 30,
+    marginBottom: 30,
+    width: "90%",
+    alignSelf: "center",
+    padding: 25,
+    height: 540,
+    borderRadius: 15, // Add border radius for the card effect
+    shadowColor: "#000", // Add shadow for card effect
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   reportBugText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginTop: 150,
+    marginTop: 30,
+    color: theme.colors.text
   },
   bugReportInput: {
     backgroundColor: theme.colors.background_b,
@@ -328,7 +364,6 @@ const styles = StyleSheet.create({
   iconStyle: {
     marginRight: 10,
   },
-
   logoutInfoText: {
     marginTop: 10,
     fontSize: 14,
@@ -374,15 +409,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   toggleContainer: {
-    marginBottom: -50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+
   },
   toggleText: {
-    marginBottom: -23,
-    fontSize,
+    fontSize: 16,
+    color: theme.colors.text
   },
-  toggleDark: {
-    marginLeft: 285,
-    marginBottom: 100,
+  toggleSwitch: {
+    marginRight: 10,
   },
   editButtonText: {
     color: "#F6B833",

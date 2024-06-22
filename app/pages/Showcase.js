@@ -14,15 +14,15 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { collection, query, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
-import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
+import { useTheme } from "../utils/ThemeProvider";
 import StyledButton2 from "../components/StyledButton2";
-import { theme } from '../utils/theme'; // Adjust the import path as needed
+import { theme } from '../utils/theme';
 
 const UserCard = ({ item, handleSaveToBookmark }) => {
   const user = item;
   const userRef = useRef(null);
   const [isClicked, setIsClicked] = useState(false);
-  const { theme } = useTheme(); // Use theme context
+  const { theme } = useTheme();
 
   const handleClick = () => {
     setIsClicked(!isClicked);
@@ -49,14 +49,15 @@ const UserCard = ({ item, handleSaveToBookmark }) => {
               style={[styles.bookmark, { color: theme.colors.text }]}
               onPress={() => handleSaveToBookmark(user.uid)}
             >
-            <Icon name= "bookmark" size={25} color="#BDBDBD" />
-
+              <Icon name= "bookmark" size={25} color="#BDBDBD" />
             </Text>
           </TouchableOpacity>
         </View>
       </View>
       {isClicked && (
         <View style={styles.itemContainerDrop}>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Email: {user.basic.email}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Phone: {user.basic.phoneNumber}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
           <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
@@ -68,21 +69,21 @@ const UserCard = ({ item, handleSaveToBookmark }) => {
           <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
           <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications.join(', ')}</Text>
         </View>
       )}
       <TouchableOpacity style={styles.viewButton}>
@@ -95,25 +96,22 @@ const UserCard = ({ item, handleSaveToBookmark }) => {
 };
 
 const ShowcasesScreen = ({ userMetadata }) => {
-  const { theme } = useTheme(); // Use theme context
+  const { theme } = useTheme();
   const [localQuery, setLocalQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [userData, setUserData] = useState(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
-      // Reset the animation state to 0
       fadeAnim.setValue(0);
-
-      // Start the fade-in animation
       Animated.timing(fadeAnim, {
-        toValue: 1, // Fade to full opacity
-        duration: 600, // Duration of the animation
-        useNativeDriver: true, // Use native driver for better performance
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
       }).start();
-    }, [fadeAnim]) // Add fadeAnim to the dependency array
+    }, [fadeAnim])
   );
 
   const navigation = useNavigation();
@@ -122,10 +120,9 @@ const ShowcasesScreen = ({ userMetadata }) => {
     if (!userMetadata) {
       return;
     }
-    const uid = userMetadata.uid; // Assuming uid is always defined in userMetadata
-    const userDBRef = doc(db, "users", uid); // Reference to the user's document
+    const uid = userMetadata.uid;
+    const userDBRef = doc(db, "users", uid);
 
-    // Fetch the current user's data to ensure we have the latest bookmarks
     const currentUserSnap = await getDoc(userDBRef);
     if (!currentUserSnap.exists()) {
       console.error("Current user document does not exist!");
@@ -133,7 +130,6 @@ const ShowcasesScreen = ({ userMetadata }) => {
     }
     var newUserData = currentUserSnap.data();
 
-    // Initialize bookmarks as an empty array if it's not defined or not an array
     if (!Array.isArray(newUserData.bookmarks)) {
       console.error(
         "Bookmarks is not an array. Initializing as an empty array."
@@ -146,7 +142,6 @@ const ShowcasesScreen = ({ userMetadata }) => {
       return;
     }
 
-    // Add the new bookmark and update the user's document
     newUserData.bookmarks.push(newBookmarkUID);
     try {
       await setDoc(userDBRef, newUserData);
@@ -182,8 +177,9 @@ const ShowcasesScreen = ({ userMetadata }) => {
         .then((docSnap) => {
           let users = [];
           docSnap.forEach((doc) => {
-            if (doc.data().uid !== uid) {
-              users.push(doc.data());
+            const data = doc.data();
+            if (data.uid !== uid && !data.isPrivateMode) {
+              users.push(data);
             }
           });
 
@@ -271,6 +267,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 14,
     color: "#757575",
+    marginBottom: 5,
   },
   emptyListContainer: {
     flex: 1,
@@ -300,11 +297,10 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   itemContainerDrop: {
-    alignItems: "right",
-    textAlign: "right",
     borderTopWidth: 1,
     borderTopColor: "gray",
     paddingTop: 15,
+    paddingHorizontal: 10,
   },
   icon: {
     marginRight: 15,
@@ -322,7 +318,7 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 14,
     color: "#757575",
-    marginRight: 50
+    marginRight: 50,
   },
   bookmark: {
     marginLeft: 160,

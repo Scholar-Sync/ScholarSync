@@ -18,8 +18,10 @@ import { theme } from '../utils/theme'; // Adjust the import path as needed
 const DEFAULT_USER_DATA = {
   uid: "",
   basic: {
+    firstName: "",
     username: "",
     email: "",
+    phoneNumber: "",
     description: "",
     school: "",
     grade: "",
@@ -50,7 +52,7 @@ export default function RegistrationScreen({ navigation }) {
   const [username, setUsername] = useState("");
   const [grade, setGrade] = useState("");
   const [school, setSchool] = useState("");
-
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
@@ -76,13 +78,14 @@ export default function RegistrationScreen({ navigation }) {
 
   const createNewUserInDatabase = async (uid) => {
     const userDBRef = collection(db, "users");
-    var newUser = DEFAULT_USER_DATA;
+    var newUser = { ...DEFAULT_USER_DATA };
     newUser.uid = uid;
     newUser.basic.firstName = firstName;
     newUser.basic.email = email;
     newUser.basic.username = username;
     newUser.basic.grade = grade;
     newUser.basic.school = school;
+    newUser.basic.phoneNumber = phoneNumber;
     await setDoc(doc(userDBRef, uid), newUser); // sends data to firestore (database)
   };
 
@@ -122,7 +125,7 @@ export default function RegistrationScreen({ navigation }) {
 
           <TextInput
             style={styles.input}
-            placeholder="First Name"
+            placeholder="Full Name"
             placeholderTextColor="#aaaaaa"
             onChangeText={(text) => setFirstName(text)}
             value={firstName}
@@ -155,6 +158,16 @@ export default function RegistrationScreen({ navigation }) {
             value={school}
             underlineColorAndroid="transparent"
             autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            placeholderTextColor="#aaaaaa"
+            onChangeText={(text) => setPhoneNumber(text)}
+            value={phoneNumber}
+            underlineColorAndroid="transparent"
+            autoCapitalize="none"
+            keyboardType="phone-pad"
           />
           <TextInput
             style={styles.input}

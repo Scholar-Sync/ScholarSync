@@ -18,7 +18,6 @@ import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as 
 import StyledButton2 from "../components/StyledButton2";
 import { theme } from '../utils/theme'; // Adjust the import path as needed
 
-
 const UserCard = ({ item, handleRemoveBookmark }) => {
   const user = item;
   const userRef = useRef(null);
@@ -57,6 +56,8 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
       </View>
       {isClicked && (
         <View style={styles.itemContainerDrop}>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Email: {user.basic.email}</Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>Phone: {user.basic.phoneNumber}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
           <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
@@ -68,21 +69,21 @@ const UserCard = ({ item, handleRemoveBookmark }) => {
           <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
           <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships.join(', ')}</Text>
           <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications}</Text>
+          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications.join(', ')}</Text>
         </View>
       )}
       <TouchableOpacity style={styles.viewButton}>
@@ -267,7 +268,7 @@ const BookmarksScreen = ({ userMetadata }) => {
           <FlatList
             data={filteredData}
             renderItem={renderUserCard}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.uid} // Ensuring unique key
             extraData={filteredData}
             contentContainerStyle={{ flexGrow: 1 }}
             ListEmptyComponent={
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     marginRight: 50
   },
   trashIcon: {
-    marginLeft: 160,
+    marginLeft: 180,
     marginTop: -57,
   },
   refresh: {

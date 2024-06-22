@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+;import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {  Platform, UIManager } from "react-native";
 import Loading from "./components/Loading";
@@ -54,4 +54,4 @@ const App = () => {
 };
 
 
-export default App;
+export default App
