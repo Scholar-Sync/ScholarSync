@@ -192,12 +192,13 @@ const SettingsScreen = ({ userMetadata }) => {
     }
     setIsLoading(true); // Show loading indicator
     const uid = userMetadata?.uid;
-    const userDBRef = collection(db, "users");
+    const userDBRef = doc(db, "users", uid);
     const newUserData = { ...userData, isPrivateMode: !isPrivateMode };
     try {
-      await setDoc(doc(userDBRef, uid), newUserData);
+      await setDoc(userDBRef, newUserData, { merge: true });
       setUserData(newUserData);
       setIsPrivateMode(!isPrivateMode);
+      console.log("Private mode updated successfully");
     } catch (error) {
       console.error("Error updating document:", error);
     } finally {
@@ -218,7 +219,10 @@ const SettingsScreen = ({ userMetadata }) => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={dismissKeyboard}
-            style={[styles.container, { backgroundColor: theme.colors.background_b }]}
+            style={[
+              styles.container,
+              { backgroundColor: theme.colors.background_b },
+            ]}
           >
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -231,7 +235,11 @@ const SettingsScreen = ({ userMetadata }) => {
                 ]}
               >
                 <View style={styles.toggleContainer}>
-                  <Text style={styles.toggleText}>Dark Mode</Text>
+                  <Text
+                    style={[styles.toggleText, { color: theme.colors.text }]}
+                  >
+                    Dark Mode
+                  </Text>
                   <Switch
                     style={styles.toggleSwitch}
                     value={theme.dark}
@@ -239,16 +247,27 @@ const SettingsScreen = ({ userMetadata }) => {
                   />
                 </View>
                 <View style={styles.toggleContainer}>
-                  <Text style={styles.toggleText}>Private Mode</Text>
+                  <Text
+                    style={[styles.toggleText, { color: theme.colors.text }]}
+                  >
+                    Private Mode
+                  </Text>
                   <Switch
                     style={styles.toggleSwitch}
                     value={isPrivateMode}
                     onValueChange={togglePrivateMode}
                   />
                 </View>
-                <Text style={styles.reportBugText}>Report Bug:</Text>
+                <Text
+                  style={[styles.reportBugText, { color: theme.colors.text }]}
+                >
+                  Report Bug:
+                </Text>
                 <TextInput
-                  style={styles.bugReportInput}
+                  style={[
+                    styles.bugReportInput,
+                    { backgroundColor: theme.colors.background_b },
+                  ]}
                   onChangeText={setBugReportText}
                   value={bugReportText}
                   placeholder="Type here..."
@@ -306,10 +325,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 30,
-    color: theme.colors.text
   },
   bugReportInput: {
-    backgroundColor: theme.colors.background_b,
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -413,11 +430,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
-
   },
   toggleText: {
     fontSize: 16,
-    color: theme.colors.text
+    fontWeight: "bold",
   },
   toggleSwitch: {
     marginRight: 10,

@@ -5,6 +5,7 @@ import SettingsScreen from "../pages/Settings";
 import ShowcaseScreen from "../pages/Showcase";
 import BookmarksScreen from "../pages/Bookmarks";
 import ProfileScreen from "../pages/Profile";
+import UserProfileScreen from "../pages/UserProfileScreen"; // Import User Profile Screen
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Header from "./Header";
 
@@ -14,10 +15,12 @@ import LoginScreen from "../pages/Login";
 import RegisterScreen from "../pages/Register";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createStackNavigator } from "@react-navigation/stack"; // Import stack navigator
 
 const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator(); // Initialize stack navigator
 
-const Nav = ({ userMetadata }) => {
+const DrawerNavigator = ({ userMetadata }) => {
   const { theme } = useTheme();
 
   const screenOptions = ({ route }) => ({
@@ -116,6 +119,33 @@ const Nav = ({ userMetadata }) => {
         </>
       )}
     </Drawer.Navigator>
+  );
+};
+
+const Nav = ({ userMetadata }) => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Drawer"
+        options={{ headerShown: false }}
+        children={() => <DrawerNavigator userMetadata={userMetadata} />}
+      />
+      <Stack.Screen
+        name="UserProfile"
+        component={UserProfileScreen}
+        options={({ navigation }) => ({
+          headerTitle: "User Profile",
+          headerLeft: () => (
+            <MaterialIcons
+              name="arrow-back"
+              size={24}
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 10 }}
+            />
+          ),
+        })}
+      />
+    </Stack.Navigator>
   );
 };
 

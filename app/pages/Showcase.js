@@ -11,118 +11,118 @@ import {
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { collection, query, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
 import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider";
 import StyledButton2 from "../components/StyledButton2";
-import { theme } from '../utils/theme';
+import { theme } from "../utils/theme";
 
-const UserCard = ({ item, handleSaveToBookmark }) => {
-  const user = item;
-  const userRef = useRef(null);
-  const [isClicked, setIsClicked] = useState(false);
-  const { theme } = useTheme();
+const UserCard = ({ user, handleSaveToBookmark, handleRemoveBookmark }) => {
+  const { theme } = useTheme(); // Use theme context
+  const navigation = useNavigation();
 
-  const handleClick = () => {
-    setIsClicked(!isClicked);
-    userRef.current && userRef.current.focus();
+  const handleViewProfile = () => {
+    navigation.navigate("UserProfile", { userId: user?.uid });
   };
 
   return (
-    <View style={[styles.itemContainer, { backgroundColor: theme.colors.background_b }]}>
+    <View
+      style={[
+        styles.itemContainer,
+        { backgroundColor: theme.colors.background_b },
+      ]}
+    >
       <View style={styles.itemContainerInner}>
         <Image
           source={
-            user.profileImage
+            user?.profileImage
               ? { uri: user.profileImage }
               : require("../assets/pfp1.png")
           }
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={[styles.name, { color: theme.colors.text }]}>{user?.basic?.firstName}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>{user?.basic?.school}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Grade {user?.basic.grade}</Text>
-          <TouchableOpacity>
-            <Text
-              style={[styles.bookmark, { color: theme.colors.text }]}
-              onPress={() => handleSaveToBookmark(user.uid)}
-            >
-              <Icon name= "bookmark" size={25} color="#BDBDBD" />
-            </Text>
-          </TouchableOpacity>
+          <Text style={[styles.name, { color: theme.colors.text }]}>
+            {user?.basic?.firstName || "No name"}
+          </Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>
+            {user?.basic?.school || "No school"}
+          </Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>
+            Grade {user?.basic?.grade || "N/A"}
+          </Text>
+          {handleSaveToBookmark && (
+            <TouchableOpacity>
+              <Text
+                style={[styles.bookmark, { color: theme.colors.text }]}
+                onPress={() => handleSaveToBookmark(user?.uid)}
+              >
+                <Icon name="bookmark" size={25} color="#BDBDBD" />
+              </Text>
+            </TouchableOpacity>
+          )}
+          {handleRemoveBookmark && (
+            <TouchableOpacity>
+              <Icon
+                onPress={() => handleRemoveBookmark(user?.uid)}
+                name="delete"
+                size={24}
+                color="#BDBDBD"
+                style={styles.trashIcon}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-      {isClicked && (
-        <View style={styles.itemContainerDrop}>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Email: {user.basic.email}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Phone: {user.basic.phoneNumber}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.psat}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>SAT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.sat}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>ACT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.act}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications.join(', ')}</Text>
-        </View>
-      )}
-      <TouchableOpacity style={styles.viewButton}>
-        <StyledButton2 title="View" onPress={() => handleClick()}>
-          <Icon name={isClicked ? "remove" : "add"} size={16} color="#BDBDBD" />
-        </StyledButton2>
+      <TouchableOpacity style={styles.viewButton} onPress={handleViewProfile}>
+        <Text style={styles.viewButtonText}>View</Text>
+        <Icon
+          style={styles.arrowicon}
+          name="chevron-right"
+          size={16}
+          color="white"
+        />
       </TouchableOpacity>
     </View>
   );
 };
-
 const ShowcasesScreen = ({ userMetadata }) => {
-  const { theme } = useTheme();
+  const { theme } = useTheme(); // Use theme context
   const [localQuery, setLocalQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [userData, setUserData] = useState(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
 
   useFocusEffect(
     useCallback(() => {
+      // Reset the animation state to 0
       fadeAnim.setValue(0);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-    }, [fadeAnim])
-  );
 
-  const navigation = useNavigation();
+      // Start the fade-in animation
+      Animated.timing(fadeAnim, {
+        toValue: 1, // Fade to full opacity
+        duration: 600, // Duration of the animation
+        useNativeDriver: true, // Use native driver for better performance
+      }).start();
+    }, [fadeAnim]) // Add fadeAnim to the dependency array
+  );
 
   const handleSaveToBookmark = async (newBookmarkUID) => {
     if (!userMetadata) {
       return;
     }
-    const uid = userMetadata.uid;
-    const userDBRef = doc(db, "users", uid);
+    const uid = userMetadata.uid; // Assuming uid is always defined in userMetadata
+    const userDBRef = doc(db, "users", uid); // Reference to the user's document
 
+    // Fetch the current user's data to ensure we have the latest bookmarks
     const currentUserSnap = await getDoc(userDBRef);
     if (!currentUserSnap.exists()) {
       console.error("Current user document does not exist!");
@@ -130,6 +130,7 @@ const ShowcasesScreen = ({ userMetadata }) => {
     }
     var newUserData = currentUserSnap.data();
 
+    // Initialize bookmarks as an empty array if it's not defined or not an array
     if (!Array.isArray(newUserData.bookmarks)) {
       console.error(
         "Bookmarks is not an array. Initializing as an empty array."
@@ -142,6 +143,7 @@ const ShowcasesScreen = ({ userMetadata }) => {
       return;
     }
 
+    // Add the new bookmark and update the user's document
     newUserData.bookmarks.push(newBookmarkUID);
     try {
       await setDoc(userDBRef, newUserData);
@@ -177,9 +179,8 @@ const ShowcasesScreen = ({ userMetadata }) => {
         .then((docSnap) => {
           let users = [];
           docSnap.forEach((doc) => {
-            const data = doc.data();
-            if (data.uid !== uid && !data.isPrivateMode) {
-              users.push(data);
+            if (doc.data().uid !== uid) {
+              users.push(doc.data());
             }
           });
 
@@ -215,17 +216,31 @@ const ShowcasesScreen = ({ userMetadata }) => {
     return (
       <UserCard
         key={item.uid}
-        item={item}
+        user={item}
         handleSaveToBookmark={handleSaveToBookmark}
       />
     );
   };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: fadeAnim,
+        backgroundColor: theme.colors.background,
+      }}
+    >
       <Page1>
-        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
-          <View style={[styles.searchContainer, { backgroundColor: theme.colors.background_b, borderColor: theme.colors.surface }]}>
+        <View style={[styles.container, { backgroundColor: "transparent" }]}>
+          <View
+            style={[
+              styles.searchContainer,
+              {
+                backgroundColor: theme.colors.background_b,
+                borderColor: theme.colors.surface,
+              },
+            ]}
+          >
             <Icon
               name="search"
               size={24}
@@ -240,7 +255,9 @@ const ShowcasesScreen = ({ userMetadata }) => {
               placeholderTextColor={theme.colors.placeholderText}
             />
           </View>
-          <View style={[styles.divider, { backgroundColor: theme.colors.surface }]} />
+          <View
+            style={[styles.divider, { backgroundColor: theme.colors.surface }]}
+          />
           <FlatList
             data={filteredData}
             renderItem={renderUserCard}
@@ -249,7 +266,11 @@ const ShowcasesScreen = ({ userMetadata }) => {
             contentContainerStyle={{ flexGrow: 1 }}
             ListEmptyComponent={
               <View style={styles.emptyListContainer}>
-                <Text style={[styles.emptyMessage, { color: theme.colors.text }]}>Showcases will go here!</Text>
+                <Text
+                  style={[styles.emptyMessage, { color: theme.colors.text }]}
+                >
+                  Showcases will go here!
+                </Text>
               </View>
             }
           />
@@ -267,7 +288,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 14,
     color: "#757575",
-    marginBottom: 5,
   },
   emptyListContainer: {
     flex: 1,
@@ -282,25 +302,27 @@ const styles = StyleSheet.create({
   itemContainer: {
     paddingLeft: 30,
     paddingRight: 30,
-    alignSelf: 'center',
-    width: '90%',
+    alignSelf: "center",
+    width: "90%",
     paddingTop: 5,
     paddingBottom: 30,
     backgroundColor: theme.colors.background_b,
     borderBottomWidth: 1,
     borderBottomColor: "transparent",
-    borderRadius: 10,
+    borderRadius: 30,
     marginTop: 20,
+    paddingBottom: 50,
   },
   itemContainerInner: {
     flexDirection: "row",
     paddingBottom: 15,
   },
   itemContainerDrop: {
+    alignItems: "right",
+    textAlign: "right",
     borderTopWidth: 1,
     borderTopColor: "gray",
     paddingTop: 15,
-    paddingHorizontal: 10,
   },
   icon: {
     marginRight: 15,
@@ -313,7 +335,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#212121",
-    marginTop: -10,
+    marginTop: 10,
   },
   details: {
     fontSize: 14,
@@ -321,7 +343,7 @@ const styles = StyleSheet.create({
     marginRight: 50,
   },
   bookmark: {
-    marginLeft: 160,
+    marginLeft: 180,
     marginTop: -57,
   },
   searchContainer: {
@@ -342,23 +364,33 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   profileImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 25,
-    marginLeft: -30
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginLeft: -10,
+    marginTop: 15,
+    marginRight: 20,
   },
   viewButton: {
-    width: 100,
-    height: 30,
+    width: 75,
+    height: 25,
     marginTop: 100,
-    position: 'absolute',
-    marginLeft: 110,
+    position: "absolute",
+    marginLeft: 160,
     marginBottom: 100,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.selected,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 30,
   },
   viewButtonText: {
-    fontSize: 16,
-    color: "black",
-    position: 'absolute'
+    fontSize: 13,
+    color: "white",
+  },
+  arrowicon: {
+    marginTop: 3,
   },
   divider: {
     height: 5,

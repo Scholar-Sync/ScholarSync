@@ -16,85 +16,77 @@ import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
 import StyledButton2 from "../components/StyledButton2";
-import { theme } from '../utils/theme'; // Adjust the import path as needed
+import { theme } from "../utils/theme"; // Adjust the import path as needed
 
-const UserCard = ({ item, handleRemoveBookmark }) => {
-  const user = item;
-  const userRef = useRef(null);
-  const [isClicked, setIsClicked] = useState(false);
+const UserCard = ({ user, handleSaveToBookmark, handleRemoveBookmark }) => {
   const { theme } = useTheme(); // Use theme context
+  const navigation = useNavigation();
 
-  const handleClick = () => {
-    setIsClicked(!isClicked);
-    userRef.current && userRef.current.focus();
+  const handleViewProfile = () => {
+    navigation.navigate("UserProfile", { userId: user.uid });
   };
 
   return (
-    <View style={[styles.itemContainer, { backgroundColor: theme.colors.background_b }]}>
+    <View
+      style={[
+        styles.itemContainer,
+        { backgroundColor: theme.colors.background_b },
+      ]}
+    >
       <View style={styles.itemContainerInner}>
         <Image
           source={
-            user.profileImage
+            user?.profileImage
               ? { uri: user.profileImage }
               : require("../assets/pfp1.png")
           }
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={[styles.name, { color: theme.colors.text }]}>{user?.basic?.firstName}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>{user?.basic?.school}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Grade {user?.basic.grade}</Text>
-          <TouchableOpacity>
-            <Icon onPress={() => handleRemoveBookmark(user.uid)}
-              name="delete"
-              size={24}
-              color="#BDBDBD"
-              style={styles.trashIcon}
-            />
-          </TouchableOpacity>
+          <Text style={[styles.name, { color: theme.colors.text }]}>
+            {user?.basic?.firstName || "No name"}
+          </Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>
+            {user?.basic?.school || "No school"}
+          </Text>
+          <Text style={[styles.details, { color: theme.colors.text }]}>
+            Grade {user?.basic?.grade || "N/A"}
+          </Text>
+          {handleSaveToBookmark && (
+            <TouchableOpacity>
+              <Text
+                style={[styles.bookmark, { color: theme.colors.text }]}
+                onPress={() => handleSaveToBookmark(user.uid)}
+              >
+                <Icon name="bookmark" size={25} color="#BDBDBD" />
+              </Text>
+            </TouchableOpacity>
+          )}
+          {handleRemoveBookmark && (
+            <TouchableOpacity>
+              <Icon
+                onPress={() => handleRemoveBookmark(user.uid)}
+                name="delete"
+                size={24}
+                color="#BDBDBD"
+                style={styles.trashIcon}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-      {isClicked && (
-        <View style={styles.itemContainerDrop}>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Email: {user.basic.email}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Phone: {user.basic.phoneNumber}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>GPA:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.gpa}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>PSAT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.psat}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>SAT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.sat}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>ACT:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.act}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Class Rank:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.classRank}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>AP Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.apCourses.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Other Courses:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.academics.others.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Clubs:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.clubs.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Sports:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.sports.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Volunteering:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.extracurriculars.volunteering.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Awards:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.awards.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Scholarships:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.scholarships.join(', ')}</Text>
-          <Text style={[styles.details, { color: theme.colors.text }]}>Certifications:</Text>
-          <Text style={[styles.value, { color: theme.colors.text }]}>{user.honors.certifications.join(', ')}</Text>
-        </View>
-      )}
-      <TouchableOpacity style={styles.viewButton}>
-        <StyledButton2 title="View" onPress={() => handleClick()}>
-          <Icon name={isClicked ? "remove" : "add"} size={16} color="#BDBDBD" />
-        </StyledButton2>
+      <TouchableOpacity style={styles.viewButton} onPress={handleViewProfile}>
+        <Text style={styles.viewButtonText}>View</Text>
+        <Icon
+          style={styles.arrowicon}
+          name="chevron-right"
+          size={16}
+          color="white"
+        />
       </TouchableOpacity>
     </View>
   );
 };
-
 const BookmarksScreen = ({ userMetadata }) => {
   const { theme } = useTheme(); // Use theme context
   const [localQuery, setLocalQuery] = useState("");
@@ -118,8 +110,6 @@ const BookmarksScreen = ({ userMetadata }) => {
     }, [fadeAnim]) // Add fadeAnim to the dependency array
   );
 
-  const navigation = useNavigation();
-
   const handleRemoveBookmark = async (newBookmarkUID) => {
     if (!userMetadata) {
       return;
@@ -139,7 +129,7 @@ const BookmarksScreen = ({ userMetadata }) => {
       console.error("Error updating document: ", error);
     }
   };
-  // Get data from the database as soon as the profile page is loaded.
+
   useFocusEffect(
     useCallback(() => {
       if (!userMetadata) {
@@ -149,43 +139,31 @@ const BookmarksScreen = ({ userMetadata }) => {
       const uid = userMetadata.uid; // Assuming uid is always defined in userMetadata
       const docRef = doc(db, "users", uid);
 
-      // Fetch the user's data and update state
       getDoc(docRef)
         .then((docSnap) => {
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            // Ensure bookmarks is an array
             if (!Array.isArray(userData.bookmarks)) {
-              console.log(
-                "Bookmarks is not an array. Initializing as an empty array."
-              );
               userData.bookmarks = [];
             }
 
             setUserData(userData);
 
-            // Ensure userBookmarks is always an array
             let userBookmarks = Array.isArray(userData.bookmarks)
               ? userData.bookmarks
               : [];
 
-            // Fetch each user's data using their bookmarked user IDs
             let promises = userBookmarks.map((userId) => {
-              console.log("Fetching user data for userId:", userId);
               const userRef = doc(db, "users", userId);
               return getDoc(userRef).then((doc) => {
                 if (doc.exists()) {
-                  let bookmarkUserData = doc.data();
-                  console.log("userData.bookmarks:", bookmarkUserData); // Check if bookmarks is defined
-                  return bookmarkUserData;
+                  return doc.data();
                 } else {
-                  console.log(`No data for userId ${userId}`);
                   return null;
                 }
               });
             });
 
-            // Wait for all user data promises to resolve
             Promise.all(promises)
               .then((usersData) => {
                 let filteredUsersData = usersData.filter(Boolean);
@@ -211,7 +189,6 @@ const BookmarksScreen = ({ userMetadata }) => {
       setFilteredData(bookmarkedUsers);
     } else {
       const filtered = bookmarkedUsers.filter((item) => {
-        console.log("item-------", item);
         const searchContent = [
           item?.basic?.firstName,
           item?.basic?.grade,
@@ -220,7 +197,6 @@ const BookmarksScreen = ({ userMetadata }) => {
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
-        console.log(`searchContent for ${item.id}:`, searchContent);
         return searchContent.includes(text.toLowerCase());
       });
       setFilteredData(filtered);
@@ -229,24 +205,36 @@ const BookmarksScreen = ({ userMetadata }) => {
 
   const renderUserCard = ({ item }) => {
     if (!item || typeof item !== "object") {
-      console.log("Invalid item:", item);
       return null;
     }
-    console.log("Rendering item:", item);
     return (
       <UserCard
         key={item.uid}
-        item={item}
+        user={item}
         handleRemoveBookmark={handleRemoveBookmark}
       />
     );
   };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: fadeAnim,
+        backgroundColor: theme.colors.background,
+      }}
+    >
       <Page1>
-        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
-          <View style={[styles.searchContainer, { backgroundColor: theme.colors.background_b, borderColor: theme.colors.surface }]}>
+        <View style={[styles.container, { backgroundColor: "transparent" }]}>
+          <View
+            style={[
+              styles.searchContainer,
+              {
+                backgroundColor: theme.colors.background_b,
+                borderColor: theme.colors.surface,
+              },
+            ]}
+          >
             <Icon
               name="search"
               size={24}
@@ -261,19 +249,28 @@ const BookmarksScreen = ({ userMetadata }) => {
               placeholderTextColor={theme.colors.placeholderText}
             />
           </View>
-          <Text style={[styles.refresh, { color: theme.colors.text }]} onPress={() => setRefresh(!refresh)}>
+          <Text
+            style={[styles.refresh, { color: theme.colors.text }]}
+            onPress={() => setRefresh(!refresh)}
+          >
             <Icon name="refresh" size={24} color={theme.colors.text} />
           </Text>
-          <View style={[styles.divider, { backgroundColor: theme.colors.surface }]} />
+          <View
+            style={[styles.divider, { backgroundColor: theme.colors.surface }]}
+          />
           <FlatList
             data={filteredData}
             renderItem={renderUserCard}
-            keyExtractor={(item) => item.uid} // Ensuring unique key
+            keyExtractor={(item) => item.uid}
             extraData={filteredData}
             contentContainerStyle={{ flexGrow: 1 }}
             ListEmptyComponent={
               <View style={styles.emptyListContainer}>
-                <Text style={[styles.emptyMessage, { color: theme.colors.text }]}>Bookmarks will go here!</Text>
+                <Text
+                  style={[styles.emptyMessage, { color: theme.colors.text }]}
+                >
+                  Bookmarks will go here!
+                </Text>
               </View>
             }
           />
@@ -302,60 +299,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#757575",
   },
-  itemContainer: {
-    paddingLeft: 30,
-    paddingRight: 30,
-    alignSelf: 'center',
-    width: '90%',
-    paddingTop: 5,
-    paddingBottom: 30,
-    backgroundColor: theme.colors.background_b,
-    borderBottomWidth: 1,
-    borderBottomColor: "transparent",
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  itemContainerInner: {
-    flexDirection: "row",
-    paddingBottom: 15,
-  },
-  itemContainerDrop: {
-    alignItems: "right",
-    textAlign: "right",
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-    paddingTop: 15,
-  },
-  icon: {
-    marginRight: 15,
-  },
-  textContainer: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#212121",
-    marginTop: -10,
-    
-  },
-  details: {
-    fontSize: 14,
-    color: "#757575",
-    marginRight: 50
-  },
-  trashIcon: {
-    marginLeft: 180,
-    marginTop: -57,
-  },
-  refresh: {
-    fontSize: 12,
-    color: "black",
-    marginLeft: 345,
-    marginBottom: 20,
-    marginTop: -32,
-  },
   searchContainer: {
     flexDirection: "row",
     borderRadius: 20,
@@ -373,24 +316,91 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginleft: 10,
   },
+  refresh: {
+    fontSize: 12,
+    color: "black",
+    marginLeft: 345,
+    marginBottom: 20,
+    marginTop: -32,
+  },
+  divider: {
+    height: 5,
+    width: "89%",
+    marginLeft: 20,
+    marginBottom: 20,
+    marginRight: 20,
+    backgroundColor: theme.colors.surface,
+    marginVertical: 5,
+  },
+  itemContainer: {
+    paddingLeft: 30,
+    paddingRight: 30,
+    alignSelf: "center",
+    width: "90%",
+    paddingTop: 5,
+    paddingBottom: 30,
+    backgroundColor: "transparent",
+    borderBottomWidth: 1,
+    borderBottomColor: "transparent",
+    borderRadius: 30,
+    marginTop: 20,
+    paddingBottom: 50,
+  },
+  itemContainerInner: {
+    flexDirection: "row",
+    paddingBottom: 15,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#212121",
+    marginTop: 10,
+  },
+  details: {
+    fontSize: 14,
+    color: "#757575",
+    marginRight: 50,
+  },
+  bookmark: {
+    marginLeft: 180,
+    marginTop: -57,
+  },
+  trashIcon: {
+    marginLeft: 180,
+    marginTop: -57,
+  },
   profileImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 25,
-    marginLeft: -30
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginLeft: -10,
+    marginTop: 15,
+    marginRight: 20,
   },
   viewButton: {
-    width: 100,
-    height: 30,
+    width: 75,
+    height: 25,
     marginTop: 100,
-    position: 'absolute',
-    marginLeft: 110,
+    position: "absolute",
+    marginLeft: 160,
     marginBottom: 100,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.selected,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 30,
   },
   viewButtonText: {
-    fontSize: 16,
-    color: "black",
-    position: 'absolute'
+    fontSize: 13,
+    color: "white",
+  },
+  arrowicon: {
+    marginTop: 3,
   },
 });
 

@@ -20,33 +20,41 @@ import { db, storage } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useTheme } from "../utils/ThemeProvider"; // Import the theme context
+import { useTheme } from "../utils/ThemeProvider";
 
 const EditableBox = ({ label, category, data, updateUserData }) => {
-  const [items, setItems] = useState(data || []);
+  const [items, setItems] = useState(Array.isArray(data) ? data : []);
   const [dropdownIndex, setDropdownIndex] = useState(null);
-  const { theme } = useTheme(); // Use theme context
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    console.log('EditableBox data updated:', data);
+    setItems(Array.isArray(data) ? data : []);
+  }, [data]);
 
   const handleSave = (index, text) => {
+    console.log('Saving item at index:', index, 'with text:', text);
     const updatedItems = items.map((item, i) =>
       i === index ? { text, isEditable: false } : item
     );
     setItems(updatedItems);
-    updateUserData(label, category, updatedItems);
+    updateUserData(category, updatedItems);
   };
 
   const handleEdit = (index) => {
+    console.log('Editing item at index:', index);
     const updatedItems = items.map((item, i) =>
       i === index ? { ...item, isEditable: !item.isEditable } : item
     );
     setItems(updatedItems);
-    setDropdownIndex(null); // Close the dropdown after edit
+    setDropdownIndex(null);
   };
 
   const handleRemove = (index) => {
+    console.log('Removing item at index:', index);
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
-    updateUserData(label, category, updatedItems);
+    updateUserData(category, updatedItems);
   };
 
   const addItem = () => {
@@ -62,12 +70,13 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
           text: "OK",
           onPress: (newItemText) => {
             if (newItemText) {
+              console.log('Adding new item with text:', newItemText);
               const updatedItems = [
                 ...items,
                 { text: newItemText, isEditable: false },
               ];
               setItems(updatedItems);
-              updateUserData(label, category, updatedItems);
+              updateUserData(category, updatedItems);
             }
           },
         },
@@ -136,15 +145,18 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
   );
 };
 
+
+
+
 const ProfileScreen = ({ userMetadata }) => {
   const layout = useWindowDimensions();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({});
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [sections, setSections] = useState(["Achievements", "Extracurricular", "Academics"]);
   const [profileImage, setProfileImage] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const { theme } = useTheme(); // Use theme context
+  const { theme } = useTheme();
 
   const [isNameEditable, setIsNameEditable] = useState(false);
   const [isTitleEditable, setIsTitleEditable] = useState(false);
@@ -178,6 +190,7 @@ const ProfileScreen = ({ userMetadata }) => {
       .then((docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
+          console.log('Retrieved user data:', data);
           setUserData(data);
           if (data.profileImage) {
             setProfileImage(data.profileImage);
@@ -190,7 +203,8 @@ const ProfileScreen = ({ userMetadata }) => {
             setInterests(data.basic.interests || "");
           }
         } else {
-          return {};
+          console.log('No user data found');
+          setUserData({});
         }
       })
       .catch((error) => {
@@ -198,20 +212,16 @@ const ProfileScreen = ({ userMetadata }) => {
       });
   }, [userMetadata]);
 
-  const updateUserData = async (field, category, value) => {
+  const updateUserData = async (category, value) => {
     if (!userMetadata) {
       console.error("No user metadata available");
       return;
     }
     const uid = userMetadata?.uid;
-    const userDBRef = collection(db, "users");
-    var newUserData = userData || {};
-    if (!newUserData[category]) {
-      newUserData[category] = {};
-    }
-    newUserData[category][field] = value;
+    const userDBRef = doc(db, "users", uid);
+    const newUserData = { ...userData, [category]: value };
     try {
-      await setDoc(doc(userDBRef, uid), newUserData);
+      await setDoc(userDBRef, newUserData, { merge: true });
       setUserData(newUserData);
       console.log("User data updated:", newUserData);
     } catch (error) {
@@ -290,14 +300,14 @@ const ProfileScreen = ({ userMetadata }) => {
       quality: 1,
     });
 
-    console.log("Image picker result:", result); // Log the full result object
+    console.log("Image picker result:", result);
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri; // Access the URI from the assets array
+      const uri = result.assets[0].uri;
       console.log("Image picked:", uri);
       setImageUri(uri);
-      setProfileImage(uri); // Update profile image immediately
-      uploadImage(uri); // Upload image immediately after picking it
+      setProfileImage(uri);
+      uploadImage(uri);
     } else {
       console.log("Image pick cancelled");
     }
@@ -317,7 +327,7 @@ const ProfileScreen = ({ userMetadata }) => {
           .then((downloadURL) => {
             console.log("Download URL:", downloadURL);
             setProfileImage(downloadURL);
-            updateUserData("profileImage", "basic", downloadURL);
+            updateUserData("profileImage", downloadURL);
             setUploading(false);
             Alert.alert("Success", "Profile picture updated successfully!");
           })
@@ -335,29 +345,30 @@ const ProfileScreen = ({ userMetadata }) => {
   };
 
   const handleSaveName = () => {
-    updateUserData("firstName", "basic", name);
+    updateUserData("basic", { ...userData.basic, firstName: name });
     setIsNameEditable(false);
   };
 
   const handleSaveTitle = () => {
-    updateUserData("school", "basic", title);
+    updateUserData("basic", { ...userData.basic, school: title });
     setIsTitleEditable(false);
   };
 
   const handleSaveAge = () => {
-    updateUserData("email", "basic", age);
+    updateUserData("basic", { ...userData.basic, email: age });
     setIsAgeEditable(false);
   };
 
   const handleSavePhoneNumber = () => {
-    updateUserData("phoneNumber", "basic", phoneNumber);
+    updateUserData("basic", { ...userData.basic, phoneNumber: phoneNumber });
     setIsPhoneNumberEditable(false);
   };
 
   const handleSaveInterests = () => {
-    updateUserData("interests", "basic", interests);
+    updateUserData("basic", { ...userData.basic, interests: interests });
     setIsInterestsEditable(false);
   };
+
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
@@ -496,7 +507,6 @@ const ProfileScreen = ({ userMetadata }) => {
     </Animated.View>
   );
 };
-
 const styles = StyleSheet.create({
   coverContainer: {
     width: "100%",
@@ -573,7 +583,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   sectionContainer: {
-    borderRadius: 30,
+    borderRadius: 20,
     padding: 20,
     shadowColor: "#000",
     shadowOpacity: 0.1,
