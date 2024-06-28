@@ -70,9 +70,7 @@ export default function RegistrationScreen({ navigation }) {
     }, [fadeAnim])
   );
 
-  const goToLoginScreen = () => {
-    navigation.navigate("Login");
-  };
+  const goToLoginScreen = () => {};
 
   const createNewUserInDatabase = async (uid) => {
     const userDBRef = collection(db, "users");

@@ -130,11 +130,7 @@ const ShowcasesScreen = ({ userMetadata }) => {
     }
     var newUserData = currentUserSnap.data();
 
-    // Initialize bookmarks as an empty array if it's not defined or not an array
     if (!Array.isArray(newUserData.bookmarks)) {
-      console.error(
-        "Bookmarks is not an array. Initializing as an empty array."
-      );
       newUserData.bookmarks = [];
     }
 

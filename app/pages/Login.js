@@ -5,29 +5,28 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Animated, // Import Animated for the fade-in effect
+  Animated,
   StyleSheet,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { login } from "../utils/auth";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
-import { theme } from '../utils/theme'; // Adjust the import path as needed
-import Page1 from '../components/Page1'
-
+import { useFocusEffect } from "@react-navigation/native";
+import { theme } from "../utils/theme";
+import Page1 from "../components/Page1";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
-      fadeAnim.setValue(0); // Reset the opacity to 0
+      fadeAnim.setValue(0);
       Animated.timing(fadeAnim, {
         toValue: 1, // Fade to full opacity
-        duration: 600, // Adjust the duration as needed
+        duration: 600,
         useNativeDriver: true,
       }).start();
     }, [fadeAnim])
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   logo: {
     height: 200,
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginRight: 30,
     paddingLeft: 16,
-    width: 300
+    width: 300,
   },
   button: {
     backgroundColor: theme.colors.selected, // Use the selected color from the theme
@@ -182,6 +181,6 @@ const styles = StyleSheet.create({
     width: "70%",
     backgroundColor: "black", // You can choose any color
     marginVertical: 10, // Spacing above and below the line
-    alignSelf: 'center',
+    alignSelf: "center",
   },
 });

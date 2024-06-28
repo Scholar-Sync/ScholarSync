@@ -6,8 +6,7 @@ export const theme = {
     selected: "#ffb95d",
     highlight: "#f5f1ee",
     text: "#4b4e52",
-    text_b: "white"
-
+    text_b: "white",
   },
   spacing: {
     small: 8,
@@ -20,10 +19,10 @@ export const theme = {
     bold: "Roboto-Bold",
   },
   container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-    },
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 };
 
 export const darkTheme = {
@@ -38,4 +37,5 @@ export const darkTheme = {
     highlight: "white",
     text: "gray",
   },
+  isDark: true,
 };

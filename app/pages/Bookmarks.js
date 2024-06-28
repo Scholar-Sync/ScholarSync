@@ -14,7 +14,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
-import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
+import { useTheme } from "../utils/ThemeProvider";
 import StyledButton2 from "../components/StyledButton2";
 import { theme } from "../utils/theme";
 

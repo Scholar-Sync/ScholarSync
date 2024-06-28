@@ -242,8 +242,12 @@ const SettingsScreen = ({ userMetadata }) => {
                   </Text>
                   <Switch
                     style={styles.toggleSwitch}
-                    value={theme.dark}
+                    value={theme.isDark}
                     onValueChange={toggleTheme}
+                    trackColor={{
+                      false: theme.colors.selected,
+                      true: theme.colors.selected,
+                    }}
                   />
                 </View>
                 <View style={styles.toggleContainer}>
@@ -256,6 +260,10 @@ const SettingsScreen = ({ userMetadata }) => {
                     style={styles.toggleSwitch}
                     value={isPrivateMode}
                     onValueChange={togglePrivateMode}
+                    trackColor={{
+                      false: theme.colors.selected,
+                      true: theme.colors.selected,
+                    }}
                   />
                 </View>
                 <Text
@@ -284,8 +292,8 @@ const SettingsScreen = ({ userMetadata }) => {
                   <MaterialIcons
                     name="exit-to-app"
                     size={24}
-                    color="#000"
                     style={styles.iconStyle}
+                    color={theme.colors.selected}
                   />
                   <TouchableOpacity
                     style={styles.logoutButton}
