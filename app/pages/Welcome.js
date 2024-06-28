@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Text, View, StyleSheet, Image, Animated } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import StyledButton from "../components/StyledButton"; // Adjust the import path as needed
-import { theme } from "../utils/theme"; // Adjust the import path as needed
+import StyledButton from "../components/StyledButton";
+import { theme } from "../utils/theme";
 import Page1 from "../components/Page1";
 
 const quotes = [
@@ -76,7 +76,7 @@ export default function WelcomeScreen() {
   const navigation = useNavigation();
   const [quote, setQuote] = useState({ text: "", author: "" });
   const [isQuoteUpdated, setIsQuoteUpdated] = useState(false);
-  const opacity = useRef(new Animated.Value(0)).current; // Use for quote animation
+  const opacity = useRef(new Animated.Value(0)).current;
   const pageOpacity = useRef(new Animated.Value(1)).current; // Initialized to 1 for initial fade-in
 
   useEffect(() => {
@@ -116,15 +116,13 @@ export default function WelcomeScreen() {
   useFocusEffect(
     React.useCallback(() => {
       // Reset and fade in page every time it gains focus
-      pageOpacity.setValue(0); // Reset opacity to 0 for fade in
+      pageOpacity.setValue(0); //
       Animated.timing(pageOpacity, {
         toValue: 1,
         duration: 600,
         useNativeDriver: true,
       }).start();
 
-      // Optional: Clean-up function if you want to fade out when leaving the page
-      // Note: This might not be visible depending on navigation animation
       return () => {
         Animated.timing(pageOpacity, {
           toValue: 0,
@@ -214,7 +212,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: theme.colors.selected,
     fontWeight: "bold",
-
   },
   authorText: {
     fontSize: 10,

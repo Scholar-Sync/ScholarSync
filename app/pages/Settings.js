@@ -19,7 +19,7 @@ import emailjs from "@emailjs/browser";
 import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { theme } from "../utils/theme"; // Adjust the import path as needed
+import { theme } from "../utils/theme";
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider";
 

@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Animated
+  Animated,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -13,7 +13,7 @@ import { StyleSheet } from "react-native";
 import { signup } from "../utils/auth";
 import { db } from "../firebase/config";
 import { doc, setDoc, collection } from "firebase/firestore";
-import { theme } from '../utils/theme'; // Adjust the import path as needed
+import { theme } from "../utils/theme";
 
 const DEFAULT_USER_DATA = {
   uid: "",
@@ -55,23 +55,21 @@ export default function RegistrationScreen({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
-      // Reset the animation state to 0
       fadeAnim.setValue(0);
 
       // Start the fade-in animation
       Animated.timing(fadeAnim, {
         toValue: 1, // Fade to full opacity
         duration: 600, // Duration of the animation
-        useNativeDriver: true, // Use native driver for better performance
+        useNativeDriver: true,
       }).start();
-    }, [fadeAnim]) // Add fadeAnim to the dependency array
+    }, [fadeAnim])
   );
 
-  // Handle navigation to login screen
   const goToLoginScreen = () => {
     navigation.navigate("LoginScreen");
   };

@@ -1,6 +1,6 @@
-;import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import {  Platform, UIManager } from "react-native";
+import { Platform, UIManager } from "react-native";
 import Loading from "./components/Loading";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/config";
@@ -10,14 +10,16 @@ import { ThemeProvider } from "./utils/ThemeProvider";
 import { theme } from "./utils/theme";
 
 const App = () => {
-  const [initializing, setInitializing] = useState(true);
-  const [userMetadata, setUserMetadata] = useState(null);
+  //Defines the main application component
+  const [initializing, setInitializing] = useState(true); // Manages the state indicating whether the app is still initializing.
+  const [userMetadata, setUserMetadata] = useState(null); // Manages the state for storing user metadata3
+
   if (
     Platform.OS === "android" &&
     UIManager.setLayoutAnimationEnabledExperimental
   ) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
+  } // allowslayout animation on Android devices
 
   //user logging in or signing up
   const onAuthStateChangedHandler = (user) => {
@@ -53,5 +55,4 @@ const App = () => {
   );
 };
 
-
-export default App
+export default App;

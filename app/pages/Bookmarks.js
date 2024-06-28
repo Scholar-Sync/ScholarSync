@@ -16,7 +16,7 @@ import { db } from "../firebase/config";
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider"; // Adjust the import path as needed
 import StyledButton2 from "../components/StyledButton2";
-import { theme } from "../utils/theme"; // Adjust the import path as needed
+import { theme } from "../utils/theme";
 
 const UserCard = ({ user, handleSaveToBookmark, handleRemoveBookmark }) => {
   const { theme } = useTheme(); // Use theme context
@@ -94,7 +94,7 @@ const BookmarksScreen = ({ userMetadata }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [userData, setUserData] = useState(null);
   const [refresh, setRefresh] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for fade-in effect
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
@@ -105,9 +105,9 @@ const BookmarksScreen = ({ userMetadata }) => {
       Animated.timing(fadeAnim, {
         toValue: 1, // Fade to full opacity
         duration: 600, // Duration of the animation
-        useNativeDriver: true, // Use native driver for better performance
+        useNativeDriver: true,
       }).start();
-    }, [fadeAnim]) // Add fadeAnim to the dependency array
+    }, [fadeAnim])
   );
 
   const handleRemoveBookmark = async (newBookmarkUID) => {
@@ -136,7 +136,7 @@ const BookmarksScreen = ({ userMetadata }) => {
         return;
       }
 
-      const uid = userMetadata.uid; // Assuming uid is always defined in userMetadata
+      const uid = userMetadata.uid;
       const docRef = doc(db, "users", uid);
 
       getDoc(docRef)
