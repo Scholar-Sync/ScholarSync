@@ -71,7 +71,7 @@ export default function RegistrationScreen({ navigation }) {
   );
 
   const goToLoginScreen = () => {
-    navigation.navigate("LoginScreen");
+    navigation.navigate("Login");
   };
 
   const createNewUserInDatabase = async (uid) => {
