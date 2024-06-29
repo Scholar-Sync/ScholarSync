@@ -23,14 +23,19 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.20",
     "base-64": "^1.0.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "expo": "~51.0.14",
     "expo-file-system": "^17.0.1",
     "expo-image-picker": "~15.0.5",
+    "expo-mail-composer": "~13.0.1",
     "expo-status-bar": "~1.12.1",
+    "express": "^4.19.2",
     "firebase": "^10.8.0",
     "hermes-engine": "^0.11.0",
     "npm-check-updates": "^16.14.20",
     "npx": "^10.2.2",
+    "openai": "^4.52.2",
     "pdf-lib": "^1.17.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -49,8 +54,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.0.3",
     "react-native-view-shot": "^3.8.0",
-    "react-native-web": "~0.19.6",
-    "expo-mail-composer": "~13.0.1"
+    "react-native-web": "~0.19.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
