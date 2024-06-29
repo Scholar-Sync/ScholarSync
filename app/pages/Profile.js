@@ -22,7 +22,11 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTheme } from "../utils/ThemeProvider";
-import PDF from "react-native-html-to-pdf";
+import { captureRef } from "react-native-view-shot";
+import * as FileSystem from "expo-file-system";
+import { PDFDocument, rgb } from "pdf-lib";
+import { sendEmail } from "../utils/emailjs";
+import base64 from "base-64";
 
 const EditableBox = ({ label, category, data, updateUserData }) => {
   const [items, setItems] = useState(Array.isArray(data) ? data : []);
@@ -216,7 +220,10 @@ const ProfileScreen = ({ userMetadata }) => {
   const [isAgeEditable, setIsAgeEditable] = useState(false);
   const [isPhoneNumberEditable, setIsPhoneNumberEditable] = useState(false);
   const [isInterestsEditable, setIsInterestsEditable] = useState(false);
-
+  const [contentHeight, setContentHeight] = useState(0);
+  const contentViewRef = useRef(null);
+  const scrollViewRef = useRef();
+  const [status, setStatus] = useState("");
   useFocusEffect(
     useCallback(() => {
       fadeAnim.setValue(0);
@@ -440,7 +447,80 @@ const ProfileScreen = ({ userMetadata }) => {
       console.error("PDF Error:", error);
     }
   };
+  const captureAndSendEmail = async () => {
+    try {
+      // Capture the view as an image
+      const uri = await captureRef(contentViewRef.current, {
+        format: "jpg",
+        quality: 0.8,
+        height: contentHeight,
+      });
 
+      // Read the image file directly into a base64 string
+      const imageBytes = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      console.log(`Captured image size: ${imageBytes.length / 1024} KB`);
+
+      // Create a PDF doc
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([612, 792]);
+
+      // Embed the JPEG image bytes into the PDF
+      const jpgImage = await pdfDoc.embedJpg(imageBytes);
+      const { width, height } = jpgImage.scale(0.4);
+      console.log(`Image dimensions: ${width}x${height}`);
+
+      // Draw the image onto the page
+      page.drawImage(jpgImage, {
+        x: (page.getWidth() - width) / 2, // center
+        y: page.getHeight() - height, // start at top
+        width: width,
+        height: height,
+      });
+      console.log("PDF created");
+
+      // Serialize the document to uint8 array
+      const pdfBytes = await pdfDoc.save();
+      const pdfBase64 = base64.encode(
+        String.fromCharCode(...new Uint8Array(pdfBytes))
+      );
+      console.log(`Serialized PDF size: ${pdfBase64.length / 1024} KB`);
+
+      // email to emailjs
+      const templateParams = {
+        to_name: "scholarsyncrra@gmail.com",
+        to_email: "scholarsyncrra@gmail.com",
+        from_name: "scholar sync app",
+        message: "Please find the attached PDF.",
+        variable_tsuwrcg: pdfBase64,
+      };
+
+      sendEmail(
+        "service_r9nrk6w",
+        "template_bpf39fc",
+        templateParams,
+        "2OfAIsT81cPeFczkl"
+      ).then(
+        (response) => {
+          setStatus("PDF Sent Successfully");
+          console.log("SUCCESS!", response.status, response.text);
+          setTimeout(() => {
+            setStatus("");
+          }, 3000);
+        },
+        (error) => {
+          setStatus("Failed to send the PDF. Please try again.");
+          console.log("FAILED...", error);
+          setTimeout(() => {
+            setStatus("");
+          }, 3000);
+        }
+      );
+    } catch (error) {
+      console.error("Error creating or sending PDF: ", error);
+    }
+  };
   return (
     <Animated.View
       style={{
@@ -453,211 +533,233 @@ const ProfileScreen = ({ userMetadata }) => {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : null}
       >
-        <ScrollView style={{ flex: 1 }}>
-          <View
-            style={[
-              styles.coverContainer,
-              { backgroundColor: theme.colors.selected },
-            ]}
-          />
-          <View
-            style={[
-              styles.headerContainer,
-              { backgroundColor: theme.colors.background_b },
-            ]}
-          >
-            <TouchableOpacity onPress={pickImage}>
-              <Image
-                source={
-                  profileImage
-                    ? { uri: profileImage }
-                    : require("../assets/pfp1.png")
-                }
-                style={styles.profileImage}
-              />
-            </TouchableOpacity>
-            <View style={styles.profileInfoContainer}>
-              {isNameEditable ? (
-                <TextInput
-                  style={[styles.userName, { color: theme.colors.text }]}
-                  value={name}
-                  onChangeText={setName}
-                  onBlur={handleSaveName}
-                  autoFocus
+        <ScrollView
+          style={{ flex: 1 }}
+          ref={scrollViewRef}
+          onContentSizeChange={(contentWidth, contentHeight) => {
+            setContentHeight(contentHeight);
+          }}
+        >
+          <View ref={contentViewRef}>
+            <View
+              style={[
+                styles.coverContainer,
+                { backgroundColor: theme.colors.selected },
+              ]}
+            />
+            <View
+              style={[
+                styles.headerContainer,
+                { backgroundColor: theme.colors.background_b },
+              ]}
+            >
+              <TouchableOpacity onPress={pickImage}>
+                <Image
+                  source={
+                    profileImage
+                      ? { uri: profileImage }
+                      : require("../assets/pfp1.png")
+                  }
+                  style={styles.profileImage}
                 />
-              ) : (
-                <TouchableOpacity onPress={() => setIsNameEditable(true)}>
-                  <Text style={[styles.userName, { color: theme.colors.text }]}>
-                    {name}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              {isTitleEditable ? (
-                <TextInput
-                  style={[styles.userTitle, { color: theme.colors.text }]}
-                  value={title}
-                  onChangeText={setTitle}
-                  onBlur={handleSaveTitle}
-                  autoFocus
-                />
-              ) : (
-                <TouchableOpacity onPress={() => setIsTitleEditable(true)}>
-                  <Text
+              </TouchableOpacity>
+              <View style={styles.profileInfoContainer}>
+                {isNameEditable ? (
+                  <TextInput
+                    style={[styles.userName, { color: theme.colors.text }]}
+                    value={name}
+                    onChangeText={setName}
+                    onBlur={handleSaveName}
+                    autoFocus
+                  />
+                ) : (
+                  <TouchableOpacity onPress={() => setIsNameEditable(true)}>
+                    <Text
+                      style={[styles.userName, { color: theme.colors.text }]}
+                    >
+                      {name}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {isTitleEditable ? (
+                  <TextInput
                     style={[styles.userTitle, { color: theme.colors.text }]}
-                  >
-                    {title}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              {uploading && (
-                <Text style={{ color: theme.colors.text }}>Uploading...</Text>
-              )}
-            </View>
-            <View style={styles.additionalInfoContainer}>
-              {isAgeEditable ? (
-                <TextInput
-                  style={[styles.additionalInfo, { color: theme.colors.text }]}
-                  value={age}
-                  onChangeText={setAge}
-                  onBlur={handleSaveAge}
-                  keyboardType="numeric"
-                  autoFocus
-                />
-              ) : (
-                <TouchableOpacity onPress={() => setIsAgeEditable(true)}>
-                  <Text
+                    value={title}
+                    onChangeText={setTitle}
+                    onBlur={handleSaveTitle}
+                    autoFocus
+                  />
+                ) : (
+                  <TouchableOpacity onPress={() => setIsTitleEditable(true)}>
+                    <Text
+                      style={[styles.userTitle, { color: theme.colors.text }]}
+                    >
+                      {title}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {uploading && (
+                  <Text style={{ color: theme.colors.text }}>Uploading...</Text>
+                )}
+              </View>
+              <View style={styles.additionalInfoContainer}>
+                {isAgeEditable ? (
+                  <TextInput
                     style={[
                       styles.additionalInfo,
                       { color: theme.colors.text },
                     ]}
-                  >
-                    Email: {age}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              {isPhoneNumberEditable ? (
-                <TextInput
-                  style={[styles.additionalInfo, { color: theme.colors.text }]}
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  onBlur={handleSavePhoneNumber}
-                  keyboardType="phone-pad"
-                  autoFocus
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={() => setIsPhoneNumberEditable(true)}
-                >
-                  <Text
+                    value={age}
+                    onChangeText={setAge}
+                    onBlur={handleSaveAge}
+                    keyboardType="numeric"
+                    autoFocus
+                  />
+                ) : (
+                  <TouchableOpacity onPress={() => setIsAgeEditable(true)}>
+                    <Text
+                      style={[
+                        styles.additionalInfo,
+                        { color: theme.colors.text },
+                      ]}
+                    >
+                      Email: {age}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {isPhoneNumberEditable ? (
+                  <TextInput
                     style={[
                       styles.additionalInfo,
                       { color: theme.colors.text },
                     ]}
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    onBlur={handleSavePhoneNumber}
+                    keyboardType="phone-pad"
+                    autoFocus
+                  />
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => setIsPhoneNumberEditable(true)}
                   >
-                    Phone: {phoneNumber}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
-          {sections.map((section, index) => (
-            <View key={index} style={styles.sectionWrapper}>
-              <View
-                style={[
-                  styles.sectionContainer,
-                  { backgroundColor: theme.colors.background_b },
-                ]}
-              >
-                <TouchableOpacity
-                  onPress={() => removeSection(index)}
-                  style={styles.trashButton}
-                >
-                  <Icon name="delete" size={20} color="#BDBDBD" />
-                </TouchableOpacity>
-
-                <EditableBox
-                  label={`Add ${section}`}
-                  category={section.toLowerCase()}
-                  data={userData?.[section.toLowerCase()] || []}
-                  updateUserData={updateUserData}
-                />
+                    <Text
+                      style={[
+                        styles.additionalInfo,
+                        { color: theme.colors.text },
+                      ]}
+                    >
+                      Phone: {phoneNumber}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
-          ))}
 
-          <TouchableOpacity
-            onPress={addSection}
-            style={[
-              styles.addSectionButton,
-              { backgroundColor: theme.colors.primary },
-            ]}
-          >
-            <Text
+            {sections.map((section, index) => (
+              <View key={index} style={styles.sectionWrapper}>
+                <View
+                  style={[
+                    styles.sectionContainer,
+                    { backgroundColor: theme.colors.background_b },
+                  ]}
+                >
+                  <TouchableOpacity
+                    onPress={() => removeSection(index)}
+                    style={styles.trashButton}
+                  >
+                    <Icon name="delete" size={20} color="#BDBDBD" />
+                  </TouchableOpacity>
+
+                  <EditableBox
+                    label={`Add ${section}`}
+                    category={section.toLowerCase()}
+                    data={userData?.[section.toLowerCase()] || []}
+                    updateUserData={updateUserData}
+                  />
+                </View>
+              </View>
+            ))}
+
+            <TouchableOpacity
+              onPress={addSection}
               style={[
-                styles.addSectionButtonText,
-                { color: theme.colors.text_b },
+                styles.addSectionButton,
+                { backgroundColor: theme.colors.primary },
               ]}
             >
-              + Add New Section
+              <Text
+                style={[
+                  styles.addSectionButtonText,
+                  { color: theme.colors.text_b },
+                ]}
+              >
+                + Add New Section
+              </Text>
+            </TouchableOpacity>
+
+            <View
+              style={[
+                styles.socialButtonsContainer,
+                { backgroundColor: theme.colors.background },
+              ]}
+            >
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.socialButton,
+                  { backgroundColor: " theme.colors.primary" },
+                ]}
+                onPress={() => shareToSocial("reddit")}
+              >
+                <Image
+                  source={require("../assets/redditlogo.png")}
+                  style={styles.buttonIcon}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.socialButton,
+                  { backgroundColor: theme.colors.primary },
+                ]}
+                onPress={() => shareToSocial("instagram")}
+              >
+                <Image
+                  source={require("../assets/instagram.png")}
+                  style={styles.instagramButtonIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={[
+                  styles.socialButton,
+                  { backgroundColor: theme.colors.primary },
+                ]}
+                onPress={() => shareToSocial("twitter")}
+              >
+                <Image
+                  source={require("../assets/twitterlogo.png")}
+                  style={styles.buttonIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.socialButton,
+                  { backgroundColor: "transparent" },
+                ]}
+                onPress={captureAndSendEmail}
+              >
+                <Image
+                  source={require("../assets/gmail.webp")}
+                  style={styles.pdfIcon}
+                />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ textAlign: "center", color: "green" }}>
+              {status}
             </Text>
-          </TouchableOpacity>
-
-          <View
-            style={[
-              styles.socialButtonsContainer,
-              { backgroundColor: theme.colors.background },
-            ]}
-          >
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: " theme.colors.primary" },
-              ]}
-              onPress={() => shareToSocial("reddit")}
-            >
-              <Image
-                source={require("../assets/redditlogo.png")}
-                style={styles.buttonIcon}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
-              onPress={() => shareToSocial("instagram")}
-            >
-              <Image
-                source={require("../assets/instagram.png")}
-                style={styles.instagramButtonIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[
-                styles.socialButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
-              onPress={() => shareToSocial("twitter")}
-            >
-              <Image
-                source={require("../assets/twitterlogo.png")}
-                style={styles.buttonIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.socialButton, { backgroundColor: "transparent" }]}
-              onPress={createPDF}
-            >
-              <Image
-                source={require("../assets/gmail.webp")}
-                style={styles.pdfIcon}
-              />
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
