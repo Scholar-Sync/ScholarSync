@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import { db } from "../firebase/config";
 import { useTheme } from "../utils/ThemeProvider";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import PDF from "react-native-html-to-pdf";
 
 const UserProfileScreen = ({ route }) => {
   const { userId } = route.params;
@@ -49,21 +48,6 @@ const UserProfileScreen = ({ route }) => {
       useNativeDriver: true,
     }).start();
   }, [userId]);
-  console.log(PDF);
-  const createPDF = async () => {
-    let options = {
-      html: `<h1>User Profile</h1><p>Name: ${userData?.basic?.firstName}</p>`, // Customize your HTML content
-      fileName: "UserProfile",
-      directory: "Documents",
-    };
-
-    try {
-      const file = await PDF.create(options);
-      Alert.alert("PDF Generated", `Find PDF at ${file.filePath}`);
-    } catch (error) {
-      console.error("PDF Error:", error);
-    }
-  };
 
   if (!userData) {
     return (
@@ -197,9 +181,6 @@ const UserProfileScreen = ({ route }) => {
           userData.academics?.custom || userData.academics
         )}
       </ScrollView>
-      <TouchableOpacity style={styles.downloadButton} onPress={createPDF}>
-        <Text style={styles.downloadButtonText}>Download PDF</Text>
-      </TouchableOpacity>
     </Animated.View>
   );
 };

@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Animated,
   Linking,
+  Button,
   Alert,
   Image,
 } from "react-native";
@@ -21,19 +22,21 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTheme } from "../utils/ThemeProvider";
+import PDF from "react-native-html-to-pdf";
 
 const EditableBox = ({ label, category, data, updateUserData }) => {
   const [items, setItems] = useState(Array.isArray(data) ? data : []);
   const [dropdownIndex, setDropdownIndex] = useState(null);
+  const [newItemText, setNewItemText] = useState("");
   const { theme } = useTheme();
 
   useEffect(() => {
-    console.log('EditableBox data updated:', data);
+    console.log("EditableBox data updated:", data);
     setItems(Array.isArray(data) ? data : []);
   }, [data]);
 
   const handleSave = (index, text) => {
-    console.log('Saving item at index:', index, 'with text:', text);
+    console.log("Saving item at index:", index, "with text:", text);
     const updatedItems = items.map((item, i) =>
       i === index ? { text, isEditable: false } : item
     );
@@ -42,7 +45,7 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
   };
 
   const handleEdit = (index) => {
-    console.log('Editing item at index:', index);
+    console.log("Editing item at index:", index);
     const updatedItems = items.map((item, i) =>
       i === index ? { ...item, isEditable: !item.isEditable } : item
     );
@@ -51,43 +54,38 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
   };
 
   const handleRemove = (index) => {
-    console.log('Removing item at index:', index);
+    console.log("Removing item at index:", index);
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
     updateUserData(category, updatedItems);
   };
 
   const addItem = () => {
-    Alert.prompt(
-      "New Item",
-      "Enter the text for the new item:",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "OK",
-          onPress: (newItemText) => {
-            if (newItemText) {
-              console.log('Adding new item with text:', newItemText);
-              const updatedItems = [
-                ...items,
-                { text: newItemText, isEditable: false },
-              ];
-              setItems(updatedItems);
-              updateUserData(category, updatedItems);
-            }
-          },
-        },
-      ],
-      "plain-text"
-    );
+    console.log("Adding new item");
+    const updatedItems = [...items, { text: newItemText, isEditable: true }];
+    setItems(updatedItems);
+    setNewItemText("");
+  };
+
+  const handleNewItemSave = (text) => {
+    if (text) {
+      const updatedItems = [...items, { text, isEditable: false }];
+      setItems(updatedItems);
+      updateUserData(category, updatedItems);
+    }
+    setNewItemText("");
   };
 
   return (
-    <View style={[styles.editableBox, { backgroundColor: theme.colors.background_b }]}>
-      <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>{label}</Text>
+    <View
+      style={[
+        styles.editableBox,
+        { backgroundColor: theme.colors.background_b },
+      ]}
+    >
+      <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>
+        {label}
+      </Text>
       {items.map((item, index) => (
         <View key={index} style={styles.itemContainer}>
           {item.isEditable ? (
@@ -111,48 +109,98 @@ const EditableBox = ({ label, category, data, updateUserData }) => {
               multiline
             />
           ) : (
-            <Text style={[styles.itemText, { color: theme.colors.text }]}>{item.text}</Text>
+            <Text style={[styles.itemText, { color: theme.colors.text }]}>
+              {item.text}
+            </Text>
           )}
           <TouchableOpacity
-            onPress={() => setDropdownIndex(dropdownIndex === index ? null : index)}
+            onPress={() =>
+              setDropdownIndex(dropdownIndex === index ? null : index)
+            }
             style={styles.moreButton}
           >
             <Icon name="more-vert" size={20} color={theme.colors.icon} />
           </TouchableOpacity>
           {dropdownIndex === index && (
-            <View style={[styles.dropdownMenu, { backgroundColor: theme.colors.selected }]}>
+            <View
+              style={[
+                styles.dropdownMenu,
+                { backgroundColor: theme.colors.selected },
+              ]}
+            >
               {item.isEditable ? (
-                <TouchableOpacity onPress={() => handleSave(index, item.text)} style={styles.dropdownItem}>
-                  <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Save</Text>
+                <TouchableOpacity
+                  onPress={() => handleSave(index, item.text)}
+                  style={styles.dropdownItem}
+                >
+                  <Text
+                    style={[
+                      styles.dropdownItemText,
+                      { color: theme.colors.text },
+                    ]}
+                  >
+                    Save
+                  </Text>
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity onPress={() => handleEdit(index)} style={styles.dropdownItem}>
-                  <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Edit</Text>
+                <TouchableOpacity
+                  onPress={() => handleEdit(index)}
+                  style={styles.dropdownItem}
+                >
+                  <Text
+                    style={[
+                      styles.dropdownItemText,
+                      { color: theme.colors.text },
+                    ]}
+                  >
+                    Edit
+                  </Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity onPress={() => handleRemove(index)} style={styles.dropdownItem}>
-                <Text style={[styles.dropdownItemText, { color: theme.colors.text }]}>Remove</Text>
+              <TouchableOpacity
+                onPress={() => handleRemove(index)}
+                style={styles.dropdownItem}
+              >
+                <Text
+                  style={[
+                    styles.dropdownItemText,
+                    { color: theme.colors.text },
+                  ]}
+                >
+                  Remove
+                </Text>
               </TouchableOpacity>
             </View>
           )}
         </View>
       ))}
-      <TouchableOpacity style={styles.addItemButton} onPress={addItem}>
-        <Icon name="add" size={20} color={theme.colors.icon} />
-        <Text style={[styles.addItemButtonText, { color: theme.colors.text }]}>Add New Item</Text>
-      </TouchableOpacity>
+      <TextInput
+        style={[
+          styles.newItemTextInput,
+          {
+            color: theme.colors.text,
+            borderBottomColor: theme.colors.primary,
+          },
+        ]}
+        placeholder="Add new item..."
+        placeholderTextColor={theme.colors.placeholder}
+        value={newItemText}
+        onChangeText={setNewItemText}
+        onBlur={() => handleNewItemSave(newItemText)}
+      />
     </View>
   );
 };
-
-
-
 
 const ProfileScreen = ({ userMetadata }) => {
   const layout = useWindowDimensions();
   const [userData, setUserData] = useState({});
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [sections, setSections] = useState(["Achievements", "Extracurricular", "Academics"]);
+  const [sections, setSections] = useState([
+    "Achievements",
+    "Extracurricular",
+    "Academics",
+  ]);
   const [profileImage, setProfileImage] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -190,7 +238,7 @@ const ProfileScreen = ({ userMetadata }) => {
       .then((docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          console.log('Retrieved user data:', data);
+          console.log("Retrieved user data:", data);
           setUserData(data);
           if (data.profileImage) {
             setProfileImage(data.profileImage);
@@ -203,7 +251,7 @@ const ProfileScreen = ({ userMetadata }) => {
             setInterests(data.basic.interests || "");
           }
         } else {
-          console.log('No user data found');
+          console.log("No user data found");
           setUserData({});
         }
       })
@@ -250,7 +298,9 @@ const ProfileScreen = ({ userMetadata }) => {
 
     Linking.openURL(url)
       .then(() => {
-        alert(`${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`);
+        alert(
+          `${socialType.charAt(0).toUpperCase() + socialType.slice(1)} Opened`
+        );
       })
       .catch(() => {});
   };
@@ -282,7 +332,8 @@ const ProfileScreen = ({ userMetadata }) => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
           "Permission Denied",
@@ -334,7 +385,10 @@ const ProfileScreen = ({ userMetadata }) => {
           .catch((error) => {
             console.error("Error getting download URL:", error);
             setUploading(false);
-            Alert.alert("Error", "Failed to update profile picture. Please try again.");
+            Alert.alert(
+              "Error",
+              "Failed to update profile picture. Please try again."
+            );
           });
       })
       .catch((error) => {
@@ -369,13 +423,49 @@ const ProfileScreen = ({ userMetadata }) => {
     setIsInterestsEditable(false);
   };
 
+  const createPDF = async () => {
+    if (!PDF || !PDF.create) {
+      console.error("PDF or PDF.create is not available");
+      return;
+    }
+    try {
+      let options = {
+        html: `<h1>User Profile</h1><p>Name: ${userData?.basic?.firstName}</p>`,
+        fileName: "UserProfile",
+        directory: "Documents",
+      };
+      const file = await PDF.create(options);
+      Alert.alert("PDF Generated", `Find PDF at ${file.filePath}`);
+    } catch (error) {
+      console.error("PDF Error:", error);
+    }
+  };
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: theme.colors.background }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : null}>
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: fadeAnim,
+        backgroundColor: theme.colors.background,
+      }}
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : null}
+      >
         <ScrollView style={{ flex: 1 }}>
-          <View style={[styles.coverContainer, { backgroundColor: theme.colors.selected }]} />
-          <View style={[styles.headerContainer, { backgroundColor: theme.colors.background_b }]}>
+          <View
+            style={[
+              styles.coverContainer,
+              { backgroundColor: theme.colors.selected },
+            ]}
+          />
+          <View
+            style={[
+              styles.headerContainer,
+              { backgroundColor: theme.colors.background_b },
+            ]}
+          >
             <TouchableOpacity onPress={pickImage}>
               <Image
                 source={
@@ -412,12 +502,16 @@ const ProfileScreen = ({ userMetadata }) => {
                 />
               ) : (
                 <TouchableOpacity onPress={() => setIsTitleEditable(true)}>
-                  <Text style={[styles.userTitle, { color: theme.colors.text }]}>
+                  <Text
+                    style={[styles.userTitle, { color: theme.colors.text }]}
+                  >
                     {title}
                   </Text>
                 </TouchableOpacity>
               )}
-              {uploading && <Text style={{ color: theme.colors.text }}>Uploading...</Text>}
+              {uploading && (
+                <Text style={{ color: theme.colors.text }}>Uploading...</Text>
+              )}
             </View>
             <View style={styles.additionalInfoContainer}>
               {isAgeEditable ? (
@@ -431,7 +525,12 @@ const ProfileScreen = ({ userMetadata }) => {
                 />
               ) : (
                 <TouchableOpacity onPress={() => setIsAgeEditable(true)}>
-                  <Text style={[styles.additionalInfo, { color: theme.colors.text }]}>
+                  <Text
+                    style={[
+                      styles.additionalInfo,
+                      { color: theme.colors.text },
+                    ]}
+                  >
                     Email: {age}
                   </Text>
                 </TouchableOpacity>
@@ -446,23 +545,37 @@ const ProfileScreen = ({ userMetadata }) => {
                   autoFocus
                 />
               ) : (
-                <TouchableOpacity onPress={() => setIsPhoneNumberEditable(true)}>
-                  <Text style={[styles.additionalInfo, { color: theme.colors.text }]}>
+                <TouchableOpacity
+                  onPress={() => setIsPhoneNumberEditable(true)}
+                >
+                  <Text
+                    style={[
+                      styles.additionalInfo,
+                      { color: theme.colors.text },
+                    ]}
+                  >
                     Phone: {phoneNumber}
                   </Text>
                 </TouchableOpacity>
               )}
-              
             </View>
           </View>
 
           {sections.map((section, index) => (
             <View key={index} style={styles.sectionWrapper}>
-              <View style={[styles.sectionContainer, { backgroundColor: theme.colors.background_b }]}>
-                  <TouchableOpacity onPress={() => removeSection(index)} style={styles.trashButton}>
-                    <Icon name="delete" size={20} color="#BDBDBD" />
-                  </TouchableOpacity>
-                
+              <View
+                style={[
+                  styles.sectionContainer,
+                  { backgroundColor: theme.colors.background_b },
+                ]}
+              >
+                <TouchableOpacity
+                  onPress={() => removeSection(index)}
+                  style={styles.trashButton}
+                >
+                  <Icon name="delete" size={20} color="#BDBDBD" />
+                </TouchableOpacity>
+
                 <EditableBox
                   label={`Add ${section}`}
                   category={section.toLowerCase()}
@@ -473,33 +586,77 @@ const ProfileScreen = ({ userMetadata }) => {
             </View>
           ))}
 
-          <TouchableOpacity onPress={addSection} style={[styles.addSectionButton, { backgroundColor: theme.colors.primary }]}>
-            <Text style={[styles.addSectionButtonText, { color: theme.colors.text_b }]}>
+          <TouchableOpacity
+            onPress={addSection}
+            style={[
+              styles.addSectionButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
+          >
+            <Text
+              style={[
+                styles.addSectionButtonText,
+                { color: theme.colors.text_b },
+              ]}
+            >
               + Add New Section
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.socialButtonsContainer}>
+          <View
+            style={[
+              styles.socialButtonsContainer,
+              { backgroundColor: theme.colors.background },
+            ]}
+          >
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
-              onPress={() => shareToSocial("twitter")}
-            >
-              <Image source={require("../assets/twitterlogo.png")} style={styles.buttonIcon} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
+              style={[
+                styles.socialButton,
+                { backgroundColor: " theme.colors.primary" },
+              ]}
               onPress={() => shareToSocial("reddit")}
             >
-              <Image source={require("../assets/redditlogo.png")} style={styles.buttonIcon} />
+              <Image
+                source={require("../assets/redditlogo.png")}
+                style={styles.buttonIcon}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={[
+                styles.socialButton,
+                { backgroundColor: theme.colors.primary },
+              ]}
+              onPress={() => shareToSocial("instagram")}
+            >
+              <Image
+                source={require("../assets/instagram.png")}
+                style={styles.instagramButtonIcon}
+              />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[styles.socialButton, { backgroundColor: theme.colors.primary }]}
-              onPress={() => shareToSocial("instagram")}
+              style={[
+                styles.socialButton,
+                { backgroundColor: theme.colors.primary },
+              ]}
+              onPress={() => shareToSocial("twitter")}
             >
-              <Image source={require("../assets/instagram.png")} style={styles.instagramButtonIcon} />
+              <Image
+                source={require("../assets/twitterlogo.png")}
+                style={styles.buttonIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.socialButton, { backgroundColor: "transparent" }]}
+              onPress={createPDF}
+            >
+              <Image
+                source={require("../assets/gmail.webp")}
+                style={styles.pdfIcon}
+              />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -507,6 +664,7 @@ const ProfileScreen = ({ userMetadata }) => {
     </Animated.View>
   );
 };
+
 const styles = StyleSheet.create({
   coverContainer: {
     width: "100%",
@@ -527,7 +685,7 @@ const styles = StyleSheet.create({
   additionalInfoContainer: {
     marginLeft: 20,
     justifyContent: "center",
-    marginTop: 15
+    marginTop: 15,
   },
   profileImage: {
     width: 85,
@@ -535,7 +693,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginTop: -105
+    marginTop: -105,
   },
   userName: {
     fontSize: 17,
@@ -547,7 +705,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#777",
     marginLeft: -95,
-
   },
   additionalInfo: {
     fontSize: 14,
@@ -564,7 +721,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
     marginRight: 10,
-    height: 30
+    height: 30,
   },
   uploadImageButtonText: {
     fontSize: 10,
@@ -610,7 +767,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     marginLeft: 255,
-    marginBottom: -15
+    marginBottom: -15,
   },
   editableBox: {
     marginVertical: 10,
@@ -645,13 +802,18 @@ const styles = StyleSheet.create({
     top: 30,
     right: 5,
     borderRadius: 5,
-    
   },
   dropdownItem: {
     padding: 10,
   },
   dropdownItemText: {
     fontSize: 16,
+  },
+  newItemTextInput: {
+    fontSize: 16,
+    borderBottomWidth: 1,
+    marginTop: 10,
+    padding: 5,
   },
   addItemButton: {
     flexDirection: "row",
@@ -691,33 +853,40 @@ const styles = StyleSheet.create({
   socialButtonsContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 10,
+    marginTop: -35,
+    paddingTop: 70,
     marginBottom: 50,
+    paddingVertical: 10,
   },
   socialButton: {
     flexDirection: "row",
-    borderRadius: 100,
-    height: 45,
-    backgroundColor: 'transparent',
-    width: 45,
+    borderRadius: 25,
+    height: 50,
+    width: 50,
+    backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
-    opacity: 0.9,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
     marginHorizontal: 10,
   },
+  redditIcon: {
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
+  },
   buttonIcon: {
-    width: 150,
-    height: 150,
+    width: 165,
+    height: 165,
     resizeMode: "contain",
   },
   instagramButtonIcon: {
-    width: 77,
-    height: 77,
+    width: 85,
+    height: 85,
     resizeMode: "contain",
+  },
+  pdfIcon: {
+    width: 60,
+    height: 60,
+    marginRight: 0,
   },
 });
 
