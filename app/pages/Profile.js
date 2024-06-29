@@ -28,6 +28,17 @@ import { PDFDocument, rgb } from "pdf-lib";
 import { sendEmail } from "../utils/emailjs";
 import base64 from "base-64";
 
+// Convert Uint8Array to Base64
+const uint8ArrayToBase64 = (uint8Array) => {
+  let binary = "";
+  const len = uint8Array.byteLength;
+  for (let i = 0; i < len; i += 1024) {
+    const chunk = uint8Array.subarray(i, i + 1024);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+};
+
 const EditableBox = ({ label, category, data, updateUserData }) => {
   const [items, setItems] = useState(Array.isArray(data) ? data : []);
   const [dropdownIndex, setDropdownIndex] = useState(null);
@@ -447,6 +458,7 @@ const ProfileScreen = ({ userMetadata }) => {
       console.error("PDF Error:", error);
     }
   };
+
   const captureAndSendEmail = async () => {
     try {
       // Capture the view as an image
@@ -482,12 +494,12 @@ const ProfileScreen = ({ userMetadata }) => {
 
       // Serialize the document to uint8 array
       const pdfBytes = await pdfDoc.save();
-      const pdfBase64 = base64.encode(
-        String.fromCharCode(...new Uint8Array(pdfBytes))
-      );
+
+      // Convert to Base64 using the function
+      const pdfBase64 = uint8ArrayToBase64(pdfBytes);
       console.log(`Serialized PDF size: ${pdfBase64.length / 1024} KB`);
 
-      // email to emailjs
+      // Email to emailjs
       const templateParams = {
         to_name: "scholarsyncrra@gmail.com",
         to_email: "scholarsyncrra@gmail.com",
@@ -521,6 +533,7 @@ const ProfileScreen = ({ userMetadata }) => {
       console.error("Error creating or sending PDF: ", error);
     }
   };
+
   return (
     <Animated.View
       style={{
@@ -909,6 +922,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   dropdownItemText: {
+    fontSize: 16,
+  },
+  newItemTextInput: {
     fontSize: 16,
   },
   newItemTextInput: {
