@@ -22,6 +22,10 @@ First, ensure that you have Node and Expo installed on your computer. The run th
 `npx expo run`<br/><br/>
 And now you have scholar sync running! Follow the instructions in the terminal to run the app on a platform of your choice.
 
+## How to get started
+
+Click the get started button in the home page, once navigated you will be welcomed to your profile page where you can create your profile and resume!
+
 ## Directory Structure
 
 <pre>
