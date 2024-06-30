@@ -23,6 +23,17 @@ import { theme } from "../utils/theme";
 import Page1 from "../components/Page1";
 import { useTheme } from "../utils/ThemeProvider";
 
+// Mocking the location object
+if (typeof window === "undefined") {
+  global.window = {};
+}
+if (typeof location === "undefined") {
+  global.location = {
+    protocol: "https:",
+    host: "localhost",
+  };
+}
+
 const EditableText = ({
   label,
   iconName,
