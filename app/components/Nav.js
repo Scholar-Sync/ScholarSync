@@ -8,7 +8,6 @@ import ProfileScreen from "../pages/Profile";
 import UserProfileScreen from "../pages/UserProfileScreen"; // Import User Profile Screen
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Header from "./Header";
-import ScholarAIScreen from "../pages/ScholarAIScreen"; // Import ScholarAI screen
 
 // Auth pages
 import WelcomeScreen from "../pages/Welcome";
@@ -114,15 +113,6 @@ const DrawerNavigator = ({ userMetadata }) => {
             options={{
               drawerIcon: ({ color, size }) => (
                 <MaterialIcons name="person" size={size} color={color} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="ScholarAI"
-            component={ScholarAIScreen}
-            options={{
-              drawerIcon: ({ color, size }) => (
-                <MaterialIcons name="school" size={size} color={color} />
               ),
             }}
           />
